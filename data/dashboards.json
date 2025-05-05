@@ -1,0 +1,116 @@
+{
+    "name": "Obsolescence Dashboard",
+    "items": [
+      {
+        "id": "def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+        "queryId": "cmcw1zaxw0003p1qk1fo9ss8m",
+        "isEditable": true
+      },
+      {
+        "id": "c797b618-df12-45f7-bbb2-cc6695a48e46",
+        "queryId": "cmcw3crxh0001poqkt5ctjjb0",
+        "isEditable": true
+      },
+      {
+        "id": "073ac9db-c16e-4d04-9f25-6fc01d4ac380",
+        "query_id": "cmcw3etd80002poqk6era3ko9",
+        "isEditable": true
+      },
+      {
+        "id": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+        "queryId": "cmcxgnpq10001wpqk36vpzseb",
+        "isEditable": true
+      },
+      {
+        "id": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+        "queryId": "cmcxhohny0001ykqk3fnzs1qy",
+        "isEditable": true
+      }
+    ],
+    "layouts": {
+      "lg": [
+        {
+          "h": 4,
+          "i": "def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+          "w": 5,
+          "x": 0,
+          "y": 20,
+          "static": false
+        },
+        {
+          "h": 10,
+          "i": "c797b618-df12-45f7-bbb2-cc6695a48e46",
+          "w": 5,
+          "x": 0,
+          "y": 24,
+          "static": false
+        },
+        {
+          "h": 14,
+          "i": "073ac9db-c16e-4d04-9f25-6fc01d4ac380",
+          "w": 7,
+          "x": 5,
+          "y": 12,
+          "static": false
+        },
+        {
+          "h": 10,
+          "i": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+          "w": 5,
+          "x": 0,
+          "y": 10,
+          "static": false
+        },
+        {
+          "h": 12,
+          "i": "1379a764-2543-45fd-a78b-8c5a65827417",
+          "w": 6,
+          "x": 5,
+          "y": 0,
+          "static": false
+        }
+      ],
+      "md": [
+        {
+          "h": 4,
+          "i": "def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+          "w": 1,
+          "x": 0,
+          "y": 10,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "c797b618-df12-45f7-bbb2-cc6695a48e46",
+          "w": 1,
+          "x": 0,
+          "y": 24,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "073ac9db-c16e-4d04-9f25-6fc01d4ac380",
+          "w": 1,
+          "x": 0,
+          "y": 14,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+          "w": 1,
+          "x": 0,
+          "y": 34,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "1379a764-2543-45fd-a78b-8c5a65827417",
+          "w": 5,
+          "x": 0,
+          "y": 9999999,
+          "static": null
+        }
+      ]
+    }
+  }
