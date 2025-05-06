@@ -1,4 +1,4 @@
-#Intropy Back-end Take-Home Task**
+# Intropy Back-end Take-Home Task
 
 Welcome to the Intropy back-end take-home exercise! This project is designed to assess your strengths, coding style, and priorities as a back-end developer. You'll encounter challenges similar to those you’d face day-to-day at Intropy.
 
