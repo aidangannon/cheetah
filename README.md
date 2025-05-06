@@ -89,10 +89,12 @@ The following are different areas / ideas you could choose from to showcase addi
 
 ## 📌 Submission Guidelines
 
-* Share a Git repository link (GitHub, GitLab, etc.) with:
-
-  * Clear README explaining setup & run instructions.
-  * Dockerfile and/or migration scripts (if implemented).
-  * Tests and documentation (if added).
+- Fork this repo and work in your own copy (in private mode).
+- When you're done, invite `ykteh93` as collaborators to your repo so we can review your work.
+- Write a short `DECISIONS.md` or include a section in the `README.md`:
+  - What did you choose to focus on, and why?
+  - What would you do next if you had more time?
+  - Anything you'd like us to know while reviewing your work.
+  - Include a quick [Loom video](https://www.loom.com/) showcasing the solution
 
 We look forward to seeing your implementation and creativity. Good luck!
