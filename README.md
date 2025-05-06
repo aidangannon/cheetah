@@ -4,16 +4,6 @@ Welcome to the Intropy back-end take-home exercise! This project is designed to 
 
 We're an AI company. We encourage the use of AI to take our productivity to the next level and we're always using the latest LLMs models. But equally as important, we encourage building robust and easy to work with software that we as developers can understand. So feel free to use AI and the internet to help you, but don't let AI take the driving seat. You should be able to explain all of the architecture and code implemented. 
 
-We're an AI company. We encourage the use of AI, LLMs and online resources to speed up development and productivity, our aim is for every system we ship to be robust, transparent, maintainable, and well architected. We use AI, but don't let it take the driving seat. At least not yet. We are responsible for the code and architecture we apply!
-
-Articulate the architecture and why you chose it
-
-Read and modify the code without guessing what “that AI thing” did
-
-Own your features end-to-end, from spec to deploy
-
-AI powers our productivity—but human understanding drives our quality.
-
 ---
 
 ## 📦 Project Overview
@@ -84,9 +74,6 @@ The following are different areas / ideas you could choose from to showcase addi
 
 - **Date Filtering**
    • Enable optional `start_date`/`end_date` parameters on metric endpoints.
-
-- **AI-Generated Metrics**
-   • Create an endpoint to mock generating new SQL queries via an LLM interface.
 
 - **Migration Scripts**
    • Provide SQL or ORM-based migration scripts (we use alembic).
