@@ -11,9 +11,9 @@ We're an AI company. We encourage the use of AI to take our productivity to the 
 We provide:
 
 * **Python API** scaffold (we use fastapi).
-* **Data Folder** containing two CSV sample data sets:
+* **Data Folder** containing two sample data sets:
 
-  * **metrics.csv**: Definitions of metrics displayed on our dashboard.
+  * **metrics.json**: Definitions of metrics displayed on our dashboard.
   * **queries.csv**: Stored SQL queries referenced by metrics.
 
 ### Task Context
