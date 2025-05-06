@@ -1,4 +1,4 @@
-# Take-Home Task
+**Intropy Back-end Take-Home Task**
 
 Welcome to the Intropy back-end take-home exercise! This project is designed to assess your strengths, coding style, and priorities as a back-end developer. You'll encounter challenges similar to those you’d face day-to-day at Intropy.
 
@@ -21,7 +21,7 @@ You are building a backend API and database for a metrics dashboard. Each metric
 
 ### Data Relationships
 
-Each metric in `metrics.csv` references a `query_id` in `queries.csv`. Your API should:
+Each metric in `metrics.json` references a `query_id` in `queries.csv`. Your API should:
 
 1. Load metrics definitions.
 2. Look up the corresponding SQL query string in `queries`.
@@ -89,12 +89,10 @@ The following are different areas / ideas you could choose from to showcase addi
 
 ## 📌 Submission Guidelines
 
-- Fork this repo and work in your own copy (in private mode).
-- When you're done, invite `ykteh93` as collaborators to your repo so we can review your work.
-- Write a short `DECISIONS.md` or include a section in the `README.md`:
-  - What did you choose to focus on, and why?
-  - What would you do next if you had more time?
-  - Anything you'd like us to know while reviewing your work.
-  - Include a quick [Loom video](https://www.loom.com/) showcasing the solution
+* Share a Git repository link (GitHub, GitLab, etc.) with:
+
+  * Clear README explaining setup & run instructions.
+  * Dockerfile and/or migration scripts (if implemented).
+  * Tests and documentation (if added).
 
 We look forward to seeing your implementation and creativity. Good luck!
