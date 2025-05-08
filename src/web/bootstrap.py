@@ -4,7 +4,7 @@ from typing import Callable
 
 import structlog
 from fastapi import FastAPI
-from punq import Container
+from punq import Container, Scope
 
 from src.crosscutting import Logger, ServiceProvider
 from src.web.routes import router
@@ -27,7 +27,7 @@ def add_routing(app: FastAPI, container: Container):
     app.include_router(router=router)
 
 def add_logging(container: Container):
-    container.register(Logger, factory=structlog.getLogger)
+    container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,
