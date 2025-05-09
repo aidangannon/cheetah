@@ -46,7 +46,7 @@ class FastApiScenarioRunner:
         self.test_logger = TestLogger()
         self.failures = []
         app = FastAPI()
-        settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+        settings = Settings(DATABASE_URL="sqlite+aiosqlite:///:memory:")
 
         def override_deps(populated_container: Container):
             populated_container.register(Logger, instance=self.test_logger)

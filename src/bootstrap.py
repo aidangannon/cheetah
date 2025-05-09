@@ -33,7 +33,7 @@ def add_database(container: Container):
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
 
 def add_configuration(container: Container):
-    container.register(Settings, scope=Scope.singleton)
+    container.register(Settings, intance=Settings(), scope=Scope.singleton)
 
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)

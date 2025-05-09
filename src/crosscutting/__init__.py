@@ -33,6 +33,7 @@ def get_service(service_type: Callable[..., T]) -> Callable[[Request], T]:
     gets a type from the service registry
     """
     def _get(request: Request) -> T:
+        print(service_type)
         services = request.app.state.services
         return services[service_type]
     return _get

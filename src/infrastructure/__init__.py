@@ -1,5 +1,7 @@
+import os
 from typing import TypeVar, Type
 
+from pydantic import Field
 from pydantic.v1 import BaseSettings
 from pydantic_settings import SettingsConfigDict
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -20,7 +22,7 @@ T = TypeVar("T")
 
 
 class Settings(BaseSettings):
-    database_url: str
+    DATABASE_URL: str
 
     model_config = SettingsConfigDict(
         env_file=".env.local",
@@ -31,7 +33,7 @@ class SqlAlchemyUnitOfWork:
 
     def __init__(self, settings: Settings):
         engine = create_async_engine(
-            settings.database_url,
+            settings.DATABASE_URL,
             echo=False,
             future=True,
         )
