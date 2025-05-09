@@ -14,7 +14,18 @@ class HealthCheckScenario:
 
     @step
     def when_the_get_health_endpoint_is_called(self):
-        self.runner.client.get("/health")
+        self.response = self.runner.client.get("/health")
+        return self
+
+    @step
+    def then_the_status_code_should_be_ok(self):
+        assert self.response.status_code == 200
+        return self
+
+    @step
+    def then_the_response_should_be_healthy(self):
+        response_body = self.response.json()
+        assert response_body == {"application": True, "database": True}, f"actual - {response_body}"
         return self
 
     @step

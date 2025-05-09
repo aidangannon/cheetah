@@ -6,7 +6,7 @@ router = APIRouter()
 
 async def get_health(logger = Depends(get_service(Logger))):
     with logging_scope(operation=get_health.__name__):
-        logger.info("Endpoint called", fay=2)
-        return {"status": "running"}
+        logger.info("Endpoint called")
+        return {"application": True, "database": False}
 
 router.add_api_route(path="/health", methods=["GET"], endpoint=get_health)

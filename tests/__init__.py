@@ -8,6 +8,7 @@ from structlog.contextvars import get_contextvars
 
 from src.crosscutting import Logger
 from src.bootstrap import bootstrap
+from src.infrastructure import Settings
 
 
 def step(func):
@@ -20,10 +21,10 @@ def step(func):
             return func(self, *args, **kwargs)
         except AssertionError as e:
             print(f"STEP FAILED")
-            self.failures.append((func.__name__, e))
+            self.runner.failures.append((func.__name__, e))
         except Exception as e:
             print(f"STEP EXCEPTION")
-            self.failures.append((func.__name__, e))
+            self.runner.failures.append((func.__name__, e))
         return self
     return wrapper
 
@@ -45,9 +46,11 @@ class ScenarioRunner:
         self.test_logger = TestLogger()
         self.failures = []
         app = FastAPI()
+        settings = Settings(database_url="sqlite:///:memory:")
 
         def override_deps(populated_container: Container):
             populated_container.register(Logger, instance=self.test_logger)
+            populated_container.register(Settings, instance=settings)
 
         bootstrap(app, initialise_actions=override_deps)
         self.client = TestClient(app)
