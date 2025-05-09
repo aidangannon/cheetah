@@ -7,7 +7,7 @@ from src.crosscutting import auto_slots
 
 
 @auto_slots
-class SqlAlchemyHealthReader:
+class SqlAlchemyDbHealthReader:
 
     def __init__(self, session: AsyncSession):
         self.session = session

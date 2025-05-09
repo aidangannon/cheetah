@@ -1,17 +1,26 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends
 
-from src.application import HealthCheckService
+from src.application import DatabaseHealthCheckService
 from src.crosscutting import get_service, logging_scope, Logger
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/health",
+    tags=["Health"]
+)
 
+@router.get(
+    "/",
+    response_model=dict[str, Any],
+    summary="Run health checks",
+    description="Health checks application and db"
+)
 async def get_health(
     logger: Logger = Depends(get_service(Logger)),
-    health_check_service: HealthCheckService = Depends(get_service(HealthCheckService))
+    health_check_service: DatabaseHealthCheckService = Depends(get_service(DatabaseHealthCheckService))
 ):
     with logging_scope(operation=get_health.__name__):
         logger.info("Endpoint called")
         database_result = await health_check_service()
         return {"application": True, "database": database_result}
-
-router.add_api_route(path="/health", methods=["GET"], endpoint=get_health)

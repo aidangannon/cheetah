@@ -6,16 +6,16 @@ from pydantic_settings import SettingsConfigDict
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
-from src.core import HealthReader
-from src.infrastructure.readers import SqlAlchemyHealthReader
+from src.core import DbHealthReader
+from src.infrastructure.readers import SqlAlchemyDbHealthReader
 
 Base = declarative_base()
 
 
-# TODO: this may introduce circular dependency at some point, consider moving
-PERSISTENCE_REGISTRY = {
-    HealthReader: SqlAlchemyHealthReader
-}
+PERSISTENCE_REGISTRY = {}
+
+def register(interface: Type, implementation: Type):
+    PERSISTENCE_REGISTRY[interface] = implementation
 
 
 T = TypeVar("T")

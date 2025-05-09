@@ -17,7 +17,7 @@ class UnitOfWork(Protocol):
     async def commit(self):
         ...
 
-class HealthReader(Protocol):
+class DbHealthReader(Protocol):
 
     async def __call__(self) -> Optional[int]:
         ...
