@@ -1,6 +1,5 @@
 import logging
 import threading
-from unittest import TestCase
 
 from fastapi import FastAPI
 from punq import Container
@@ -8,10 +7,13 @@ from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
 
 from src.crosscutting import Logger
-from src.web.bootstrap import bootstrap
+from src.bootstrap import bootstrap
 
 
 def step(func):
+    """
+    decorator for scenario steps
+    """
     def wrapper(self, *args, **kwargs):
         try:
             print(f"\n{func.__name__}")
@@ -36,7 +38,7 @@ def assert_there_is_log_with(test_logger, log_level, message: str, scoped_vars: 
     assert len(logs_with_scoped_values) == 1, f"Expected exactly one log matching criteria, found {len(logs_with_scoped_values)}"
 
 
-class BaseScenario:
+class ScenarioRunner:
     __slots__ = ("test_logger", "failures", "client")
 
     def __init__(self) -> None:
@@ -51,6 +53,10 @@ class BaseScenario:
         self.client = TestClient(app)
 
     def assert_all(self):
+        """
+        enables tdd via final assertion
+        """
+
         if self.failures:
             msgs = [f"Step {name} failed: {ex}" for name, ex in self.failures]
             raise AssertionError("\n".join(msgs))

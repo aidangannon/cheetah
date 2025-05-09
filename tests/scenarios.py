@@ -1,11 +1,13 @@
 from tests.steps import HealthCheckScenario
 
 
-def test_health_check():
+def test_get_health():
     scenario = HealthCheckScenario()
     scenario \
-        .given_i_have_a_flask_app_running() \
-        .when_my_health_check_endpoint_is_called() \
-        .then_i_have_an_endpoint_called_log("hello") \
-        .and_then_some_bs_happens()
-    scenario.assert_all()
+        .given_i_have_an_app_running() \
+        .when_the_get_health_endpoint_is_called() \
+        .then_an_info_log_indicates_the_endpoint_was_called()
+
+    scenario \
+        .runner \
+        .assert_all()

@@ -1,29 +1,26 @@
 import logging
 
-from tests import BaseScenario, step, assert_there_is_log_with
+from tests import step, assert_there_is_log_with, ScenarioRunner
 
 
-class HealthCheckScenario(BaseScenario):
+class HealthCheckScenario:
+
+    def __init__(self):
+        self.runner = ScenarioRunner()
 
     @step
-    def given_i_have_a_flask_app_running(self):
-        ...
+    def given_i_have_an_app_running(self):
         return self
 
     @step
-    def when_my_health_check_endpoint_is_called(self):
-        self.client.get("/")
+    def when_the_get_health_endpoint_is_called(self):
+        self.runner.client.get("/health")
         return self
 
     @step
-    def then_i_have_an_endpoint_called_log(self, _str: str):
-        print(_str)
-        assert_there_is_log_with(self.test_logger,
+    def then_an_info_log_indicates_the_endpoint_was_called(self):
+        assert_there_is_log_with(self.runner.test_logger,
             log_level=logging.INFO,
-            message="My stuff",
-            scoped_vars={"operation": "My stuff"})
+            message="Endpoint called",
+            scoped_vars={"operation": "get_health"})
         return self
-
-    @step
-    def and_then_some_bs_happens(self):
-        raise AssertionError()

@@ -6,7 +6,9 @@ import structlog
 from fastapi import FastAPI
 from punq import Container, Scope
 
+from src.core import UnitOfWork
 from src.crosscutting import Logger, ServiceProvider
+from src.infrastructure import Settings, SqlAlchemyUnitOfWork
 from src.web.routes import router
 
 
@@ -18,9 +20,16 @@ def bootstrap(app: FastAPI, initialise_actions: Callable[[Container], None] = la
     """
     container = Container()
     add_logging(container=container)
+    add_configuration(container=container)
     add_routing(app=app, container=container)
     initialise_actions(container)
     return container
+
+def add_database(container: Container):
+    container.register(UnitOfWork, SqlAlchemyUnitOfWork)
+
+def add_configuration(container: Container):
+    container.register(Settings, scope=Scope.singleton)
 
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)

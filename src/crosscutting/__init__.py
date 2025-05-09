@@ -53,6 +53,9 @@ def auto_slots(cls):
 
 @auto_slots
 class ServiceProvider:
+    """
+    dictionary registry of services, layer of indirection between application and container
+    """
     def __init__(self, container: Container):
         self.container = container
 

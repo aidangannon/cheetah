@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.web.bootstrap import bootstrap
+from src.bootstrap import bootstrap
 
 app = FastAPI(title="Customer API", version="0.1.0")
 bootstrap(app=app)
