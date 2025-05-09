@@ -10,7 +10,7 @@ from src.application import DatabaseHealthCheckService
 from src.core import UnitOfWork, DbHealthReader
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, SqlAlchemyDbHealthReader
-from src.web.routes import router
+from src.web.routes import health_router
 
 
 def bootstrap(app: FastAPI, initialise_actions: Callable[[Container], None] = lambda x: None):
@@ -37,7 +37,7 @@ def add_configuration(container: Container):
 
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)
-    app.include_router(router=router)
+    app.include_router(router=health_router)
 
 def add_services(container: Container):
     container.register(DatabaseHealthCheckService)

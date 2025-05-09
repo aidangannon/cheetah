@@ -5,12 +5,12 @@ from fastapi import APIRouter, Depends
 from src.application import DatabaseHealthCheckService
 from src.crosscutting import get_service, logging_scope, Logger
 
-router = APIRouter(
+health_router = APIRouter(
     prefix="/health",
     tags=["Health"]
 )
 
-@router.get(
+@health_router.get(
     "/",
     response_model=dict[str, Any],
     summary="Run health checks",
