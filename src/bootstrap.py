@@ -3,6 +3,7 @@ import sys
 from typing import Callable
 
 import structlog
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from punq import Container, Scope
 
@@ -33,7 +34,9 @@ def add_database(container: Container):
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
 
 def add_configuration(container: Container):
-    container.register(Settings, intance=Settings(), scope=Scope.singleton)
+    load_dotenv("../.env.local")
+    load_dotenv(".env")
+    container.register(Settings, instance=Settings(), scope=Scope.singleton)
 
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)

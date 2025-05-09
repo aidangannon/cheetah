@@ -1,9 +1,6 @@
-import os
 from typing import TypeVar, Type
 
-from pydantic import Field
 from pydantic.v1 import BaseSettings
-from pydantic_settings import SettingsConfigDict
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
@@ -24,10 +21,8 @@ T = TypeVar("T")
 class Settings(BaseSettings):
     DATABASE_URL: str
 
-    model_config = SettingsConfigDict(
-        env_file=".env.local",
-        env_file_encoding="utf-8"
-    )
+    class Config:
+        env_file = "/../.env.local"
 
 class SqlAlchemyUnitOfWork:
 
