@@ -39,7 +39,7 @@ def assert_there_is_log_with(test_logger, log_level, message: str, scoped_vars: 
     assert len(logs_with_scoped_values) == 1, f"Expected exactly one log matching criteria, found {len(logs_with_scoped_values)}"
 
 
-class ScenarioRunner:
+class FastApiScenarioRunner:
     __slots__ = ("test_logger", "failures", "client")
 
     def __init__(self) -> None:

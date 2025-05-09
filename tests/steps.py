@@ -1,12 +1,12 @@
 import logging
 
-from tests import step, assert_there_is_log_with, ScenarioRunner
+from tests import step, assert_there_is_log_with, FastApiScenarioRunner
 
 
 class HealthCheckScenario:
 
     def __init__(self):
-        self.runner = ScenarioRunner()
+        self.runner = FastApiScenarioRunner()
 
     @step
     def given_i_have_an_app_running(self):

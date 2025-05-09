@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Protocol, TypeVar, Type, Optional
 
 T = TypeVar("T")
@@ -21,3 +23,12 @@ class DbHealthReader(Protocol):
 
     async def __call__(self) -> Optional[int]:
         ...
+
+@dataclass(unsafe_hash=True, slots=True)
+class MetricRecord:
+    id: str = None
+    date: datetime = None
+    obsolescence_val: float = None
+    parts_flagged: int = None
+    alert_type: str = None
+    alert_category: str = None

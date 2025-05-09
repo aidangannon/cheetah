@@ -1,12 +1,10 @@
 from typing import TypeVar, Type
 
-from pydantic import AnyUrl
 from pydantic.v1 import BaseSettings
 from pydantic_settings import SettingsConfigDict
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
-from src.core import DbHealthReader
 from src.infrastructure.readers import SqlAlchemyDbHealthReader
 
 Base = declarative_base()
