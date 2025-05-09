@@ -6,7 +6,16 @@ from pydantic_settings import SettingsConfigDict
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
+from src.core import HealthReader
+from src.infrastructure.readers import SqlAlchemyHealthReader
+
 Base = declarative_base()
+
+
+# TODO: this may introduce circular dependency at some point, consider moving
+PERSISTENCE_REGISTRY = {
+    HealthReader: SqlAlchemyHealthReader
+}
 
 
 T = TypeVar("T")
@@ -45,11 +54,11 @@ class SqlAlchemyUnitOfWork:
         finally:
             await self.session.close()
 
-    def repository_factory(self, repo_cls: Type[T]) -> T:
+    def persistence_factory(self, cls: Type[T]) -> T:
         """
         todo: slightly expensive to new up repo each time, also requires each repo to have only 1 argument of session
         """
-        return repo_cls(self.session)
+        return PERSISTENCE_REGISTRY[cls](self.session)
 
     async def commit(self):
         await self.session.commit()

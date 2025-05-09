@@ -6,6 +6,7 @@ import structlog
 from fastapi import FastAPI
 from punq import Container, Scope
 
+from src.application import HealthCheckService
 from src.core import UnitOfWork
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork
@@ -22,6 +23,8 @@ def bootstrap(app: FastAPI, initialise_actions: Callable[[Container], None] = la
     add_logging(container=container)
     add_configuration(container=container)
     add_routing(app=app, container=container)
+    add_database(container=container)
+    add_services(container=container)
     initialise_actions(container)
     return container
 
@@ -34,6 +37,9 @@ def add_configuration(container: Container):
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)
     app.include_router(router=router)
+
+def add_services(container: Container):
+    container.register(HealthCheckService)
 
 def add_logging(container: Container):
     container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)

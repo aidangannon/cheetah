@@ -1,4 +1,4 @@
-from typing import Protocol, TypeVar, Type
+from typing import Protocol, TypeVar, Type, Optional
 
 T = TypeVar("T")
 
@@ -11,8 +11,13 @@ class UnitOfWork(Protocol):
     async def __aexit__(self, exc_type, exc_value, traceback):
         ...
 
-    def repository_factory(self, repo_cls: Type[T]) -> T:
+    def persistence_factory(self, cls: Type[T]) -> T:
         ...
 
     async def commit(self):
+        ...
+
+class HealthReader(Protocol):
+
+    async def __call__(self) -> Optional[int]:
         ...

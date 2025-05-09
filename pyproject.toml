@@ -20,6 +20,7 @@ pydantic-settings = "^2.10.1"
 [tool.poetry.dev-dependencies]
 httpx = "^0.28.1"
 pytest = "^8.4.1"
+aiosqlite = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core"]
