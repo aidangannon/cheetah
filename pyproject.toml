@@ -3,6 +3,9 @@ name = "intropy-metrics-service"
 version = "0.1.0"
 description = "manages metrics"
 authors = ["aidan"]
+packages = [
+  { include = "src" }
+]
 
 [tool.poetry.dependencies]
 fastapi = "^0.116.1"
