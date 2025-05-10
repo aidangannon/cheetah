@@ -2,7 +2,7 @@ import logging
 import threading
 
 from fastapi import FastAPI
-from punq import Container
+from punq import Container, Scope
 from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
 
@@ -50,7 +50,7 @@ class FastApiScenarioRunner:
 
         def override_deps(populated_container: Container):
             populated_container.register(Logger, instance=self.test_logger)
-            populated_container.register(Settings, instance=settings)
+            populated_container.register(Settings, instance=settings, scope=Scope.singleton)
 
         bootstrap(app, initialise_actions=override_deps)
         self.client = TestClient(app)
