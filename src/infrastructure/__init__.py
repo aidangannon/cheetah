@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import TypeVar, Type
 
 from pydantic.v1 import BaseSettings
@@ -22,7 +23,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     class Config:
-        env_file = "../.env.local"
+        env_file = str(Path(__file__).parent.parent / ".env.local")
 
 class SqlAlchemyUnitOfWork:
 
