@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Minimal FastAPI Docker on EC2 with RDS Postgres
+
+Parameters:
+  DBUsername:
+    Type: String
+    Default: intropy_admin
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+
+  DBName:
+    Type: String
+    Default: intropy_db
+
+  DBPort:
+    Type: String
+    Default: "5432"
+
+  LatestAmazonLinux2AMI:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+
+  Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachIGW:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Routes:
+        - DestinationCidrBlock: 0.0.0.0/0
+          GatewayId: !Ref InternetGateway
+
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Subnet
+      RouteTableId: !Ref RouteTable
+
+  RDSSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Minimal RDS subnet group
+      SubnetIds:
+        - !Ref Subnet
+
+  SGEC2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP (port 8000) and SSH (port 22) to EC2
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  SGRDS:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Postgres from EC2 only
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref SGEC2
+
+  PostgresDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.micro
+      Engine: postgres
+      AllocatedStorage: 20
+      Port: !Ref DBPort
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBName: !Ref DBName
+      VPCSecurityGroups:
+        - !Ref SGRDS
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      PubliclyAccessible: true
+      BackupRetentionPeriod: 0
+      DeletionProtection: false
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmazonLinux2AMI
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          AssociatePublicIpAddress: true
+          SubnetId: !Ref Subnet
+          GroupSet:
+            - !Ref SGEC2
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          amazon-linux-extras install docker -y
+          service docker start
+          usermod -aG docker ec2-user
+          echo 'DATABASE_URL=postgresql+asyncpg://${DBUsername}:${DBPassword}@${PostgresDB.Endpoint.Address}:${DBPort}/${DBName}' | sudo tee /etc/fastapi.env > /dev/null
+
+
+Outputs:
+  EC2PublicIP:
+    Description: EC2 public IP
+    Value: !GetAtt EC2Instance.PublicIp
+
+  RDSEndpoint:
+    Description: RDS Endpoint
+    Value: !GetAtt PostgresDB.Endpoint.Address

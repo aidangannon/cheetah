@@ -1,0 +1,18 @@
+[Unit]
+Description=FastAPI Docker Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker run --rm -p 8000:8000 \
+  -e POSTGRES_USER=your_db_user \
+  -e POSTGRES_PASSWORD=your_db_password \
+  -e POSTGRES_DB=your_db_name \
+  -e POSTGRES_HOST=your_db_host \
+  --name fastapi-app your-docker-image
+
+ExecStop=/usr/bin/docker stop fastapi-app
+
+[Install]
+WantedBy=multi-user.target
