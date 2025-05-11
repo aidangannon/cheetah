@@ -23,4 +23,7 @@ jobs:
           poetry install --no-interaction --no-ansi
       - name: Run tests with pytest
         run: |
+          set -a
+          source .env.local
+          set +a
           pytest
