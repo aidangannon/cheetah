@@ -34,8 +34,6 @@ def add_database(container: Container):
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
 
 def add_configuration(container: Container):
-    load_dotenv("../.env.local")
-    load_dotenv(".env")
     container.register(Settings, instance=Settings(), scope=Scope.singleton)
 
 def add_routing(app: FastAPI, container: Container):

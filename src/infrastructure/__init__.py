@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     class Config:
-        env_file = str(Path(__file__).parent.parent / ".env.local")
+        env_file = "../.env.local"
 
 class SqlAlchemyUnitOfWork:
 
