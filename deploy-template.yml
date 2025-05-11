@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Minimal FastAPI Docker on EC2 with RDS Postgres
+Description: Metrics stack
 
 Parameters:
   DBUsername:
     Type: String
-    Default: intropy_admin
+    Default: postgres
 
   DBPassword:
     Type: String
@@ -12,7 +12,7 @@ Parameters:
 
   DBName:
     Type: String
-    Default: intropy_db
+    Default: intropy_metrics_db
 
   DBPort:
     Type: String
