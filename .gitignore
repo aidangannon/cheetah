@@ -108,6 +108,7 @@ venv.bak/
 
 # deploy
 samconfig.toml
+/.aws-sam
 
 # ide
 /.idea

@@ -10,6 +10,9 @@ Parameters:
     Type: String
     NoEcho: true
 
+  KeyName:
+    Type: String
+
   DBName:
     Type: String
     Default: intropy_metrics_db
@@ -27,12 +30,24 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
 
-  Subnet:
+  SubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
+      AvailabilityZone: !Sub "${AWS::Region}a"
       CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+
+
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Sub "${AWS::Region}b"
       MapPublicIpOnLaunch: true
 
   InternetGateway:
@@ -48,14 +63,25 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
-      Routes:
-        - DestinationCidrBlock: 0.0.0.0/0
-          GatewayId: !Ref InternetGateway
 
-  SubnetRouteTableAssociation:
+  RouteToInternet:
+    Type: AWS::EC2::Route
+    DependsOn: AttachIGW
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  SubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref Subnet
+      SubnetId: !Ref SubnetA
+      RouteTableId: !Ref RouteTable
+
+  SubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetB
       RouteTableId: !Ref RouteTable
 
   RDSSubnetGroup:
@@ -63,7 +89,8 @@ Resources:
     Properties:
       DBSubnetGroupDescription: Minimal RDS subnet group
       SubnetIds:
-        - !Ref Subnet
+        - !Ref SubnetA
+        - !Ref SubnetB
 
   SGEC2:
     Type: AWS::EC2::SecurityGroup
@@ -75,10 +102,19 @@ Resources:
           FromPort: 8000
           ToPort: 8000
           CidrIp: 0.0.0.0/0
+          # defined below are only GitHub actions agent public ip ranges allowed for ssh
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: 3.22.240.0/20
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 13.59.250.0/26
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 140.82.112.0/20
 
   SGRDS:
     Type: AWS::EC2::SecurityGroup
@@ -117,7 +153,7 @@ Resources:
       NetworkInterfaces:
         - DeviceIndex: 0
           AssociatePublicIpAddress: true
-          SubnetId: !Ref Subnet
+          SubnetId: !Ref SubnetA
           GroupSet:
             - !Ref SGEC2
       UserData:
