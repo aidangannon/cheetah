@@ -106,4 +106,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-.idea/*
+# deploy
+samconfig.toml
+
+# ide
+/.idea
