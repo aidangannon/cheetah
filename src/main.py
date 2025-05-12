@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from src.bootstrap import bootstrap
 
-app = FastAPI(title="Customer API", version="0.1.0")
+app = FastAPI(title="Metrics API", version="0.1.0")
 bootstrap(app=app)
 
 if __name__ == "__main__":

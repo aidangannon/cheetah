@@ -95,12 +95,12 @@ Resources:
   SGEC2:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP (port 8000) and SSH (port 22) to EC2
+      GroupDescription: Allow HTTP (port 8080) and SSH (port 22) to EC2
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 8000
-          ToPort: 8000
+          FromPort: 8080
+          ToPort: 8080
           CidrIp: 0.0.0.0/0
           # defined below are only GitHub actions agent public ip ranges allowed for ssh
         - IpProtocol: tcp
@@ -169,7 +169,7 @@ Resources:
 Outputs:
   EC2PublicIP:
     Description: EC2 public IP
-    Value: !GetAtt EC2Instance.PublicIp
+    Value: !GetAtt EC2Instance.PublicDnsName
 
   RDSEndpoint:
     Description: RDS Endpoint

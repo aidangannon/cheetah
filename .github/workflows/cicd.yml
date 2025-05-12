@@ -27,3 +27,22 @@ jobs:
           source .env.local
           set +a
           pytest
+      - name: Setup SSH key
+        run: |
+          echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+      - name: Deploy Docker app on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            set -e
+            cd ~/app || mkdir ~/app && cd ~/app
+            docker build -t myfastapiapp .
+            if [ "$(docker ps -q -f name=myfastapiapp)" ]; then
+              docker stop myfastapiapp
+              docker rm myfastapiapp
+            fi
+            docker run -d --restart unless-stopped --name myfastapiapp --env-file /etc/fastapi.env -p 8080:8000 myfastapiapp
