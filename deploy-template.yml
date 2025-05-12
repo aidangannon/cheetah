@@ -102,19 +102,15 @@ Resources:
           FromPort: 8080
           ToPort: 8080
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
           # defined below are only GitHub actions agent public ip ranges allowed for ssh
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 13.59.250.0/26
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 140.82.112.0/20
 
   SGRDS:
     Type: AWS::EC2::SecurityGroup

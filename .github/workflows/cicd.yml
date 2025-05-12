@@ -27,6 +27,21 @@ jobs:
           source .env.local
           set +a
           pytest
+      - name: Deploy SAM app
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AWS_REGION: eu-west-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          sam deploy \
+            --stack-name metrics-api-prod \
+            --s3-bucket metrics-api-prod-s3 \
+            --s3-prefix metrics \
+            --region $AWS_REGION \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides DBPassword=$DB_PASSWORD KeyName=intropy-ec2-keypair \
+            --no-confirm-changeset
       - name: Setup SSH key
         run: |
           echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
