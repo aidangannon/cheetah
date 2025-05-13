@@ -17,6 +17,10 @@ Parameters:
     Type: String
     Default: intropy_metrics_db
 
+  DomainName:
+    Type: String
+    Default: aphextwinning.com
+
   DBPort:
     Type: String
     Default: "5432"
@@ -41,7 +45,6 @@ Resources:
       CidrBlock: 10.0.1.0/24
       MapPublicIpOnLaunch: true
 
-
   SubnetB:
     Type: AWS::EC2::Subnet
     Properties:
@@ -49,6 +52,16 @@ Resources:
       CidrBlock: 10.0.2.0/24
       AvailabilityZone: !Sub "${AWS::Region}b"
       MapPublicIpOnLaunch: true
+
+  RecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Sub "${DomainName}."
+      Name: !Ref DomainName
+      Type: A
+      TTL: 300
+      ResourceRecords:
+        - !Ref EC2EIP
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -165,10 +178,45 @@ Resources:
           #!/bin/bash
           yum update -y
           amazon-linux-extras install docker -y
+          yum install -y nginx
+          systemctl enable nginx
+          systemctl start nginx
+      
           service docker start
           usermod -aG docker ec2-user
-          echo 'DATABASE_URL=postgresql+asyncpg://${DBUsername}:${DBPassword}@${PostgresDB.Endpoint.Address}:${DBPort}/${DBName}' | sudo tee /etc/fastapi.env > /dev/null
-
+      
+          echo 'DATABASE_URL=postgresql+asyncpg://${DBUsername}:${DBPassword}@${PostgresDB.Endpoint.Address}:${DBPort}/${DBName}' > /home/ec2-user/fastapi.env
+      
+          cat << EOF > /etc/nginx/conf.d/fastapi.conf
+          server {
+              listen 80;
+              server_name ${DomainName};
+              return 301 https://\$host\$request_uri;
+          }
+      
+          server {
+              listen 443 ssl;
+              server_name ${DomainName};
+      
+              ssl_certificate /etc/letsencrypt/live/${DomainName}/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/${DomainName}/privkey.pem;
+      
+              location / {
+                  proxy_pass http://localhost:8000;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+          EOF
+      
+          amazon-linux-extras enable epel -y
+          yum install -y certbot python2-certbot-nginx
+      
+          certbot --nginx -d ${DomainName} --non-interactive --agree-tos -m ${RegistrarEmail}
+      
+          echo "0 0 * * * root certbot renew --quiet" >> /etc/crontab
 
 Outputs:
   EC2PublicIP:
