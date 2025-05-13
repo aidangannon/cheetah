@@ -48,6 +48,9 @@ jobs:
         run: |
           echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
+      - name: Copy code to EC2
+        run: |
+          scp -i ec2_key.pem -r ./* ec2-user@${{ secrets.EC2_HOST }}:~/app/
       - name: Deploy Docker app on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
