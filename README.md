@@ -1,3 +1,3 @@
 # Can access the API here:
 
-http://metrics-api-prod-postgresdb-nvhgy6ih1fro.ctoeq2ae4cqm.eu-west-2.rds.amazonaws.com:8080/health/
+http://ec2-18-175-147-101.eu-west-2.compute.amazonaws.com:8080/health/
