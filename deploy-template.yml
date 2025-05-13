@@ -21,6 +21,10 @@ Parameters:
     Type: String
     Default: aphextwinning.com
 
+  RegistrarEmail:
+    Type: String
+    Default: aidanwilliamgannon@gmail.com
+
   DBPort:
     Type: String
     Default: "5432"
