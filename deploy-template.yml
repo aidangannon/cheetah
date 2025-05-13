@@ -140,18 +140,26 @@ Resources:
       BackupRetentionPeriod: 0
       DeletionProtection: false
 
+  EC2EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  EC2EIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt EC2EIP.AllocationId
+      InstanceId: !Ref EC2Instance
+
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
       KeyName: !Ref KeyName
       ImageId: !Ref LatestAmazonLinux2AMI
-      NetworkInterfaces:
-        - DeviceIndex: 0
-          AssociatePublicIpAddress: true
-          SubnetId: !Ref SubnetA
-          GroupSet:
-            - !Ref SGEC2
+      SubnetId: !Ref SubnetA
+      SecurityGroupIds:
+        - !Ref SGEC2
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -164,8 +172,8 @@ Resources:
 
 Outputs:
   EC2PublicIP:
-    Description: EC2 public IP
-    Value: !GetAtt EC2Instance.PublicDnsName
+    Description: EC2 static public IP
+    Value: !Ref EC2EIP
 
   RDSEndpoint:
     Description: RDS Endpoint
