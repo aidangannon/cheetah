@@ -184,13 +184,13 @@ Resources:
           amazon-linux-extras install docker -y
           yum install -y nginx
           
-          systemctl enable docker
-          systemctl start docker
-
-          systemctl enable nginx
-          systemctl start nginx
-      
           usermod -aG docker ec2-user
+          
+          sudo systemctl enable docker
+          sudo systemctl start docker
+
+          sudo systemctl enable nginx
+          sudo systemctl start nginx
       
           echo 'DATABASE_URL=postgresql+asyncpg://${DBUsername}:${DBPassword}@${PostgresDB.Endpoint.Address}:${DBPort}/${DBName}' > /home/ec2-user/fastapi.env
       
