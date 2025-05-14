@@ -44,8 +44,6 @@ jobs:
             REBUILD_PARAM="default"
           fi
           
-          echo "REBUILD_PARAM is: $REBUILD_PARAM"
-          
           sam deploy \
             --no-fail-on-empty-changeset \
             --template-file deploy-template.yml \
@@ -54,7 +52,7 @@ jobs:
             --s3-prefix metrics \
             --region $AWS_REGION \
             --capabilities CAPABILITY_IAM \
-            --parameter-overrides DBPassword=$DB_PASSWORD KeyName=intropy-ec2-keypair \
+            --parameter-overrides DBPassword=$DB_PASSWORD KeyName=intropy-ec2-keypair $REBUILD_PARAM \
             --no-confirm-changeset
       - name: Setup SSH key
         run: |
