@@ -143,7 +143,7 @@ Resources:
   PostgresDB:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceClass: db.t3.small
+      DBInstanceClass: db.t3.micro
       Engine: postgres
       AllocatedStorage: 20
       Port: !Ref DBPort
@@ -171,7 +171,7 @@ Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t3.micro
+      InstanceType: t3.tiny
       KeyName: !Ref KeyName
       ImageId: !Ref LatestAmazonLinux2AMI
       SubnetId: !Ref SubnetA
