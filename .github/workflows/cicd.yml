@@ -34,6 +34,18 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+    
+          if [[ "$COMMIT_MESSAGE" =~ \[rebuildec2=([a-zA-Z0-9_-]+)\]$ ]]; then
+            REBUILD_REASON="${BASH_REMATCH[1]}"
+            echo "Detected EC2 rebuild trigger: $REBUILD_REASON"
+            REBUILD_PARAM="RebuildTrigger=$REBUILD_REASON"
+          else
+            REBUILD_PARAM="default"
+          fi
+          
+          echo "REBUILD_PARAM is: $REBUILD_PARAM"
+          
           sam deploy \
             --no-fail-on-empty-changeset \
             --template-file deploy-template.yml \
