@@ -182,7 +182,7 @@ Resources:
         - Key: Meta
           Value: Data
         - Fn::If:
-            - ShouldTagRebuildTrigger
+            - IsNotDefaultTrigger
             -
               Key: RebuildTrigger
               Value: !Ref RebuildTrigger
