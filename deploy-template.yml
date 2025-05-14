@@ -29,15 +29,9 @@ Parameters:
     Type: String
     Default: "5432"
 
-  RebuildTrigger:
-    Type: String
-
   LatestAmazonLinux2AMI:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-
-Conditions:
-  IsNotDefaultTrigger: !Not [ !Equals [ !Ref RebuildTrigger, "default" ] ]
 
 Resources:
   VPC:
@@ -149,7 +143,7 @@ Resources:
   PostgresDB:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceClass: db.t3.micro
+      DBInstanceClass: db.t3.small
       Engine: postgres
       AllocatedStorage: 20
       Port: !Ref DBPort
@@ -178,15 +172,6 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
-      Tags:
-        - Key: Meta
-          Value: Data
-        - Fn::If:
-            - IsNotDefaultTrigger
-            -
-              Key: RebuildTrigger
-              Value: !Ref RebuildTrigger
-            - !Ref "AWS::NoValue"
       KeyName: !Ref KeyName
       ImageId: !Ref LatestAmazonLinux2AMI
       SubnetId: !Ref SubnetA
