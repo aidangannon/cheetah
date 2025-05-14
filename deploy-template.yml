@@ -171,7 +171,7 @@ Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t3.tiny
+      InstanceType: t3.micro
       KeyName: !Ref KeyName
       ImageId: !Ref LatestAmazonLinux2AMI
       SubnetId: !Ref SubnetA
