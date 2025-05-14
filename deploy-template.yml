@@ -179,9 +179,14 @@ Resources:
     Properties:
       InstanceType: t3.micro
       Tags:
-        - Key: RebuildTrigger
-          Value: !Ref RebuildTrigger
-          Condition: IsNotDefaultTrigger
+        - Key: Meta
+          Value: Data
+        - Fn::If:
+            - ShouldTagRebuildTrigger
+            -
+              Key: RebuildTrigger
+              Value: !Ref RebuildTrigger
+            - !Ref "AWS::NoValue"
       KeyName: !Ref KeyName
       ImageId: !Ref LatestAmazonLinux2AMI
       SubnetId: !Ref SubnetA
