@@ -68,6 +68,13 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
           script: |
+            if [[ "$COMMIT_MSG" == *"--ec2init" ]]; then
+              echo "Commit ends with --ec2init, running user-data script..."
+              sudo bash <(sudo cat /var/lib/cloud/instances/$INSTANCE_ID/user-data.txt)
+            else
+              echo "Commit does not end with --ec2init, skipping user-data script."
+            fi
+            
             set -e
             cd ~/app || mkdir ~/app && cd ~/app
             docker build -t myfastapiapp .
@@ -76,13 +83,6 @@ jobs:
               docker rm myfastapiapp
             fi
             docker run -d --restart unless-stopped --name myfastapiapp --env-file /home/ec2-user/fastapi.env -p 8000:8000 myfastapiapp
-            
-            if [[ "$COMMIT_MSG" == *"--ec2init" ]]; then
-              echo "Commit ends with --ec2init, running user-data script..."
-              sudo bash <(sudo cat /var/lib/cloud/instances/$INSTANCE_ID/user-data.txt)
-            else
-              echo "Commit does not end with --ec2init, skipping user-data script."
-            fi
         env:
           INSTANCE_ID: ${{ env.INSTANCE_ID }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
