@@ -171,7 +171,7 @@ Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t3.small
+      InstanceType: t3.micro
 
       KeyName: !Ref KeyName
       ImageId: !Ref LatestAmazonLinux2AMI
@@ -189,14 +189,13 @@ Resources:
           amazon-linux-extras enable nginx1
           yum clean metadata
           yum install -y nginx
+          amazon-linux-extras enable epel -y
+          yum install -y certbot python2-certbot-nginx
           
           usermod -aG docker ec2-user
           
           systemctl enable docker
           systemctl start docker
-
-          systemctl enable nginx
-          systemctl start nginx
       
           echo 'DATABASE_URL=postgresql+asyncpg://${DBUsername}:${DBPassword}@${PostgresDB.Endpoint.Address}:${DBPort}/${DBName}' > /home/ec2-user/fastapi.env
       
@@ -223,9 +222,9 @@ Resources:
               }
           }
           EOF
-      
-          amazon-linux-extras enable epel -y
-          yum install -y certbot python2-certbot-nginx
+          
+          systemctl enable nginx
+          systemctl start nginx
       
           certbot --nginx -d ${DomainName} --non-interactive --agree-tos -m ${RegistrarEmail}
       
