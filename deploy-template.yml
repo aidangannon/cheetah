@@ -189,8 +189,10 @@ Resources:
           amazon-linux-extras enable nginx1
           yum clean metadata
           yum install -y nginx
-          amazon-linux-extras enable epel -y
-          yum install -y certbot python2-certbot-nginx
+          sudo amazon-linux-extras enable epel
+          sudo yum clean metadata
+          sudo yum install -y epel-release
+          sudo yum install -y certbot python2-certbot-nginx
           
           usermod -aG docker ec2-user
           
@@ -226,14 +228,22 @@ Resources:
           systemctl enable nginx
           systemctl start nginx
       
-          certbot --nginx -d ${DomainName} --non-interactive --agree-tos -m ${RegistrarEmail}
+          if ! certbot certificates | grep -q "Certificate Name: ${DomainName}"; then
+            certbot --nginx -d ${DomainName} --non-interactive --agree-tos -m ${RegistrarEmail}
+          else
+            certbot renew --quiet
+          fi
       
-          echo "0 0 * * * root certbot renew --quiet" >> /etc/crontab
+          grep -q "certbot renew --quiet" /etc/crontab || echo "0 0 * * * root certbot renew --quiet" >> /etc/crontab
 
 Outputs:
   EC2PublicIP:
     Description: EC2 static public IP
     Value: !Ref EC2EIP
+
+  EC2InstanceID:
+    Description: EC2 Instance ID
+    Value: !Ref EC2Instance
 
   RDSEndpoint:
     Description: RDS Endpoint

@@ -33,7 +33,13 @@ jobs:
           AWS_REGION: eu-west-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |  
+        run: |
+          INSTANCE_ID=$(aws cloudformation describe-stacks \
+            --stack-name metrics-api-prod \
+            --region $AWS_REGION \
+            --query "Stacks[0].Outputs[?OutputKey=='EC2InstanceID'].OutputValue" \
+            --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           sam deploy \
             --no-fail-on-empty-changeset \
             --template-file deploy-template.yml \
@@ -70,3 +76,13 @@ jobs:
               docker rm myfastapiapp
             fi
             docker run -d --restart unless-stopped --name myfastapiapp --env-file /home/ec2-user/fastapi.env -p 8000:8000 myfastapiapp
+            
+            if [[ "$COMMIT_MSG" == *"--ec2init" ]]; then
+              echo "Commit ends with --ec2init, running user-data script..."
+              sudo bash <(sudo cat /var/lib/cloud/instances/$INSTANCE_ID/user-data.txt)
+            else
+              echo "Commit does not end with --ec2init, skipping user-data script."
+            fi
+        env:
+          INSTANCE_ID: ${{ env.INSTANCE_ID }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
