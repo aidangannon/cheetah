@@ -86,7 +86,7 @@ jobs:
             
             if [[ "$COMMIT_MSG" == *"--ec2init" ]]; then
               echo "Commit ends with --ec2init, running user-data script..."
-              sudo bash /var/lib/cloud/instances/$INSTANCE_ID/user-data.txt
+              sudo bash -x /var/lib/cloud/instances/$INSTANCE_ID/user-data.txt
             else
               echo "Commit does not end with --ec2init, skipping user-data script."
             fi
