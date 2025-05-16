@@ -3,6 +3,7 @@ import sys
 from typing import Callable
 
 import structlog
+import watchtower
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from punq import Container, Scope
@@ -44,11 +45,17 @@ def add_services(container: Container):
     container.register(DatabaseHealthCheckService)
 
 def add_logging(container: Container):
-    container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)
+    logger = structlog.getLogger()
+    cloudwatch_handler = watchtower.CloudWatchLogHandler(
+        log_group="/my-app/fastapi",
+        stream_name="intropy-metrics"
+    )
+    logger.addHandler(cloudwatch_handler)
+    container.register(Logger, instance=logger)
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,
-        level=logging.INFO,  # or DEBUG
+        level=logging.INFO,
     )
     structlog.configure(
         processors=[

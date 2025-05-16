@@ -168,6 +168,26 @@ Resources:
       AllocationId: !GetAtt EC2EIP.AllocationId
       InstanceId: !Ref EC2Instance
 
+  EC2InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+      Path: "/"
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2InstanceRole
+
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -176,6 +196,7 @@ Resources:
       KeyName: !Ref KeyName
       ImageId: !Ref LatestAmazonLinux2AMI
       SubnetId: !Ref SubnetA
+      IamInstanceProfile: !Ref EC2InstanceProfile
       SecurityGroupIds:
         - !Ref SGEC2
       UserData:
