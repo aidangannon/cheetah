@@ -61,6 +61,10 @@ jobs:
       - name: Copy code to EC2
         run: |
           scp -i ec2_key.pem -r ./* ec2-user@${{ secrets.EC2_HOST }}:~/app/
+      - name: Check env vars before SSH
+        run: |
+          echo "INSTANCE_ID=${{ env.INSTANCE_ID }}"
+          echo "COMMIT_MSG=${{ github.event.head_commit.message }}"
       - name: Deploy Docker app on EC2
         uses: appleboy/ssh-action@v0.1.7
         env:
@@ -73,6 +77,9 @@ jobs:
           script: |
             echo "COMMIT_MSG: $COMMIT_MSG"
             echo "INSTANCE_ID: $INSTANCE_ID"
+            
+            env | grep INSTANCE
+            env | grep COMMIT
             
             if [[ "$COMMIT_MSG" == *"--ec2init" ]]; then
               echo "Commit ends with --ec2init, running user-data script..."
