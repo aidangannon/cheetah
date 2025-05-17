@@ -34,12 +34,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          INSTANCE_ID=$(aws cloudformation describe-stacks \
-            --stack-name metrics-api-prod \
-            --region $AWS_REGION \
-            --query "Stacks[0].Outputs[?OutputKey=='EC2InstanceID'].OutputValue" \
-            --output text)
-          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           sam deploy \
             --no-fail-on-empty-changeset \
             --template-file deploy-template.yml \
@@ -50,6 +44,12 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --parameter-overrides DBPassword=$DB_PASSWORD KeyName=intropy-ec2-keypair $REBUILD_PARAM \
             --no-confirm-changeset
+          INSTANCE_ID=$(aws cloudformation describe-stacks \
+            --stack-name metrics-api-prod \
+            --region $AWS_REGION \
+            --query "Stacks[0].Outputs[?OutputKey=='EC2InstanceID'].OutputValue" \
+            --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
       - name: Setup SSH key
         run: |
           echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
