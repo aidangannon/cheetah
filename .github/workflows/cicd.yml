@@ -58,6 +58,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Clean remote app folder
+        run: |
+          ssh -i ec2_key.pem ec2-user@${{ secrets.EC2_HOST }} "rm -rf ~/app/*"
       - name: Copy code to EC2
         run: |
           scp -i ec2_key.pem -r ./* ec2-user@${{ secrets.EC2_HOST }}:~/app/
@@ -92,9 +95,7 @@ jobs:
             fi
             
             set -e
-            rm -rf ~/app
-            mkdir ~/app
-            cd ~/app
+            cd ~/app || mkdir ~/app && cd ~/app
             docker build -t myfastapiapp .
             if [ "$(docker ps -q -f name=myfastapiapp)" ]; then
               docker stop myfastapiapp
