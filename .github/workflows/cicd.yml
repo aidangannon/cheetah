@@ -102,6 +102,9 @@ jobs:
               docker rm myfastapiapp
             fi
             
+            echo "QUERIES_SEED_JSON=/app/data/queries.csv" >> /home/ec2-user/fastapi.env
+            echo "METRICS_SEED_JSON=/app/data/metrics.json" >> /home/ec2-user/fastapi.env
+            
             docker run --rm --env-file /home/ec2-user/fastapi.env myfastapiapp poetry run alembic heads
             
             docker run --rm --env-file /home/ec2-user/fastapi.env myfastapiapp poetry run alembic upgrade head
