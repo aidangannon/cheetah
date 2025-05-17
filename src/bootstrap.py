@@ -14,6 +14,7 @@ from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayout
     JsonMetricRecordLoader
 from src.infrastructure.orm import start_mappers
 from src.infrastructure.writers import SqlAlchemyGenericDataSeeder
+from src.web.middleware import add_exception_middleware
 from src.web.routes import health_router
 
 
@@ -27,6 +28,7 @@ def bootstrap(app: FastAPI, initialise_actions: Callable[[Container], None] = la
     add_logging(container=container)
     add_configuration(container=container)
     add_routing(app=app, container=container)
+    add_exception_middleware(app=app)
     add_database(container=container)
     add_services(container=container)
     add_loaders(container=container)
