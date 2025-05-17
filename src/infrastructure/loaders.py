@@ -6,19 +6,21 @@ from typing import Any
 import aiofiles
 
 from src.core import MetricConfiguration, LayoutItem, Query
-from src.crosscutting import auto_slots
+from src.crosscutting import auto_slots, Logger
 from src.infrastructure import Settings
 
 
 @auto_slots
 class JsonLayoutItemLoader:
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, logger: Logger):
+        self.logger = logger
         self.settings = settings
 
     async def __call__(self) -> list[LayoutItem]:
         path = Path(self.settings.METRICS_SEED_JSON)
         if not path.exists():
+            self.logger.warning("No layouts file")
             return []
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
@@ -48,12 +50,14 @@ class JsonLayoutItemLoader:
 @auto_slots
 class JsonMetricConfigurationLoader:
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, logger: Logger):
+        self.logger = logger
         self.settings = settings
 
     async def __call__(self) -> list[MetricConfiguration]:
         path = Path(self.settings.METRICS_SEED_JSON)
         if not path.exists():
+            self.logger.warning("No metrics file")
             return []
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
@@ -100,12 +104,14 @@ def remap_duplicate_ids(
 @auto_slots
 class CsvQueryLoader:
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, logger: Logger):
+        self.logger = logger
         self.settings = settings
 
     async def __call__(self) -> list[Query]:
         path = Path(self.settings.QUERIES_SEED_JSON)
         if not path.exists():
+            self.logger.warning("No queries file")
             return []
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
