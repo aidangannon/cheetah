@@ -92,7 +92,9 @@ jobs:
             fi
             
             set -e
-            cd ~/app || mkdir ~/app && cd ~/app
+            rm -rf ~/app
+            mkdir ~/app
+            cd ~/app
             docker build -t myfastapiapp .
             if [ "$(docker ps -q -f name=myfastapiapp)" ]; then
               docker stop myfastapiapp
