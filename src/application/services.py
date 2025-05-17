@@ -1,6 +1,6 @@
 from src.core import UnitOfWork, DbHealthReader, MetricConfigurationLoader, GenericDataSeeder, LayoutItemLoader, \
     MetricConfiguration, LayoutItem, QueryLoader, Query
-from src.crosscutting import auto_slots
+from src.crosscutting import auto_slots, Logger
 
 
 @auto_slots
@@ -27,8 +27,10 @@ class DataSeedService:
         unit_of_work: UnitOfWork,
         metrics_loader: MetricConfigurationLoader,
         layouts_loader: LayoutItemLoader,
-        query_loader: QueryLoader
+        query_loader: QueryLoader,
+        logger: Logger
     ):
+        self.logger = logger
         self.query_loader = query_loader
         self.layouts_loader = layouts_loader
         self.metric_configs_loader = metrics_loader
@@ -40,8 +42,8 @@ class DataSeedService:
         queries = await self.query_loader()
         async with self.unit_of_work as uow:
             seed = uow.persistence_factory(GenericDataSeeder)
-            await seed(data=metric_configs, _type=MetricConfiguration)
-            await seed(data=layout_items, _type=LayoutItem)
-            await seed(data=queries, _type=Query)
+            await seed(data=metric_configs, _type=MetricConfiguration, logger=self.logger)
+            await seed(data=layout_items, _type=LayoutItem, logger=self.logger)
+            await seed(data=queries, _type=Query, logger=self.logger)
             await uow.commit()
         return False

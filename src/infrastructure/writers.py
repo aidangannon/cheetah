@@ -2,7 +2,7 @@ from sqlalchemy import exists, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core import MetricConfiguration
-from src.crosscutting import auto_slots
+from src.crosscutting import auto_slots, Logger
 
 
 @auto_slots
@@ -11,7 +11,7 @@ class SqlAlchemyGenericDataSeeder:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def __call__(self, data: list, _type) -> None:
+    async def __call__(self, data: list, _type, logger: Logger) -> None:
         """
         seeds the table if the table is not already empty
         """
@@ -21,6 +21,7 @@ class SqlAlchemyGenericDataSeeder:
         count = result.scalar()
 
         if count > 0:
+            logger.info(f"{count} rows found")
             return
 
         self.session.add_all(data)

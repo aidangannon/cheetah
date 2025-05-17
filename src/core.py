@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Protocol, TypeVar, Type, Optional
 
+from src.crosscutting import Logger
+
 T = TypeVar("T")
 
 
@@ -88,5 +90,5 @@ class QueryLoader(Protocol):
 
 class GenericDataSeeder(Protocol):
 
-    async def __call__(self, data: list, _type) -> None:
+    async def __call__(self, data: list, _type, logger: Logger) -> None:
         ...
