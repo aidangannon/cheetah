@@ -20,7 +20,7 @@ class JsonLayoutItemLoader:
     async def __call__(self) -> list[LayoutItem]:
         path = Path(self.settings.METRICS_SEED_JSON)
         if not path.exists():
-            self.logger.warning("No layouts file")
+            self.logger.warning(f"No layouts file as {path.resolve()}")
             return []
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
@@ -57,7 +57,7 @@ class JsonMetricConfigurationLoader:
     async def __call__(self) -> list[MetricConfiguration]:
         path = Path(self.settings.METRICS_SEED_JSON)
         if not path.exists():
-            self.logger.warning("No metrics file")
+            self.logger.warning(f"No metrics file as {path.resolve()}")
             return []
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
@@ -111,7 +111,7 @@ class CsvQueryLoader:
     async def __call__(self) -> list[Query]:
         path = Path(self.settings.QUERIES_SEED_JSON)
         if not path.exists():
-            self.logger.warning("No queries file")
+            self.logger.warning(f"No csv file as {path.resolve()}")
             return []
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
