@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 
 from src.bootstrap import bootstrap
+from src.web import lifespan
 
-app = FastAPI(title="Metrics API", version="0.1.0")
+app = FastAPI(title="Metrics API", version="0.1.0", lifespan=lifespan)
 
 bootstrap(app=app)
 
