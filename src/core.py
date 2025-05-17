@@ -1,6 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Protocol, TypeVar, Type, Optional
+
+from sqlmodel import default
 
 T = TypeVar("T")
 
@@ -36,13 +38,6 @@ class MetricRecord:
 
 
 @dataclass(unsafe_hash=True, slots=True)
-class MetricConfiguration:
-    id: str = None
-    queryId: str = None
-    isEditable: bool = None
-
-
-@dataclass(unsafe_hash=True, slots=True)
 class LayoutItem:
     id: str = None
     item_id: str = None
@@ -58,3 +53,12 @@ class LayoutItem:
 class Query:
     id: str = None
     query: str = None
+
+
+@dataclass(unsafe_hash=True, slots=True)
+class MetricConfiguration:
+    id: str = None
+    queryId: str = None
+    query: Query = None
+    isEditable: bool = None
+    layouts: list[LayoutItem] = field(default_factory=list)
