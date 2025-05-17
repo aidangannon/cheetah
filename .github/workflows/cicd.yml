@@ -99,6 +99,8 @@ jobs:
               docker rm myfastapiapp
             fi
             
+            docker run --rm --env-file /home/ec2-user/fastapi.env myfastapiapp poetry run alembic heads
+            
             docker run --rm --env-file /home/ec2-user/fastapi.env myfastapiapp poetry run alembic upgrade head
             
             docker run -d --restart unless-stopped --name myfastapiapp --env-file /home/ec2-user/fastapi.env -p 8000:8000 --log-driver awslogs --log-opt awslogs-group=/my-app/fastapi myfastapiapp
