@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Protocol, TypeVar, Type, Optional
+from typing import Protocol, TypeVar, Type, Optional, Any
 
 from src.crosscutting import Logger
 
@@ -72,25 +72,12 @@ class UnitOfWork(Protocol):
     async def commit(self):
         ...
 
+class DataLoader(Protocol):
+    type: type
+    data: list[Any]
+    logger: Logger
 
-class MetricConfigurationLoader(Protocol):
-
-    async def __call__(self) -> list[MetricConfiguration]:
-        ...
-
-class LayoutItemLoader(Protocol):
-
-    async def __call__(self) -> list[LayoutItem]:
-        ...
-
-class MetricRecordLoader(Protocol):
-
-    async def __call__(self) -> list[MetricRecord]:
-        ...
-
-class QueryLoader(Protocol):
-
-    async def __call__(self) -> list[LayoutItem]:
+    async def __call__(self) -> None:
         ...
 
 class GenericDataSeeder(Protocol):

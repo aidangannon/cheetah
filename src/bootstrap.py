@@ -7,8 +7,7 @@ from fastapi import FastAPI
 from punq import Container, Scope
 
 from src.application.services import DatabaseHealthCheckService, DataSeedService
-from src.core import UnitOfWork, DbHealthReader, MetricConfigurationLoader, GenericDataSeeder, \
-    LayoutItemLoader, QueryLoader, MetricRecordLoader
+from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, SqlAlchemyDbHealthReader
 from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader, \
@@ -41,10 +40,10 @@ def add_database(container: Container):
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
 
 def add_loaders(container: Container):
-    container.register(MetricConfigurationLoader, JsonMetricConfigurationLoader)
-    container.register(LayoutItemLoader, JsonLayoutItemLoader)
-    container.register(MetricRecordLoader, JsonMetricRecordLoader)
-    container.register(QueryLoader, CsvQueryLoader)
+    container.register(DataLoader, JsonMetricConfigurationLoader)
+    container.register(DataLoader, JsonLayoutItemLoader)
+    container.register(DataLoader, JsonMetricRecordLoader)
+    container.register(DataLoader, CsvQueryLoader)
 
 def add_configuration(container: Container):
     container.register(Settings, instance=Settings(), scope=Scope.singleton)

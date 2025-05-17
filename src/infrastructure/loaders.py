@@ -12,18 +12,22 @@ from src.infrastructure import Settings
 import uuid
 
 
-@auto_slots
+LOADER_SLOTS = "settings", "logger", "type", "data"
+
 class JsonLayoutItemLoader:
+    __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
+        self.type = LayoutItem
+        self.data = []
 
-    async def __call__(self) -> list[LayoutItem]:
+    async def __call__(self) -> None:
         path = Path(self.settings.METRICS_SEED_JSON)
         if not path.exists():
             self.logger.warning(f"No layouts file as {path.resolve()}")
-            return []
+            return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
@@ -45,21 +49,23 @@ class JsonLayoutItemLoader:
                     static=layout.get("static", None)
                 ))
 
-        return layout_items
+        self.data = layout_items
 
 
-@auto_slots
 class JsonMetricRecordLoader:
+    __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
+        self.type = MetricRecord
+        self.data = []
 
-    async def __call__(self) -> list[MetricRecord]:
+    async def __call__(self) -> None:
         path = Path(self.settings.METRIC_RECORDS_SEED_JSON)
         if not path.exists():
             self.logger.warning(f"No metric records file as {path.resolve()}")
-            return []
+            return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
@@ -77,21 +83,23 @@ class JsonMetricRecordLoader:
                 alert_category=record.get("alert_category"),
             ))
 
-        return records
+        self.data = records
 
 
-@auto_slots
 class JsonMetricConfigurationLoader:
+    __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
+        self.type = MetricConfiguration
+        self.data = []
 
-    async def __call__(self) -> list[MetricConfiguration]:
+    async def __call__(self) -> None:
         path = Path(self.settings.METRICS_SEED_JSON)
         if not path.exists():
             self.logger.warning(f"No metrics file as {path.resolve()}")
-            return []
+            return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
@@ -113,7 +121,7 @@ class JsonMetricConfigurationLoader:
             )
             metric_configs.append(mc)
 
-        return metric_configs
+        self.data = metric_configs
 
 def remap_duplicate_ids(
     items: list[dict[str, Any]],
@@ -134,18 +142,20 @@ def remap_duplicate_ids(
     return new_items
 
 
-@auto_slots
 class CsvQueryLoader:
+    __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
+        self.type = Query
+        self.data = []
 
-    async def __call__(self) -> list[Query]:
+    async def __call__(self) -> None:
         path = Path(self.settings.QUERIES_SEED_CSV)
         if not path.exists():
             self.logger.warning(f"No csv file as {path.resolve()}")
-            return []
+            return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
@@ -155,4 +165,4 @@ class CsvQueryLoader:
         reader = csv.DictReader(lines)
         queries = [Query(id=row["id"], query=row["query"]) for row in reader]
 
-        return queries
+        self.data = queries

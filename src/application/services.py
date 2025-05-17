@@ -1,5 +1,6 @@
-from src.core import UnitOfWork, DbHealthReader, MetricConfigurationLoader, GenericDataSeeder, LayoutItemLoader, \
-    MetricConfiguration, LayoutItem, QueryLoader, Query, MetricRecordLoader, MetricRecord
+import asyncio
+
+from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader
 from src.crosscutting import auto_slots, Logger
 
 
@@ -25,28 +26,17 @@ class DataSeedService:
 
     def __init__(self,
         unit_of_work: UnitOfWork,
-        metrics_loader: MetricConfigurationLoader,
-        layouts_loader: LayoutItemLoader,
-        query_loader: QueryLoader,
-        metric_record_loader: MetricRecordLoader,
+        loaders: list[DataLoader],
         logger: Logger
     ):
-        self.metric_record_loader = metric_record_loader
+        self.loaders = loaders
         self.logger = logger
-        self.query_loader = query_loader
-        self.layouts_loader = layouts_loader
-        self.metric_configs_loader = metrics_loader
         self.unit_of_work = unit_of_work
 
     async def __call__(self):
-        metric_configs = await self.metric_configs_loader()
-        layout_items = await self.layouts_loader()
-        queries = await self.query_loader()
-        metric_records = await self.metric_record_loader()
+        await asyncio.gather(*(loader() for loader in self.loaders))
         async with self.unit_of_work as uow:
             seed = uow.persistence_factory(GenericDataSeeder)
-            await seed(data=metric_configs, _type=MetricConfiguration, logger=self.logger)
-            await seed(data=layout_items, _type=LayoutItem, logger=self.logger)
-            await seed(data=queries, _type=Query, logger=self.logger)
-            await seed(data=metric_records, _type=MetricRecord, logger=self.logger)
+            for loader in self.loaders:
+                await seed(data=loader.data, _type=loader.type, logger=self.logger)
             await uow.commit()
