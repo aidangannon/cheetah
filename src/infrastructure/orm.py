@@ -11,7 +11,8 @@ metadata = MetaData()
 metrics = Table(
     "metrics",
     metadata,
-    Column("id", String, primary_key=True),
+    Column("metric_id", String, primary_key=True),
+    Column("id", String, nullable=True),
     Column("date", DateTime, nullable=True),
     Column("obsolescence_val", Float, nullable=True),
     Column("parts_flagged", Integer, nullable=True),

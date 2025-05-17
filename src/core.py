@@ -26,7 +26,8 @@ class DbHealthReader(Protocol):
 
 @dataclass(unsafe_hash=True, slots=True)
 class MetricRecord:
-    id: str = None
+    metric_id: str = None
+    id: str = None # query id
     date: datetime = None
     obsolescence_val: float = None
     parts_flagged: int = None
