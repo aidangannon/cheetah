@@ -547,24 +547,10 @@ h11 = ">=0.8"
 [package.extras]
 standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.15.1)", "watchfiles (>=0.13)", "websockets (>=10.4)"]
 
-[[package]]
-name = "watchtower"
-version = "3.4.0"
-description = "Python CloudWatch Logging"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-boto3 = ">=1.9.253,<2"
-
-[package.extras]
-test = ["build", "coverage", "mypy", "pyyaml", "ruff", "wheel"]
-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.11"
-content-hash = "8a60d9cc275fddac099b693fed1fce65c2d5caba1bf8e3a6cc200e27aafa8da9"
+content-hash = "5572c70cea01ce6ed026bd4a15fb67a6368ae5d33158bbb754ccff869f157e95"
 
 [metadata.files]
 aiosqlite = []
@@ -610,4 +596,3 @@ typing-extensions = []
 typing-inspection = []
 urllib3 = []
 uvicorn = []
-watchtower = []

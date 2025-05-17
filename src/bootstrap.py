@@ -45,16 +45,11 @@ def add_services(container: Container):
     container.register(DatabaseHealthCheckService)
 
 def add_logging(container: Container):
-    cloudwatch_handler = watchtower.CloudWatchLogHandler(
-        log_group="/my-app/fastapi",
-        stream_name="intropy-metrics"
-    )
-    console_handler = logging.StreamHandler(sys.stdout)
     container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)
     logging.basicConfig(
         format="%(message)s",
-        handlers=[cloudwatch_handler, console_handler],
-        level=logging.INFO,
+        stream=sys.stdout,
+        level=logging.INFO,  # or DEBUG
     )
     structlog.configure(
         processors=[
