@@ -29,7 +29,7 @@ def upgrade() -> None:
     sa.Column('parts_flagged', sa.Integer(), nullable=True),
     sa.Column('alert_type', sa.String(), nullable=True),
     sa.Column('alert_category', sa.String(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('metric_id')
     )
     # ### end Alembic commands ###
 
