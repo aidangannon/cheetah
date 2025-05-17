@@ -36,7 +36,7 @@ class DataSeedService:
         self.metric_configs_loader = metrics_loader
         self.unit_of_work = unit_of_work
 
-    async def __call__(self) -> bool:
+    async def __call__(self):
         metric_configs = await self.metric_configs_loader()
         layout_items = await self.layouts_loader()
         queries = await self.query_loader()
@@ -46,4 +46,3 @@ class DataSeedService:
             await seed(data=layout_items, _type=LayoutItem, logger=self.logger)
             await seed(data=queries, _type=Query, logger=self.logger)
             await uow.commit()
-        return False

@@ -15,6 +15,7 @@ class SqlAlchemyGenericDataSeeder:
         """
         seeds the table if the table is not already empty
         """
+        logger.info(f"{len(data)} rows entered")
         stmt = select(func.count()).select_from(_type.__table__)
 
         result = await self.session.execute(stmt)
