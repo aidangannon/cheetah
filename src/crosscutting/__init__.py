@@ -1,6 +1,6 @@
 import inspect
 from contextlib import contextmanager
-from typing import Callable, TypeVar, Any, Protocol
+from typing import Callable, TypeVar, Any, Protocol, Type
 from fastapi import Request, Depends
 from punq import Container
 
@@ -59,5 +59,5 @@ class ServiceProvider:
     def __init__(self, container: Container):
         self.container = container
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Type[T]) -> T:
         return self.container.resolve(key)

@@ -6,10 +6,14 @@ import structlog
 from fastapi import FastAPI
 from punq import Container, Scope
 
-from src.application import DatabaseHealthCheckService
-from src.core import UnitOfWork, DbHealthReader
+from src.application.services import DatabaseHealthCheckService, DataSeedService
+from src.core import UnitOfWork, DbHealthReader, MetricConfigurationLoader, GenericDataSeeder, \
+    LayoutItemLoader, QueryLoader
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, SqlAlchemyDbHealthReader
+from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader
+from src.infrastructure.orm import start_mappers
+from src.infrastructure.writers import SqlAlchemyGenericDataSeeder
 from src.web.routes import health_router
 
 
@@ -25,12 +29,20 @@ def bootstrap(app: FastAPI, initialise_actions: Callable[[Container], None] = la
     add_routing(app=app, container=container)
     add_database(container=container)
     add_services(container=container)
+    add_loaders(container=container)
     initialise_actions(container)
     return container
 
 def add_database(container: Container):
+    start_mappers()
     register(DbHealthReader, SqlAlchemyDbHealthReader)
+    register(GenericDataSeeder, SqlAlchemyGenericDataSeeder)
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
+
+def add_loaders(container: Container):
+    container.register(MetricConfigurationLoader, JsonMetricConfigurationLoader)
+    container.register(LayoutItemLoader, JsonLayoutItemLoader)
+    container.register(QueryLoader, CsvQueryLoader)
 
 def add_configuration(container: Container):
     container.register(Settings, instance=Settings(), scope=Scope.singleton)
@@ -41,6 +53,7 @@ def add_routing(app: FastAPI, container: Container):
 
 def add_services(container: Container):
     container.register(DatabaseHealthCheckService)
+    container.register(DataSeedService)
 
 def add_logging(container: Container):
     container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)

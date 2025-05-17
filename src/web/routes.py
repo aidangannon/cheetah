@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends
 
-from src.application import DatabaseHealthCheckService
+from src.application.services import DatabaseHealthCheckService
 from src.crosscutting import get_service, logging_scope, Logger
 
 health_router = APIRouter(

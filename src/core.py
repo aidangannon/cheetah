@@ -2,9 +2,58 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Protocol, TypeVar, Type, Optional
 
-from sqlmodel import default
-
 T = TypeVar("T")
+
+
+@dataclass(unsafe_hash=True)
+class MetricRecord:
+    metric_id: str = None
+    id: str = None # query id
+    date: datetime = None
+    obsolescence_val: float = None
+    parts_flagged: int = None
+    alert_type: str = None
+    alert_category: str = None
+
+@dataclass(unsafe_hash=True)
+class LayoutItem:
+    id: str = None
+    item_id: str = None
+    breakpoint: str = None
+    x: int = None
+    y: int = None
+    w: int = None
+    h: int = None
+    static: bool = None
+
+@dataclass(unsafe_hash=True)
+class Query:
+    id: str = None
+    query: str = None
+
+@dataclass(unsafe_hash=True)
+class MetricConfiguration:
+    """
+    used for writing in a stateless fashion
+    """
+    id: str = None
+    query_id: str = None
+    is_editable: bool = None
+
+
+@dataclass(unsafe_hash=True)
+class MetricConfigurationAggregate(MetricConfiguration):
+    """
+    used for querying with related models attached
+    """
+    layouts: list[LayoutItem] = field(default_factory=list)
+    query: Query = None
+
+
+class DbHealthReader(Protocol):
+
+    async def __call__(self) -> Optional[int]:
+        ...
 
 
 class UnitOfWork(Protocol):
@@ -21,44 +70,23 @@ class UnitOfWork(Protocol):
     async def commit(self):
         ...
 
-class DbHealthReader(Protocol):
 
-    async def __call__(self) -> Optional[int]:
+class MetricConfigurationLoader(Protocol):
+
+    async def __call__(self) -> list[MetricConfiguration]:
         ...
 
-@dataclass(unsafe_hash=True, slots=True)
-class MetricRecord:
-    metric_id: str = None
-    id: str = None # query id
-    date: datetime = None
-    obsolescence_val: float = None
-    parts_flagged: int = None
-    alert_type: str = None
-    alert_category: str = None
+class LayoutItemLoader(Protocol):
 
+    async def __call__(self) -> list[LayoutItem]:
+        ...
 
-@dataclass(unsafe_hash=True, slots=True)
-class LayoutItem:
-    id: str = None
-    item_id: str = None
-    breakpoint: str = None
-    x: int = None
-    y: int = None
-    w: int = None
-    h: int = None
-    static: bool = None
+class QueryLoader(Protocol):
 
+    async def __call__(self) -> list[LayoutItem]:
+        ...
 
-@dataclass(unsafe_hash=True, slots=True)
-class Query:
-    id: str = None
-    query: str = None
+class GenericDataSeeder(Protocol):
 
-
-@dataclass(unsafe_hash=True, slots=True)
-class MetricConfiguration:
-    id: str = None
-    queryId: str = None
-    query: Query = None
-    isEditable: bool = None
-    layouts: list[LayoutItem] = field(default_factory=list)
+    async def __call__(self, data: list, _type) -> None:
+        ...

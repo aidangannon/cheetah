@@ -1,5 +1,6 @@
+import json
 from pathlib import Path
-from typing import TypeVar, Type
+from typing import TypeVar, Type, Any
 
 from pydantic.v1 import BaseSettings
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -21,6 +22,8 @@ T = TypeVar("T")
 
 class Settings(BaseSettings):
     DATABASE_URL: str
+    METRICS_SEED_JSON: str = "../data/metrics.json"
+    QUERIES_SEED_JSON: str = "../data/queries.csv"
 
     class Config:
         env_file = "../.env.local"

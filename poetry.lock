@@ -1,4 +1,12 @@
 [[package]]
+name = "aiofiles"
+version = "24.1.0"
+description = "File support for asyncio."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
 name = "aiosqlite"
 version = "0.21.0"
 description = "asyncio bridge to the standard sqlite3 module"
@@ -550,9 +558,10 @@ standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.11"
-content-hash = "5572c70cea01ce6ed026bd4a15fb67a6368ae5d33158bbb754ccff869f157e95"
+content-hash = "a22cb783219cf082b75108fc9fa40df46f05e8b7633ad4ca8049ef3f4b568940"
 
 [metadata.files]
+aiofiles = []
 aiosqlite = []
 alembic = []
 annotated-types = []

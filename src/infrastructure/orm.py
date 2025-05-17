@@ -1,9 +1,11 @@
+from typing import Optional, Any
+
 from sqlalchemy import (
     Table, MetaData, Column, String, Float, DateTime, Integer, Boolean, ForeignKey
 )
-from sqlalchemy.orm import registry, relationship
+from sqlalchemy.orm import registry, relationship, foreign
 
-from src.core import MetricRecord, MetricConfiguration, LayoutItem, Query
+from src.core import MetricRecord, MetricConfiguration, LayoutItem, Query, MetricConfigurationAggregate
 
 mapper_registry = registry()
 metadata = MetaData()
@@ -31,7 +33,7 @@ metric_configurations = Table(
     "metric_configurations",
     metadata,
     Column("id", String, primary_key=True),
-    Column("query_id", String, ForeignKey("queries.id")),
+    Column("query_id", String, nullable=True),
     Column("is_editable", Boolean, nullable=True),
 )
 
@@ -45,29 +47,31 @@ layout_items = Table(
     Column("y", Integer, nullable=True),
     Column("w", Integer, nullable=True),
     Column("h", Integer, nullable=True),
-    Column("static", Boolean, nullable=True),
-    Column("metric_configuration_id", String, ForeignKey("metric_configurations.id")),
+    Column("static", Boolean, nullable=True)
 )
 
 def start_mappers():
+
     mapper_registry.map_imperatively(MetricRecord, metrics)
 
     mapper_registry.map_imperatively(Query, queries)
 
     mapper_registry.map_imperatively(LayoutItem, layout_items)
 
+    mapper_registry.map_imperatively(MetricConfiguration, metric_configurations)
+
     mapper_registry.map_imperatively(
-        MetricConfiguration,
+        MetricConfigurationAggregate,
         metric_configurations,
         properties={
             "query": relationship(
                 Query,
-                primaryjoin=metric_configurations.c.query_id == queries.c.id,
+                primaryjoin=metric_configurations.c.query_id == foreign(queries.c.id),
                 backref="metric_configurations"
             ),
             "layouts": relationship(
                 LayoutItem,
-                primaryjoin=layout_items.c.metric_configuration_id == metric_configurations.c.id,
+                primaryjoin=layout_items.c.item_id == foreign(metric_configurations.c.id),
                 backref="metric_configuration"
             )
         }
