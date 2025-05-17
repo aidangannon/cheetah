@@ -20,8 +20,8 @@ class SqlAlchemyGenericDataSeeder:
         result = await self.session.execute(stmt)
         count = result.scalar()
 
+        logger.info(f"{count} rows found")
         if count > 0:
-            logger.info(f"{count} rows found")
             return
 
         self.session.add_all(data)
