@@ -3,8 +3,6 @@ import sys
 from typing import Callable
 
 import structlog
-import watchtower
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from punq import Container, Scope
 
