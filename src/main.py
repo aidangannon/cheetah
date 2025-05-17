@@ -4,8 +4,6 @@ from src.bootstrap import bootstrap
 
 app = FastAPI(title="Metrics API", version="0.1.0")
 
-app.on_event()
-
 bootstrap(app=app)
 
 if __name__ == "__main__":
