@@ -33,3 +33,28 @@ class MetricRecord:
     parts_flagged: int = None
     alert_type: str = None
     alert_category: str = None
+
+
+@dataclass(unsafe_hash=True, slots=True)
+class MetricConfiguration:
+    id: str = None
+    queryId: str = None
+    isEditable: bool = None
+
+
+@dataclass(unsafe_hash=True, slots=True)
+class LayoutItem:
+    id: str = None
+    item_id: str = None
+    breakpoint: str = None
+    x: int = None
+    y: int = None
+    w: int = None
+    h: int = None
+    static: bool = None
+
+
+@dataclass(unsafe_hash=True, slots=True)
+class Query:
+    id: str = None
+    query: str = None
