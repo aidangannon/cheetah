@@ -49,11 +49,11 @@ def add_logging(container: Container):
         log_group="/my-app/fastapi",
         stream_name="intropy-metrics"
     )
+    console_handler = logging.StreamHandler(sys.stdout)
     container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)
     logging.basicConfig(
         format="%(message)s",
-        handlers=[cloudwatch_handler],
-        stream=sys.stdout,
+        handlers=[cloudwatch_handler, console_handler],
         level=logging.INFO,
     )
     structlog.configure(
