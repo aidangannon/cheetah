@@ -55,7 +55,7 @@ def add_logging(container: Container):
             structlog.stdlib.filter_by_level,
             structlog.stdlib.add_log_level,
             structlog.processors.TimeStamper(fmt="ISO"),
-            structlog.processors.JSONRenderer(indent=2)
+            structlog.processors.JSONRenderer()
         ],
         wrapper_class=structlog.stdlib.BoundLogger,
         logger_factory=structlog.stdlib.LoggerFactory(),
