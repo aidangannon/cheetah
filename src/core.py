@@ -83,6 +83,11 @@ class LayoutItemLoader(Protocol):
     async def __call__(self) -> list[LayoutItem]:
         ...
 
+class MetricRecordLoader(Protocol):
+
+    async def __call__(self) -> list[MetricRecord]:
+        ...
+
 class QueryLoader(Protocol):
 
     async def __call__(self) -> list[LayoutItem]:

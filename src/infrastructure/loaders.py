@@ -1,13 +1,15 @@
 import csv
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import aiofiles
 
-from src.core import MetricConfiguration, LayoutItem, Query
+from src.core import MetricConfiguration, LayoutItem, Query, MetricRecord
 from src.crosscutting import auto_slots, Logger
 from src.infrastructure import Settings
+import uuid
 
 
 @auto_slots
@@ -29,7 +31,6 @@ class JsonLayoutItemLoader:
 
         layouts_by_breakpoint = data.get("layouts", {})
 
-        import uuid
         layout_items: list[LayoutItem] = []
         for breakpoint, layouts in layouts_by_breakpoint.items():
             for layout in layouts:
@@ -45,6 +46,38 @@ class JsonLayoutItemLoader:
                 ))
 
         return layout_items
+
+
+@auto_slots
+class JsonMetricRecordLoader:
+
+    def __init__(self, settings: Settings, logger: Logger):
+        self.logger = logger
+        self.settings = settings
+
+    async def __call__(self) -> list[MetricRecord]:
+        path = Path(self.settings.METRIC_RECORDS_SEED_JSON)
+        if not path.exists():
+            self.logger.warning(f"No metric records file as {path.resolve()}")
+            return []
+
+        async with aiofiles.open(path, 'r', encoding='utf-8') as f:
+            contents = await f.read()
+            data = json.loads(contents)
+
+        records: list[MetricRecord] = []
+        for record in data:
+            records.append(MetricRecord(
+                metric_id=str(uuid.uuid4()),
+                id=record.get("id"),
+                date=datetime.fromisoformat(record["date"]),
+                obsolescence_val=record.get("obsolescence_val"),
+                parts_flagged=record.get("parts_flagged"),
+                alert_type=record.get("alert_type"),
+                alert_category=record.get("alert_category"),
+            ))
+
+        return records
 
 
 @auto_slots
@@ -109,7 +142,7 @@ class CsvQueryLoader:
         self.settings = settings
 
     async def __call__(self) -> list[Query]:
-        path = Path(self.settings.QUERIES_SEED_JSON)
+        path = Path(self.settings.QUERIES_SEED_CSV)
         if not path.exists():
             self.logger.warning(f"No csv file as {path.resolve()}")
             return []

@@ -8,10 +8,11 @@ from punq import Container, Scope
 
 from src.application.services import DatabaseHealthCheckService, DataSeedService
 from src.core import UnitOfWork, DbHealthReader, MetricConfigurationLoader, GenericDataSeeder, \
-    LayoutItemLoader, QueryLoader
+    LayoutItemLoader, QueryLoader, MetricRecordLoader
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, SqlAlchemyDbHealthReader
-from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader
+from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader, \
+    JsonMetricRecordLoader
 from src.infrastructure.orm import start_mappers
 from src.infrastructure.writers import SqlAlchemyGenericDataSeeder
 from src.web.routes import health_router
@@ -42,6 +43,7 @@ def add_database(container: Container):
 def add_loaders(container: Container):
     container.register(MetricConfigurationLoader, JsonMetricConfigurationLoader)
     container.register(LayoutItemLoader, JsonLayoutItemLoader)
+    container.register(MetricRecordLoader, JsonMetricRecordLoader)
     container.register(QueryLoader, CsvQueryLoader)
 
 def add_configuration(container: Container):

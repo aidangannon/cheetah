@@ -1,0 +1,77 @@
+[
+  {
+    "id": "cmcw1zaxw0003p1qk1fo9ss8m",
+    "date": "2025-08-01T00:00:00",
+    "obsolescence_val": 120.50
+  },
+  {
+    "id": "cmcw1zaxw0003p1qk1fo9ss8m",
+    "date": "2025-07-15T00:00:00",
+    "obsolescence_val": 80.25
+  },
+  {
+    "id": "cmcw3crxh0001poqkt5ctjjb0",
+    "date": "2025-06-03T00:00:00",
+    "alert_type": "Critical"
+  },
+  {
+    "id": "cmcw3crxh0001poqkt5ctjjb0",
+    "date": "2025-06-03T00:00:00",
+    "alert_type": "Warning"
+  },
+  {
+    "id": "cmcw3crxh0001poqkt5ctjjb0",
+    "date": "2025-06-10T00:00:00",
+    "alert_type": "Warning"
+  },
+  {
+    "id": "cmcw3etd80002poqk6era3ko9",
+    "date": "2025-08-01T00:00:00",
+    "parts_flagged": 10
+  },
+  {
+    "id": "cmcw3etd80002poqk6era3ko9",
+    "date": "2025-07-31T00:00:00",
+    "parts_flagged": 5
+  },
+  {
+    "id": "cmcw3etd80002poqk6era3ko9",
+    "date": "2025-07-30T00:00:00",
+    "parts_flagged": 7
+  },
+  {
+    "id": "cmcxgnpq10001wpqk36vpzseb",
+    "date": "2025-06-02T00:00:00",
+    "obsolescence_val": 50.0
+  },
+  {
+    "id": "cmcxgnpq10001wpqk36vpzseb",
+    "date": "2025-06-10T00:00:00",
+    "obsolescence_val": 70.5
+  },
+  {
+    "id": "cmcxgnpq10001wpqk36vpzseb",
+    "date": "2025-06-25T00:00:00",
+    "obsolescence_val": 65.0
+  },
+  {
+    "id": "cmcxhohny0001ykqk3fnzs1qy",
+    "date": "2025-06-02T00:00:00",
+    "alert_category": "Need approval"
+  },
+  {
+    "id": "cmcxhohny0001ykqk3fnzs1qy",
+    "date": "2025-06-10T00:00:00",
+    "alert_category": "Need approval"
+  },
+  {
+    "id": "cmcxhohny0001ykqk3fnzs1qy",
+    "date": "2025-06-10T00:00:00",
+    "alert_category": "Need approval"
+  },
+  {
+    "id": "cmcxhohny0001ykqk3fnzs1qy",
+    "date": "2025-06-25T00:00:00",
+    "alert_category": "Need approval"
+  }
+]
