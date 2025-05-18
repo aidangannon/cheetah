@@ -34,11 +34,16 @@ def assert_there_is_log_with(test_logger, log_level, message: str, scoped_vars: 
     logs_with_message = [log for log in logs_with_log_level if log[1] == message]
     if scoped_vars is None:
         scoped_vars = {}
+
+    # Convert scoped_vars items to a list to preserve order
+    scoped_items = list(scoped_vars.items())
+
     logs_with_scoped_values = [
         log for log in logs_with_message
-        if all(item in log[3].items() for item in scoped_vars.items())
+        if list(log[3].items()) == scoped_items  # exact same order and content
     ]
-    assert len(logs_with_scoped_values) == 1, f"Expected exactly one log matching criteria, found {len(logs_with_scoped_values)}"
+    assert len(
+        logs_with_scoped_values) == 1, f"Expected exactly one log matching criteria, found {len(logs_with_scoped_values)}"
 
 
 class FastApiScenarioRunner:

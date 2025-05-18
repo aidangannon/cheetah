@@ -6,7 +6,7 @@ import structlog
 from fastapi import FastAPI
 from punq import Container, Scope
 
-from src.application.services import DatabaseHealthCheckService, DataSeedService
+from src.application.services import DatabaseHealthCheckService, DataSeedService, GetMetricsService
 from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, SqlAlchemyDbHealthReader
@@ -61,6 +61,7 @@ def add_routing(app: FastAPI, container: Container):
 
 def add_services(container: Container):
     container.register(DatabaseHealthCheckService)
+    container.register(GetMetricsService)
     container.register(DataSeedService)
 
 def add_logging(container: Container):

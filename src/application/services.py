@@ -1,6 +1,7 @@
 import asyncio
+from typing import Optional
 
-from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader
+from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader, MetricConfigurationAggregate
 from src.crosscutting import auto_slots, Logger
 
 
@@ -19,6 +20,16 @@ class DatabaseHealthCheckService:
                 return False
 
             return True
+
+
+@auto_slots
+class GetMetricsService:
+
+    def __init__(self, unit_of_work: UnitOfWork):
+        self.unit_of_work = unit_of_work
+
+    async def __call__(self, id: str) -> Optional[MetricConfigurationAggregate]:
+        return None
 
 
 @auto_slots

@@ -28,11 +28,3 @@ class MetricsResponse(BaseModel):
     is_editable: bool
     metrics: list[MetricRecordResponse]
     layouts: list[LayoutItemResponse]
-
-class Id(BaseModel):
-    id: str
-
-    @validator("id")
-    def validate_uuid(cls, v):
-        UUID(v)  # raises if invalid
-        return v

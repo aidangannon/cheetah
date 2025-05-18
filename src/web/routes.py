@@ -1,10 +1,12 @@
 from typing import Any
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from starlette.responses import JSONResponse
 
-from src.application.services import DatabaseHealthCheckService
+from src.application.services import DatabaseHealthCheckService, GetMetricsService
 from src.crosscutting import get_service, logging_scope, Logger
-from src.web.contracts import Id, MetricsResponse
+from src.web.contracts import MetricsResponse
 
 health_router = APIRouter(
     prefix="/health",
@@ -32,15 +34,20 @@ metrics_router = APIRouter(
 )
 
 @metrics_router.get(
-    "/{id}",
+    "/{metric_id}",
     response_model=MetricsResponse,
     summary="Get metrics",
     description="Get metrics configuration, data and layouts"
 )
 async def get_metrics(
-    _id: Id,
+    metric_id: UUID,
     logger: Logger = Depends(get_service(Logger)),
+    get_metrics_service: GetMetricsService = Depends(get_service(GetMetricsService))
 ):
-    with logging_scope(operation=get_metrics.__name__, id=_id.id):
+    id_str = str(metric_id)
+    with logging_scope(operation=get_metrics.__name__, id=id_str):
         logger.info("Endpoint called")
+        metrics = await get_metrics_service(id=id_str)
+        if metrics is None:
+            return JSONResponse(status_code=404, content={"detail": "Metrics not found"})
         return None
