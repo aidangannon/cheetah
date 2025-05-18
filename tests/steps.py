@@ -47,19 +47,13 @@ class GetMetricsScenario:
         return self
 
     @step
-    def when_the_get_health_endpoint_is_called(self):
-        self.response = self.runner.client.get("/metrics")
+    def when_the_get_health_endpoint_is_called_with_metric_configuration_id(self, metric_configuration_id: str):
+        self.response = self.runner.client.get(f"/metrics/{metric_configuration_id}")
         return self
 
     @step
-    def then_the_status_code_should_be_ok(self):
-        assert self.response.status_code == 200
-        return self
-
-    @step
-    def then_the_response_should_be_healthy(self):
-        response_body = self.response.json()
-        assert response_body == {"application": True, "database": True}, f"actual - {response_body}"
+    def then_the_status_code_should_be(self, status_code: int):
+        assert self.response.status_code == status_code
         return self
 
     @step
@@ -67,5 +61,5 @@ class GetMetricsScenario:
         assert_there_is_log_with(self.runner.test_logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            scoped_vars={"operation": "get_health"})
+            scoped_vars={"operation": "get_metrics"})
         return self

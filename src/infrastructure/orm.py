@@ -7,6 +7,8 @@ from sqlalchemy.orm import registry, relationship, foreign
 
 from src.core import MetricRecord, MetricConfiguration, LayoutItem, Query, MetricConfigurationAggregate
 
+_mappers_started = False
+
 mapper_registry = registry()
 metadata = MetaData()
 
@@ -51,6 +53,10 @@ layout_items = Table(
 )
 
 def start_mappers():
+    global _mappers_started
+    if _mappers_started:
+        return
+    _mappers_started = True
 
     mapper_registry.map_imperatively(MetricRecord, metrics)
 

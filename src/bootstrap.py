@@ -18,7 +18,10 @@ from src.web.middleware import add_exception_middleware
 from src.web.routes import health_router
 
 
-def bootstrap(app: FastAPI, initialise_actions: Callable[[Container], None] = lambda x: None):
+def bootstrap(app: FastAPI,
+    initialise_actions: Callable[[Container], None] = lambda x: None,
+    use_env_settings: bool = True
+):
     """
     sets up the app, spins up ioc, adds logging, adds app settings
     :param app: flask application for building
@@ -26,7 +29,8 @@ def bootstrap(app: FastAPI, initialise_actions: Callable[[Container], None] = la
     """
     container = Container()
     add_logging(container=container)
-    add_configuration(container=container)
+    if use_env_settings:
+        add_configuration(container=container)
     add_routing(app=app, container=container)
     add_exception_middleware(app=app)
     add_database(container=container)

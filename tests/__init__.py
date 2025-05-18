@@ -52,7 +52,7 @@ class FastApiScenarioRunner:
             populated_container.register(Logger, instance=self.test_logger)
             populated_container.register(Settings, instance=settings, scope=Scope.singleton)
 
-        bootstrap(app, initialise_actions=override_deps)
+        bootstrap(app, initialise_actions=override_deps, use_env_settings=False)
         self.client = TestClient(app)
 
     def assert_all(self):
