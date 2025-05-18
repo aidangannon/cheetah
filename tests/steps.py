@@ -62,3 +62,11 @@ class GetMetricsScenario:
             log_level=logging.ERROR,
             message="Error occurred")
         return self
+
+    @step
+    def then_an_info_log_indicates_endpoint_called(self):
+        assert_there_is_log_with(self.runner.test_logger,
+                                 log_level=logging.INFO,
+                                 message="Endpoint called",
+                                 scoped_vars={"operation": "get_metrics", "id": id})
+        return self
