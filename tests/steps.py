@@ -35,3 +35,37 @@ class HealthCheckScenario:
             message="Endpoint called",
             scoped_vars={"operation": "get_health"})
         return self
+
+
+class GetMetricsScenario:
+
+    def __init__(self):
+        self.runner = FastApiScenarioRunner()
+
+    @step
+    def given_i_have_an_app_running(self):
+        return self
+
+    @step
+    def when_the_get_health_endpoint_is_called(self):
+        self.response = self.runner.client.get("/metrics")
+        return self
+
+    @step
+    def then_the_status_code_should_be_ok(self):
+        assert self.response.status_code == 200
+        return self
+
+    @step
+    def then_the_response_should_be_healthy(self):
+        response_body = self.response.json()
+        assert response_body == {"application": True, "database": True}, f"actual - {response_body}"
+        return self
+
+    @step
+    def then_an_info_log_indicates_the_endpoint_was_called(self):
+        assert_there_is_log_with(self.runner.test_logger,
+            log_level=logging.INFO,
+            message="Endpoint called",
+            scoped_vars={"operation": "get_health"})
+        return self
