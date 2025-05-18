@@ -1,5 +1,6 @@
 import logging
 
+from src.web.contracts import MetricsResponse
 from tests import step, assert_there_is_log_with, FastApiScenarioRunner
 
 
@@ -55,6 +56,13 @@ class GetMetricsScenario:
     @step
     def then_the_status_code_should_be(self, status_code: int):
         assert self.response.status_code == status_code, f"Actual status code is {self.response.status_code}"
+        return self
+
+    @step
+    def then_the_response_body_should_match_expected_metric(self):
+        MetricsResponse(
+            id="")
+        typed_obj = MetricsResponse.parse_obj(self.response.json())
         return self
 
     @step

@@ -19,6 +19,7 @@ metrics = Table(
     Column("id", String, nullable=True),
     Column("date", DateTime, nullable=True),
     Column("obsolescence_val", Float, nullable=True),
+    Column("obsolescence", Float, nullable=True),
     Column("parts_flagged", Integer, nullable=True),
     Column("alert_type", String, nullable=True),
     Column("alert_category", String, nullable=True),

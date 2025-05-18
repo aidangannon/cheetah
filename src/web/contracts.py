@@ -9,6 +9,7 @@ class MetricRecordResponse(BaseModel):
     metric_id: str
     date: datetime
     obsolescence_val: Optional[float]
+    obsolescence: Optional[float]
     parts_flagged: Optional[int]
     alert_type: Optional[str]
     alert_category: Optional[str]

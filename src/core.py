@@ -13,6 +13,7 @@ class MetricRecord:
     id: str = None # query id
     date: datetime = None
     obsolescence_val: float = None
+    obsolescence: float = None
     parts_flagged: int = None
     alert_type: str = None
     alert_category: str = None
