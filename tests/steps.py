@@ -47,19 +47,18 @@ class GetMetricsScenario:
         return self
 
     @step
-    def when_the_get_health_endpoint_is_called_with_metric_configuration_id(self, metric_configuration_id: str):
-        self.response = self.runner.client.get(f"/metrics/{metric_configuration_id}")
+    def when_the_get_health_endpoint_is_called_with_metric_configuration_id(self, id: str):
+        self.response = self.runner.client.get(f"/metrics/{id}")
         return self
 
     @step
     def then_the_status_code_should_be(self, status_code: int):
-        assert self.response.status_code == status_code
+        assert self.response.status_code == status_code, f"Actual status code is {self.response.status_code}"
         return self
 
     @step
-    def then_an_info_log_indicates_the_endpoint_was_called(self):
+    def then_an_error_log_indicates_a_validation_error(self):
         assert_there_is_log_with(self.runner.test_logger,
-            log_level=logging.INFO,
-            message="Endpoint called",
-            scoped_vars={"operation": "get_metrics"})
+            log_level=logging.ERROR,
+            message="Error occurred")
         return self

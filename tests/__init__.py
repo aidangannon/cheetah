@@ -29,9 +29,11 @@ def step(func):
     return wrapper
 
 
-def assert_there_is_log_with(test_logger, log_level, message: str, scoped_vars: dict):
+def assert_there_is_log_with(test_logger, log_level, message: str, scoped_vars: dict = None):
     logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]
     logs_with_message = [log for log in logs_with_log_level if log[1] == message]
+    if scoped_vars is None:
+        scoped_vars = {}
     logs_with_scoped_values = [
         log for log in logs_with_message
         if all(item in log[3].items() for item in scoped_vars.items())

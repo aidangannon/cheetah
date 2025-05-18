@@ -15,7 +15,7 @@ from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayout
 from src.infrastructure.orm import start_mappers
 from src.infrastructure.writers import SqlAlchemyGenericDataSeeder
 from src.web.middleware import add_exception_middleware
-from src.web.routes import health_router
+from src.web.routes import health_router, metrics_router
 
 
 def bootstrap(app: FastAPI,
@@ -57,6 +57,7 @@ def add_configuration(container: Container):
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)
     app.include_router(router=health_router)
+    app.include_router(router=metrics_router)
 
 def add_services(container: Container):
     container.register(DatabaseHealthCheckService)

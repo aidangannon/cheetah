@@ -1,11 +1,10 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
-from pydantic.v1 import BaseModel
+from pydantic.v1 import BaseModel, validator
 
 
-@dataclass(unsafe_hash=True)
 class MetricRecordResponse(BaseModel):
     metric_id: str
     date: datetime
@@ -14,7 +13,6 @@ class MetricRecordResponse(BaseModel):
     alert_type: Optional[str]
     alert_category: Optional[str]
 
-@dataclass(unsafe_hash=True)
 class LayoutItemResponse(BaseModel):
     id: str
     item_id: str
@@ -25,9 +23,16 @@ class LayoutItemResponse(BaseModel):
     h: int
     static: Optional[bool]
 
-@dataclass(unsafe_hash=True)
 class MetricsResponse(BaseModel):
     id: str
     is_editable: bool
     metrics: list[MetricRecordResponse]
     layouts: list[LayoutItemResponse]
+
+class Id(BaseModel):
+    id: str
+
+    @validator("id")
+    def validate_uuid(cls, v):
+        UUID(v)  # raises if invalid
+        return v
