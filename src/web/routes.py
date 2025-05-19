@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse
 
+from src.application.mappers import map_metric_aggregate_to_contract
 from src.application.services import DatabaseHealthCheckService, GetMetricsService
 from src.crosscutting import get_service, logging_scope, Logger
 from src.web.contracts import MetricsResponse
@@ -35,7 +36,6 @@ metrics_router = APIRouter(
 
 @metrics_router.get(
     "/{metric_id}",
-    response_model=MetricsResponse,
     summary="Get metrics",
     description="Get metrics configuration, data and layouts"
 )
@@ -47,7 +47,11 @@ async def get_metrics(
     id_str = str(metric_id)
     with logging_scope(operation=get_metrics.__name__, id=id_str):
         logger.info("Endpoint called")
+
         metrics = await get_metrics_service(_id=id_str)
+
         if metrics is None:
             return JSONResponse(status_code=404, content={"detail": "Metrics not found"})
-        return None
+
+        response = map_metric_aggregate_to_contract(metrics)
+        return response

@@ -112,3 +112,6 @@ samconfig.toml
 
 # ide
 /.idea
+
+# Test database
+test.db

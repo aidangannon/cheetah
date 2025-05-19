@@ -1,4 +1,5 @@
 import csv
+import io
 import json
 from datetime import datetime
 from pathlib import Path
@@ -155,15 +156,20 @@ class CsvQueryLoader:
     async def __call__(self) -> None:
         path = Path(self.settings.QUERIES_SEED_CSV)
         if not path.exists():
-            self.logger.warning(f"No csv file as {path.resolve()}")
+            self.logger.warning(f"No csv file at {path.resolve()}")
             return
 
-        async with aiofiles.open(path, 'r', encoding='utf-8') as f:
+        async with aiofiles.open(path, 'r', encoding='utf-8', newline='') as f:
             contents = await f.read()
 
-        lines = contents.splitlines()
+        # Use io.StringIO to create a file-like object
+        csvfile = io.StringIO(contents)
 
-        reader = csv.DictReader(lines)
-        queries = [Query(id=row["id"], query=row["query"]) for row in reader]
+        # Let csv module handle multi-line fields properly
+        reader = csv.DictReader(csvfile)
+
+        queries = [
+            Query(id=row["id"], query=row["query"]) for row in reader
+        ]
 
         self.data = queries

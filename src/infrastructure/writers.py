@@ -15,7 +15,7 @@ class SqlAlchemyGenericDataSeeder:
         """
         seeds the table if the table is not already empty
         """
-        with logging_scope({"operation": "db_seed"}):
+        with logging_scope(operation="db_seed"):
             logger.info(f"{len(data)} input rows")
             stmt = select(func.count()).select_from(_type.__table__)
 

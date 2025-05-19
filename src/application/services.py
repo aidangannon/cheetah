@@ -2,7 +2,7 @@ import asyncio
 from typing import Optional
 
 from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader, MetricConfigurationAggregate, \
-    MetricAggregateReader
+    MetricAggregateReader, MetricRecordsReader
 from src.crosscutting import auto_slots, Logger
 
 
@@ -32,8 +32,13 @@ class GetMetricsService:
     async def __call__(self, _id: str) -> Optional[MetricConfigurationAggregate]:
         async with self.unit_of_work as uow:
             config_reader = uow.persistence_factory(MetricAggregateReader)
-            result = await config_reader(_id=_id)
-            print("")
+            records_reader = uow.persistence_factory(MetricRecordsReader)
+            metrics_config = await config_reader(_id=_id)
+            if metrics_config is None:
+                return None
+            records = await records_reader(query=metrics_config.query.query)
+        metrics_config.records = records
+        return metrics_config
 
 
 @auto_slots

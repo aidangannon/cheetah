@@ -1,14 +1,21 @@
+import asyncio
 import logging
+import os
 import threading
 
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI
 from punq import Container, Scope
 from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
+from uvicorn.config import LOG_LEVELS
 
+from src.application.services import DataSeedService
 from src.crosscutting import Logger
 from src.bootstrap import bootstrap
 from src.infrastructure import Settings
+from src.web import lifespan
 
 
 def step(func):
@@ -53,13 +60,24 @@ class FastApiScenarioRunner:
         self.test_logger = TestLogger()
         self.failures = []
         app = FastAPI()
-        settings = Settings(DATABASE_URL="sqlite+aiosqlite:///:memory:")
+        db_url = "sqlite+aiosqlite:///./test.db"
+        os.environ["DATABASE_URL"] = db_url
+        settings = Settings(
+            DATABASE_URL=db_url,
+            QUERIES_SEED_CSV="./data/sqlite_compliant_queries.csv",
+            METRICS_SEED_JSON = "./data/metrics.json",
+            METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
+        )
 
         def override_deps(populated_container: Container):
             populated_container.register(Logger, instance=self.test_logger)
             populated_container.register(Settings, instance=settings, scope=Scope.singleton)
 
         bootstrap(app, initialise_actions=override_deps, use_env_settings=False)
+        alembic_cfg = Config("./alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+        seed_service = app.state.services[DataSeedService]
+        asyncio.run(seed_service())
         self.client = TestClient(app)
 
     def assert_all(self):
@@ -110,6 +128,7 @@ class TestLogger:
 
     def _log(self, level, msg, *args, **kwargs):
         # merge custom kwargs with contextvars
+        print(f"{logging.getLevelName(level)} {msg} ARGS: {args} KWARGS: {kwargs}")
         context_data = get_contextvars()
         combined_data = {**context_data, **kwargs}  # kwargs take precedence
         self.append((level, msg, args, combined_data))

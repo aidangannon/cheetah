@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+import datetime
 from typing import Protocol, TypeVar, Type, Optional, Any
 
 from src.crosscutting import Logger
@@ -11,7 +11,7 @@ T = TypeVar("T")
 class MetricRecord:
     metric_id: str = None
     id: str = None # query id
-    date: datetime = None
+    date: datetime.datetime = None
     obsolescence_val: float = None
     obsolescence: float = None
     parts_flagged: int = None
@@ -51,6 +51,7 @@ class MetricConfigurationAggregate(MetricConfiguration):
     """
     layouts: list[LayoutItem] = field(default_factory=list)
     query: Query = None
+    records: list[dict] = field(default_factory=list)
 
 
 class DbHealthReader(Protocol):
@@ -67,7 +68,7 @@ class MetricAggregateReader(Protocol):
 
 class MetricRecordsReader(Protocol):
 
-    async def __call__(self, query: str) -> list[MetricRecord]:
+    async def __call__(self, query: str) -> list[dict]:
         ...
 
 

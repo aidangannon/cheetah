@@ -1,6 +1,7 @@
+import datetime
 import logging
 
-from src.web.contracts import MetricsResponse, MetricRecordResponse, LayoutItemResponse
+from src.web.contracts import MetricsResponse, LayoutItemResponse
 from tests import step, assert_there_is_log_with, FastApiScenarioRunner
 
 
@@ -63,17 +64,15 @@ class GetMetricsScenario:
         expected_response = MetricsResponse(
             id="def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
             is_editable=True,
-            metrics=[
-                MetricRecordResponse(
-                    metric_id="*",
-                    date="2025-07-15T00:00:00",
-                    obsolescence=80.25
-                ),
-                MetricRecordResponse(
-                    metric_id="*",
-                    date="2025-08-01T00:00:00",
-                    obsolescence=80.25
-                )
+            records=[
+                {
+                    'day': '2025-07-15',
+                    'cost_avoided': 80.25
+                },
+                {
+                    'day': '2025-08-01',
+                    'cost_avoided': 120.5
+                }
             ],
             layouts=[
                 LayoutItemResponse(
@@ -89,15 +88,16 @@ class GetMetricsScenario:
                 LayoutItemResponse(
                     id="*",
                     item_id="def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+                    breakpoint='md',
                     h=4,
-                    w=5,
+                    w=1,
                     x=0,
                     y=10
                 )
             ])
         actual_response = MetricsResponse.parse_obj(self.response.json())
 
-        exclusions = {"metrics": {"__all__": {"metric_id"}}, "layouts": {"__all__": {"id"}}}
+        exclusions = {"layouts": {"__all__": {"id"}}}
 
         assert expected_response.dict(exclude=exclusions) == actual_response.dict(exclude=exclusions),\
             f"expected - {expected_response.dict()} actual - {actual_response.dict()}"
