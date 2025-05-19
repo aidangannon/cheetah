@@ -91,8 +91,8 @@ class FastApiTestCase(TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         cls.env_patcher.stop()
-        if os.path.exists(f"./{cls.db_name}.db"):
-            os.remove(f"./{cls.db_name}.db")
+        #if os.path.exists(f"./{cls.db_name}.db"):
+        #    os.remove(f"./{cls.db_name}.db")
 
     def assert_there_is_log_with(self, test_logger, log_level, message: str, scoped_vars: dict = None):
         logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]

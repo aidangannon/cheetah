@@ -5,7 +5,7 @@ from tests import FastApiTestCase, ScenarioContext, ScenarioRunner
 from tests.steps import HealthCheckScenario, GetMetricsScenario
 
 
-class TestScenarios(FastApiTestCase):
+class TestHealthCheckScenarios(FastApiTestCase):
 
     def setUp(self) -> None:
         self.context = ScenarioContext(
@@ -29,6 +29,21 @@ class TestScenarios(FastApiTestCase):
             .then_the_response_should_be_healthy() \
             .then_an_info_log_indicates_the_endpoint_was_called()
 
+
+class TestMetricsScenarios(FastApiTestCase):
+
+    def setUp(self) -> None:
+        self.context = ScenarioContext(
+            client=self.client,
+            test_case=self,
+            logger=self.test_logger,
+            runner=ScenarioRunner()
+        )
+
+    def tearDown(self) -> None:
+        self.context \
+            .runner \
+            .assert_all()
 
     def test_get_metrics_when_invalid_id_is_used(self):
         scenario = GetMetricsScenario(self.context)
