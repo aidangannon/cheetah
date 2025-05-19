@@ -73,13 +73,15 @@ def start_mappers():
         properties={
             "query": relationship(
                 Query,
-                primaryjoin=metric_configurations.c.query_id == foreign(queries.c.id),
-                backref="metric_configurations"
+                primaryjoin=foreign(metric_configurations.c.query_id) == queries.c.id,
+                backref="metric_configurations",
+                lazy="joined"
             ),
             "layouts": relationship(
                 LayoutItem,
-                primaryjoin=layout_items.c.item_id == foreign(metric_configurations.c.id),
-                backref="metric_configuration"
+                primaryjoin=foreign(layout_items.c.item_id) == metric_configurations.c.id,
+                backref="metric_configuration",
+                lazy="joined"
             )
         }
     )

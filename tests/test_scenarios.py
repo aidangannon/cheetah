@@ -44,7 +44,7 @@ def test_get_metrics_when_metric_not_found():
         .assert_all()
 
 
-def ignore_test_get_metrics_when_metric_exists():
+def test_get_metrics_when_metric_exists():
     scenario = GetMetricsScenario()
     scenario \
         .given_i_have_an_app_running() \

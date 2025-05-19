@@ -47,7 +47,7 @@ async def get_metrics(
     id_str = str(metric_id)
     with logging_scope(operation=get_metrics.__name__, id=id_str):
         logger.info("Endpoint called")
-        metrics = await get_metrics_service(id=id_str)
+        metrics = await get_metrics_service(_id=id_str)
         if metrics is None:
             return JSONResponse(status_code=404, content={"detail": "Metrics not found"})
         return None

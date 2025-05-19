@@ -59,6 +59,18 @@ class DbHealthReader(Protocol):
         ...
 
 
+class MetricAggregateReader(Protocol):
+
+    async def __call__(self, _id: str) -> Optional[MetricConfigurationAggregate]:
+        ...
+
+
+class MetricRecordsReader(Protocol):
+
+    async def __call__(self, query: str) -> list[MetricRecord]:
+        ...
+
+
 class UnitOfWork(Protocol):
 
     async def __aenter__(self) -> "UnitOfWork":
