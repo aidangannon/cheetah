@@ -42,3 +42,17 @@ def test_get_metrics_when_metric_not_found():
     scenario \
         .runner \
         .assert_all()
+
+
+def ignore_test_get_metrics_when_metric_exists():
+    scenario = GetMetricsScenario()
+    scenario \
+        .given_i_have_an_app_running() \
+        .when_the_get_health_endpoint_is_called_with_metric_configuration_id("def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6") \
+        .then_the_status_code_should_be(200) \
+        .then_the_response_body_should_match_expected_metric() \
+        .then_an_info_log_indicates_endpoint_called()
+
+    scenario \
+        .runner \
+        .assert_all()
