@@ -78,6 +78,7 @@ class JsonMetricRecordLoader:
                 id=record.get("id"),
                 date=datetime.fromisoformat(record["date"]),
                 obsolescence_val=record.get("obsolescence_val"),
+                obsolescence=record.get("obsolescence"),
                 parts_flagged=record.get("parts_flagged"),
                 alert_type=record.get("alert_type"),
                 alert_category=record.get("alert_category"),
