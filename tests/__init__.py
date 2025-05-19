@@ -40,7 +40,7 @@ def assert_there_is_log_with(test_logger, log_level, message: str, scoped_vars: 
 
     logs_with_scoped_values = [
         log for log in logs_with_message
-        if list(log[3].items()) == scoped_items  # exact same order and content
+        if dict(list(log[3].items())) == dict(scoped_items)  # exact same order and content
     ]
     assert len(
         logs_with_scoped_values) == 1, f"Expected exactly one log matching criteria, found {len(logs_with_scoped_values)}"
