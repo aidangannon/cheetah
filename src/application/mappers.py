@@ -13,8 +13,6 @@ def map_metric_aggregate_to_contract(metric_agg: MetricConfigurationAggregate) -
 
 def map_layout_to_contract(layout: LayoutItem) -> LayoutItemResponse:
     return LayoutItemResponse(
-        id=layout.id,
-        item_id=layout.item_id,
         breakpoint=layout.breakpoint,
         x=layout.x,
         y=layout.y,

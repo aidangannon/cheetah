@@ -9,14 +9,11 @@ from fastapi import FastAPI
 from punq import Container, Scope
 from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
-from uvicorn.config import LOG_LEVELS
 
 from src.application.services import DataSeedService
-from src.crosscutting import Logger
 from src.bootstrap import bootstrap
+from src.crosscutting import Logger
 from src.infrastructure import Settings
-from src.web import lifespan
-
 
 # set up db and schemas
 TEST_DB_URL = "sqlite+aiosqlite:///./test.db"

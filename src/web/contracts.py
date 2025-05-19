@@ -6,8 +6,6 @@ from pydantic.v1 import BaseModel, validator
 
 
 class LayoutItemResponse(BaseModel):
-    id: str
-    item_id: str
     breakpoint: str
     x: int
     y: int
