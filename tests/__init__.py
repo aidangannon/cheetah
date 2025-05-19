@@ -18,6 +18,13 @@ from src.infrastructure import Settings
 from src.web import lifespan
 
 
+# set up db and schemas
+TEST_DB_URL = "sqlite+aiosqlite:///./test.db"
+os.environ["DATABASE_URL"] = TEST_DB_URL
+alembic_cfg = Config("./alembic.ini")
+command.upgrade(alembic_cfg, "head")
+
+
 def step(func):
     """
     decorator for scenario steps
@@ -60,10 +67,8 @@ class FastApiScenarioRunner:
         self.test_logger = TestLogger()
         self.failures = []
         app = FastAPI()
-        db_url = "sqlite+aiosqlite:///./test.db"
-        os.environ["DATABASE_URL"] = db_url
         settings = Settings(
-            DATABASE_URL=db_url,
+            DATABASE_URL=TEST_DB_URL,
             QUERIES_SEED_CSV="./data/sqlite_compliant_queries.csv",
             METRICS_SEED_JSON = "./data/metrics.json",
             METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
@@ -74,8 +79,6 @@ class FastApiScenarioRunner:
             populated_container.register(Settings, instance=settings, scope=Scope.singleton)
 
         bootstrap(app, initialise_actions=override_deps, use_env_settings=False)
-        alembic_cfg = Config("./alembic.ini")
-        command.upgrade(alembic_cfg, "head")
         seed_service = app.state.services[DataSeedService]
         asyncio.run(seed_service())
         self.client = TestClient(app)
