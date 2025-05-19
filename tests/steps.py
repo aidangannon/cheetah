@@ -53,7 +53,7 @@ class GetMetricsScenario:
         return self
 
     @step
-    def when_the_get_health_endpoint_is_called_with_metric_configuration_id(self, metric_id: str):
+    def when_the_get_metrics_endpoint_is_called_with_metric_configuration_id(self, metric_id: str):
         self.metric_id = metric_id
         self.response = self.ctx.client.get(f"/metrics/{self.metric_id}")
         return self
