@@ -2,6 +2,10 @@ import asyncio
 import logging
 import os
 import threading
+import uuid
+from dataclasses import dataclass
+from unittest import TestCase
+from unittest.mock import patch
 
 from alembic import command
 from alembic.config import Config
@@ -14,13 +18,6 @@ from src.application.services import DataSeedService
 from src.bootstrap import bootstrap
 from src.crosscutting import Logger
 from src.infrastructure import Settings
-
-# set up db and schemas
-TEST_DB_URL = "sqlite+aiosqlite:///./test.db"
-os.environ["DATABASE_URL"] = TEST_DB_URL
-alembic_cfg = Config("./alembic.ini")
-command.upgrade(alembic_cfg, "head")
-
 
 def step(func):
     """
@@ -39,46 +36,15 @@ def step(func):
         return self
     return wrapper
 
-
-def assert_there_is_log_with(test_logger, log_level, message: str, scoped_vars: dict = None):
-    logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]
-    logs_with_message = [log for log in logs_with_log_level if log[1] == message]
-    if scoped_vars is None:
-        scoped_vars = {}
-
-    # Convert scoped_vars items to a list to preserve order
-    scoped_items = list(scoped_vars.items())
-
-    logs_with_scoped_values = [
-        log for log in logs_with_message
-        if dict(list(log[3].items())) == dict(scoped_items)  # exact same order and content
-    ]
-    assert len(
-        logs_with_scoped_values) == 1, f"Expected exactly one log matching criteria, found {len(logs_with_scoped_values)}"
+def seed_db(app: FastAPI):
+    seed_service = app.state.services[DataSeedService]
+    asyncio.run(seed_service())
 
 
-class FastApiScenarioRunner:
-    __slots__ = ("test_logger", "failures", "client")
+class ScenarioRunner:
 
-    def __init__(self) -> None:
-        self.test_logger = TestLogger()
+    def __init__(self):
         self.failures = []
-        app = FastAPI()
-        settings = Settings(
-            DATABASE_URL=TEST_DB_URL,
-            QUERIES_SEED_CSV="./data/sqlite_compliant_queries.csv",
-            METRICS_SEED_JSON = "./data/metrics.json",
-            METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
-        )
-
-        def override_deps(populated_container: Container):
-            populated_container.register(Logger, instance=self.test_logger)
-            populated_container.register(Settings, instance=settings, scope=Scope.singleton)
-
-        bootstrap(app, initialise_actions=override_deps, use_env_settings=False)
-        seed_service = app.state.services[DataSeedService]
-        asyncio.run(seed_service())
-        self.client = TestClient(app)
 
     def assert_all(self):
         """
@@ -88,6 +54,60 @@ class FastApiScenarioRunner:
         if self.failures:
             msgs = [f"Step {name} failed: {ex}" for name, ex in self.failures]
             raise AssertionError("\n".join(msgs))
+
+
+class FastApiTestCase(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.test_logger = TestLogger()
+        cls.db_name = str(uuid.uuid4())
+        cls.db_url = f"sqlite+aiosqlite:///./{cls.db_name}.db"
+        cls.setup_db()
+        app = FastAPI()
+        settings = Settings(
+            QUERIES_SEED_CSV="./data/sqlite_compliant_queries.csv",
+            METRICS_SEED_JSON = "./data/metrics.json",
+            METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
+        )
+
+        def override_deps(populated_container: Container):
+            populated_container.register(Logger, instance=cls.test_logger)
+            populated_container.register(Settings, instance=settings, scope=Scope.singleton)
+
+        bootstrap(app, initialise_actions=override_deps, use_env_settings=False)
+
+        seed_db(app=app)
+
+        cls.client = TestClient(app)
+
+    @classmethod
+    def setup_db(cls):
+        cls.env_patcher = patch.dict(os.environ, {"DATABASE_URL": cls.db_url})
+        cls.env_patcher.start()
+        alembic_cfg = Config("./alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.env_patcher.stop()
+        if os.path.exists(f"./{cls.db_name}.db"):
+            os.remove(f"./{cls.db_name}.db")
+
+    def assert_there_is_log_with(self, test_logger, log_level, message: str, scoped_vars: dict = None):
+        logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]
+        logs_with_message = [log for log in logs_with_log_level if log[1] == message]
+        if scoped_vars is None:
+            scoped_vars = {}
+
+        # Convert scoped_vars items to a list to preserve order
+        scoped_items = list(scoped_vars.items())
+
+        logs_with_scoped_values = [
+            log for log in logs_with_message
+            if dict(list(log[3].items())) == dict(scoped_items)  # exact same order and content
+        ]
+        self.assertEqual(len(logs_with_scoped_values), 1)
 
 
 def make_thread_safe_list():
@@ -136,3 +156,11 @@ class TestLogger:
     @property
     def logs(self) -> list:
         return self.get_all()
+
+
+@dataclass
+class ScenarioContext:
+    client: TestClient
+    test_case: FastApiTestCase
+    logger: Logger
+    runner: ScenarioRunner

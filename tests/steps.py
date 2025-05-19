@@ -1,14 +1,18 @@
 import datetime
 import logging
+from unittest import TestCase
 
+from starlette.testclient import TestClient
+
+from src.crosscutting import Logger
 from src.web.contracts import MetricsResponse, LayoutItemResponse
-from tests import step, assert_there_is_log_with, FastApiScenarioRunner
+from tests import step, ScenarioRunner, FastApiTestCase, ScenarioContext
 
 
 class HealthCheckScenario:
 
-    def __init__(self):
-        self.runner = FastApiScenarioRunner()
+    def __init__(self, ctx: ScenarioContext) -> None:
+        self.ctx = ctx
 
     @step
     def given_i_have_an_app_running(self):
@@ -16,23 +20,23 @@ class HealthCheckScenario:
 
     @step
     def when_the_get_health_endpoint_is_called(self):
-        self.response = self.runner.client.get("/health")
+        self.response = self.ctx.client.get("/health")
         return self
 
     @step
     def then_the_status_code_should_be_ok(self):
-        assert self.response.status_code == 200
+        self.ctx.test_case.assertEqual(self.response.status_code, 200)
         return self
 
     @step
     def then_the_response_should_be_healthy(self):
         response_body = self.response.json()
-        assert response_body == {"application": True, "database": True}, f"actual - {response_body}"
+        self.ctx.test_case.assertEqual(response_body, {"application": True, "database": True})
         return self
 
     @step
     def then_an_info_log_indicates_the_endpoint_was_called(self):
-        assert_there_is_log_with(self.runner.test_logger,
+        self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
             scoped_vars={"operation": "get_health"})
@@ -41,8 +45,8 @@ class HealthCheckScenario:
 
 class GetMetricsScenario:
 
-    def __init__(self):
-        self.runner = FastApiScenarioRunner()
+    def __init__(self, ctx: ScenarioContext) -> None:
+        self.ctx = ctx
 
     @step
     def given_i_have_an_app_running(self):
@@ -51,12 +55,12 @@ class GetMetricsScenario:
     @step
     def when_the_get_health_endpoint_is_called_with_metric_configuration_id(self, metric_id: str):
         self.metric_id = metric_id
-        self.response = self.runner.client.get(f"/metrics/{self.metric_id}")
+        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}")
         return self
 
     @step
     def then_the_status_code_should_be(self, status_code: int):
-        assert self.response.status_code == status_code, f"Actual status code is {self.response.status_code}"
+        self.ctx.test_case.assertEqual(self.response.status_code,  status_code)
         return self
 
     @step
@@ -93,19 +97,19 @@ class GetMetricsScenario:
             ])
         actual_response = MetricsResponse.parse_obj(self.response.json())
 
-        assert expected_response == actual_response, f"expected - {expected_response} actual - {actual_response}"
+        self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
 
     @step
     def then_an_error_log_indicates_a_validation_error(self):
-        assert_there_is_log_with(self.runner.test_logger,
+        self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.ERROR,
             message="Error occurred")
         return self
 
     @step
     def then_an_info_log_indicates_endpoint_called(self):
-        assert_there_is_log_with(self.runner.test_logger,
+        self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
             scoped_vars={"operation": "get_metrics", "id": self.metric_id})
