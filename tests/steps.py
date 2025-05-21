@@ -1,12 +1,7 @@
-import datetime
 import logging
-from unittest import TestCase
 
-from starlette.testclient import TestClient
-
-from src.crosscutting import Logger
 from src.web.contracts import MetricsResponse, LayoutItemResponse
-from tests import step, ScenarioRunner, FastApiTestCase, ScenarioContext
+from tests import step, ScenarioContext
 
 
 class HealthCheckScenario:

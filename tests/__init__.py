@@ -1,8 +1,6 @@
 import asyncio
 import logging
-import os
 import threading
-import uuid
 from dataclasses import dataclass
 from unittest import TestCase
 from unittest.mock import patch
@@ -11,15 +9,15 @@ from alembic import command
 from alembic.config import Config
 from fastapi import FastAPI
 from punq import Container, Scope
-from sqlalchemy import StaticPool
-from sqlalchemy.ext.asyncio import create_async_engine
 from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
+from testcontainers.postgres import PostgresContainer
 
 from src.application.services import DataSeedService
 from src.bootstrap import bootstrap
 from src.crosscutting import Logger
 from src.infrastructure import Settings
+
 
 def step(func):
     """
@@ -68,7 +66,7 @@ class FastApiTestCase(TestCase):
         cls.setup_db()
         app = FastAPI()
         settings = Settings(
-            QUERIES_SEED_CSV="./data/sqlite_compliant_queries.csv",
+            QUERIES_SEED_CSV="./data/queries.csv",
             METRICS_SEED_JSON = "./data/metrics.json",
             METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
         )
@@ -85,8 +83,10 @@ class FastApiTestCase(TestCase):
 
     @classmethod
     def setup_db(cls):
-        cls.db_id = str(uuid.uuid4())
-        cls.env_patcher = patch.dict('os.environ', {'DATABASE_URL': f'sqlite+aiosqlite:///{cls.db_id}:memdb1?mode=memory&cache=shared&uri=true'})
+        cls.postgres = PostgresContainer("postgres:15")
+        cls.postgres.start()
+        cls.db_url = cls.postgres.get_connection_url().replace("+psycopg2", "+asyncpg")
+        cls.env_patcher = patch.dict('os.environ', {'DATABASE_URL': cls.db_url})
         cls.env_patcher.start()
         alembic_cfg = Config("./alembic.ini")
         command.upgrade(alembic_cfg, "head")
@@ -94,6 +94,7 @@ class FastApiTestCase(TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         cls.env_patcher.stop()
+        cls.postgres.stop()
 
     def assert_there_is_log_with(self, test_logger, log_level, message: str, scoped_vars: dict = None):
         logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]

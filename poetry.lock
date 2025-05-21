@@ -76,14 +76,14 @@ test = ["flake8 (>=6.1,<7.0)", "flake8-pyi (>=24.1.0,<24.2.0)", "distro (>=1.9.0
 
 [[package]]
 name = "boto3"
-version = "1.40.3"
+version = "1.40.4"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">=3.9"
 
 [package.dependencies]
-botocore = ">=1.40.3,<1.41.0"
+botocore = ">=1.40.4,<1.41.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.13.0,<0.14.0"
 
@@ -92,7 +92,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.40.3"
+version = "1.40.4"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -110,6 +110,14 @@ crt = ["awscrt (==0.23.8)"]
 name = "certifi"
 version = "2025.8.3"
 description = "Python package for providing Mozilla's CA Bundle."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
+name = "charset-normalizer"
+version = "3.4.2"
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
@@ -134,6 +142,25 @@ optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 
 [[package]]
+name = "docker"
+version = "7.1.0"
+description = "A Python library for the Docker Engine API."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+pywin32 = {version = ">=304", markers = "sys_platform == \"win32\""}
+requests = ">=2.26.0"
+urllib3 = ">=1.26.0"
+
+[package.extras]
+dev = ["coverage (==7.2.7)", "pytest-cov (==4.1.0)", "pytest-timeout (==2.1.0)", "pytest (==7.4.2)", "ruff (==0.1.8)"]
+docs = ["myst-parser (==0.18.0)", "sphinx (==5.1.1)"]
+ssh = ["paramiko (>=2.4.3)"]
+websockets = ["websocket-client (>=1.3.0)"]
+
+[[package]]
 name = "fastapi"
 version = "0.116.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
@@ -153,7 +180,7 @@ all = ["fastapi-cli[standard] (>=0.0.8)", "httpx (>=0.23.0)", "jinja2 (>=3.1.5)"
 
 [[package]]
 name = "greenlet"
-version = "3.2.3"
+version = "3.2.4"
 description = "Lightweight in-process concurrent programming"
 category = "main"
 optional = false
@@ -161,7 +188,7 @@ python-versions = ">=3.9"
 
 [package.extras]
 docs = ["sphinx", "furo"]
-test = ["objgraph", "psutil"]
+test = ["objgraph", "psutil", "setuptools"]
 
 [[package]]
 name = "h11"
@@ -298,6 +325,14 @@ optional = false
 python-versions = ">=3.8"
 
 [[package]]
+name = "psycopg2-binary"
+version = "2.9.10"
+description = "psycopg2 - Python-PostgreSQL Database Adapter"
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[[package]]
 name = "punq"
 version = "0.7.0"
 description = "An IOC Container for Python 3.8+"
@@ -406,6 +441,32 @@ python-versions = ">=3.9"
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "pywin32"
+version = "311"
+description = "Python for Window Extensions"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "requests"
+version = "2.32.4"
+description = "Python HTTP for Humans."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+charset_normalizer = ">=2,<4"
+idna = ">=2.5,<4"
+urllib3 = ">=1.21.1,<3"
+
+[package.extras]
+socks = ["PySocks (>=1.5.6,!=1.5.7)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
 name = "s3transfer"
 version = "0.13.1"
 description = "An Amazon S3 Transfer Manager"
@@ -508,6 +569,57 @@ optional = false
 python-versions = ">=3.8"
 
 [[package]]
+name = "testcontainers"
+version = "4.12.0"
+description = "Python library for throwaway instances of anything that can run in a Docker container"
+category = "dev"
+optional = false
+python-versions = "<4.0,>=3.9"
+
+[package.dependencies]
+docker = "*"
+python-dotenv = "*"
+typing-extensions = "*"
+urllib3 = "*"
+wrapt = "*"
+
+[package.extras]
+cosmosdb = ["azure-cosmos"]
+azurite = ["azure-storage-blob (>=12.19,<13.0)"]
+registry = ["bcrypt"]
+aws = ["boto3", "httpx"]
+localstack = ["boto3"]
+scylla = ["cassandra-driver (==3.29.1)"]
+chroma = ["chromadb-client (>=1.0.0,<2.0.0)"]
+clickhouse = ["clickhouse-driver"]
+mailpit = ["cryptography"]
+sftp = ["cryptography"]
+google = ["google-cloud-datastore (>=2)", "google-cloud-pubsub (>=2)"]
+generic = ["httpx", "redis"]
+test-module-import = ["httpx"]
+db2 = ["ibm-db-sa", "sqlalchemy"]
+influxdb = ["influxdb", "influxdb-client"]
+k3s = ["kubernetes", "pyyaml"]
+minio = ["minio"]
+nats = ["nats-py"]
+neo4j = ["neo4j"]
+openfga = ["openfga-sdk"]
+opensearch = ["opensearch-py"]
+oracle = ["oracledb", "sqlalchemy"]
+oracle-free = ["oracledb", "sqlalchemy"]
+rabbitmq = ["pika"]
+mongodb = ["pymongo"]
+mssql = ["pymssql", "sqlalchemy"]
+mysql = ["pymysql", "sqlalchemy"]
+arangodb = ["python-arango (>=7.8,<8.0)"]
+keycloak = ["python-keycloak"]
+qdrant = ["qdrant-client"]
+redis = ["redis"]
+selenium = ["selenium"]
+trino = ["trino"]
+weaviate = ["weaviate-client (>=4.5.4,<5.0.0)"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.14.1"
 description = "Backported and Experimental Type Hints for Python 3.9+"
@@ -555,10 +667,18 @@ h11 = ">=0.8"
 [package.extras]
 standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.15.1)", "watchfiles (>=0.13)", "websockets (>=10.4)"]
 
+[[package]]
+name = "wrapt"
+version = "1.17.2"
+description = "Module for decorators, wrappers and monkey patching."
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.11"
-content-hash = "a22cb783219cf082b75108fc9fa40df46f05e8b7633ad4ca8049ef3f4b568940"
+content-hash = "2abdf049a7c17ecd8b7f5f3f362d3826fd6cd26f29d0099dcb772150867fb511"
 
 [metadata.files]
 aiofiles = []
@@ -570,8 +690,10 @@ asyncpg = []
 boto3 = []
 botocore = []
 certifi = []
+charset-normalizer = []
 click = []
 colorama = []
+docker = []
 fastapi = []
 greenlet = []
 h11 = []
@@ -586,6 +708,7 @@ packaging = []
 pluggy = []
 poetry-core = []
 psycopg2 = []
+psycopg2-binary = []
 punq = []
 pydantic = []
 pydantic-core = []
@@ -594,6 +717,8 @@ pygments = []
 pytest = []
 python-dateutil = []
 python-dotenv = []
+pywin32 = []
+requests = []
 s3transfer = []
 six = []
 sniffio = []
@@ -601,7 +726,9 @@ sqlalchemy = []
 sqlmodel = []
 starlette = []
 structlog = []
+testcontainers = []
 typing-extensions = []
 typing-inspection = []
 urllib3 = []
 uvicorn = []
+wrapt = []
