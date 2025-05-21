@@ -10,6 +10,9 @@ from src.application.services import DatabaseHealthCheckService, GetMetricsServi
 from src.crosscutting import get_service, logging_scope, Logger
 from src.web.contracts import MetricsResponse
 
+print("MetricsResponse validate method:", MetricsResponse.validate)
+print("MetricsResponse class file:", MetricsResponse.__module__)
+
 health_router = APIRouter(
     prefix="/health",
     tags=["Health"]
@@ -37,6 +40,7 @@ metrics_router = APIRouter(
 
 @metrics_router.get(
     "/{metric_id}",
+    response_model=MetricsResponse,
     summary="Get metrics",
     description="Get metrics configuration, data and layouts"
 )

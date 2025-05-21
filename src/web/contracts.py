@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from uuid import UUID
 
-from pydantic.v1 import BaseModel, validator
+from pydantic import BaseModel, validator, Field, ConfigDict
 
 
 class LayoutItemResponse(BaseModel):
@@ -16,5 +16,5 @@ class LayoutItemResponse(BaseModel):
 class MetricsResponse(BaseModel):
     id: str
     is_editable: bool
-    records: list[dict]
+    records: list[dict[str, object]]
     layouts: list[LayoutItemResponse]
