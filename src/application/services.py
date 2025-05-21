@@ -1,4 +1,5 @@
 import asyncio
+from datetime import date
 from typing import Optional
 
 from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader, MetricConfigurationAggregate, \
@@ -29,14 +30,19 @@ class GetMetricsService:
     def __init__(self, unit_of_work: UnitOfWork):
         self.unit_of_work = unit_of_work
 
-    async def __call__(self, _id: str) -> Optional[MetricConfigurationAggregate]:
+    async def __call__(self, _id: str, start_date: date, end_date: date, day_range: int) -> Optional[MetricConfigurationAggregate]:
         async with self.unit_of_work as uow:
             config_reader = uow.persistence_factory(MetricAggregateReader)
             records_reader = uow.persistence_factory(MetricRecordsReader)
             metrics_config = await config_reader(_id=_id)
             if metrics_config is None:
                 return None
-            records = await records_reader(query=metrics_config.query.query)
+            records = await records_reader(
+                query=metrics_config.query.query,
+                start_date=start_date,
+                end_date=end_date,
+                day_range=day_range
+            )
         metrics_config.records = records
         return metrics_config
 

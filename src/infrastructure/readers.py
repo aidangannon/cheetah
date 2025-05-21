@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 from sqlalchemy import text, select
@@ -41,7 +42,12 @@ class SqlAlchemyMetricRecordsReader:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def __call__(self, query: str) -> list[dict]:
-        result = await self.session.execute(text(query))
+    async def __call__(self, query: str, start_date: date, end_date: date, day_range: int) -> list[dict]:
+        params = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "day_range": day_range,
+        }
+        result = await self.session.execute(text(query), params)
         rows = result.mappings().all()
         return [dict(row) for row in rows]

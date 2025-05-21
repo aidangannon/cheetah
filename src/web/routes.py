@@ -1,7 +1,8 @@
-from typing import Any
+from datetime import date
+from typing import Any, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from starlette.responses import JSONResponse
 
 from src.application.mappers import map_metric_aggregate_to_contract
@@ -41,6 +42,9 @@ metrics_router = APIRouter(
 )
 async def get_metrics(
     metric_id: UUID,
+    start_date: Optional[date] = Query('2025-06-01', description="Start date for filtering"),
+    end_date: Optional[date] = Query('2025-06-30', description="End date for filtering"),
+    day_range: Optional[int] = Query(30, description="Number of days before today"),
     logger: Logger = Depends(get_service(Logger)),
     get_metrics_service: GetMetricsService = Depends(get_service(GetMetricsService))
 ):
@@ -48,7 +52,12 @@ async def get_metrics(
     with logging_scope(operation=get_metrics.__name__, id=id_str):
         logger.info("Endpoint called")
 
-        metrics = await get_metrics_service(_id=id_str)
+        metrics = await get_metrics_service(
+            _id=id_str,
+            start_date=start_date,
+            end_date=end_date,
+            day_range=day_range
+        )
 
         if metrics is None:
             return JSONResponse(status_code=404, content={"detail": "Metrics not found"})

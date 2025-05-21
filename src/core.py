@@ -68,7 +68,7 @@ class MetricAggregateReader(Protocol):
 
 class MetricRecordsReader(Protocol):
 
-    async def __call__(self, query: str) -> list[dict]:
+    async def __call__(self, query: str, start_date: datetime.date, end_date: datetime.date, day_range: int) -> list[dict]:
         ...
 
 

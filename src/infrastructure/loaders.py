@@ -1,6 +1,7 @@
 import csv
 import io
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -169,7 +170,24 @@ class CsvQueryLoader:
         reader = csv.DictReader(csvfile)
 
         queries = [
-            Query(id=row["id"], query=row["query"]) for row in reader
+            Query(id=row["id"], query=replace_dates_and_intervals(row["query"])) for row in reader
         ]
 
         self.data = queries
+
+
+
+def replace_dates_and_intervals(sql: str) -> str:
+    sql = re.sub(
+        r"BETWEEN\s+'[\d]{4}-[\d]{2}-[\d]{2}'\s+AND\s+'[\d]{4}-[\d]{2}-[\d]{2}'",
+        "BETWEEN :start_date AND :end_date",
+        sql
+    )
+
+    sql = re.sub(
+        r"INTERVAL\s+'(\d+)' DAY",
+        "make_interval(days => :day_range)",
+        sql
+    )
+
+    return sql
