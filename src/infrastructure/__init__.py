@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import TypeVar, Type, Any
 
+import sqlalchemy
 from pydantic.v1 import BaseSettings
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
@@ -32,7 +33,7 @@ class Settings(BaseSettings):
 class SqlAlchemyUnitOfWork:
 
     def __init__(self, settings: Settings):
-        engine = create_async_engine(
+        engine = sqlalchemy.ext.asyncio.create_async_engine(
             settings.DATABASE_URL,
             echo=False,
             future=True,

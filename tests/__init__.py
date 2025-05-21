@@ -85,21 +85,15 @@ class FastApiTestCase(TestCase):
 
     @classmethod
     def setup_db(cls):
-        cls.db_engine = create_async_engine(
-            "sqlite+aiosqlite:///:memory:",
-            connect_args={"check_same_thread": False},
-            poolclass=StaticPool,
-        )
-        cls.engine_patcher = patch("sqlalchemy.ext.asyncio.create_async_engine")
-        engine = cls.engine_patcher.start()
-        engine.return_value = cls.db_engine
+        cls.db_id = str(uuid.uuid4())
+        cls.env_patcher = patch.dict('os.environ', {'DATABASE_URL': f'sqlite+aiosqlite:///{cls.db_id}:memdb1?mode=memory&cache=shared&uri=true'})
+        cls.env_patcher.start()
         alembic_cfg = Config("./alembic.ini")
         command.upgrade(alembic_cfg, "head")
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.engine_patcher.stop()
-        asyncio.run(cls.db_engine.dispose())
+        cls.env_patcher.stop()
 
     def assert_there_is_log_with(self, test_logger, log_level, message: str, scoped_vars: dict = None):
         logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]

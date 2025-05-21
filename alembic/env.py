@@ -2,6 +2,7 @@ import asyncio
 import os
 from logging.config import fileConfig
 
+import sqlalchemy.ext.asyncio
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -68,7 +69,7 @@ async def run_migrations_online() -> None:
     """Run migrations in 'online' mode with async engine."""
 
     # Create your async engine (make sure sqlalchemy.url is async URL like postgresql+asyncpg://)
-    connectable = create_async_engine(
+    connectable = sqlalchemy.ext.asyncio.create_async_engine(
         config.get_main_option("sqlalchemy.url"),
         poolclass=pool.NullPool,
     )
