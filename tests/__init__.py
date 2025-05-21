@@ -11,6 +11,8 @@ from alembic import command
 from alembic.config import Config
 from fastapi import FastAPI
 from punq import Container, Scope
+from sqlalchemy import StaticPool
+from sqlalchemy.ext.asyncio import create_async_engine
 from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
 
@@ -61,8 +63,6 @@ class FastApiTestCase(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.test_logger = TestLogger()
-        cls.db_name = str(uuid.uuid4())
-        cls.db_url = f"sqlite+aiosqlite:///./{cls.db_name}.db"
         cls.setup_db()
         app = FastAPI()
         settings = Settings(
@@ -83,16 +83,21 @@ class FastApiTestCase(TestCase):
 
     @classmethod
     def setup_db(cls):
-        cls.env_patcher = patch.dict(os.environ, {"DATABASE_URL": cls.db_url})
-        cls.env_patcher.start()
+        cls.db_engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        cls.engine_patcher = patch("sqlalchemy.ext.asyncio.create_async_engine")
+        engine = cls.engine_patcher.start()
+        engine.return_value = cls.db_engine
         alembic_cfg = Config("./alembic.ini")
         command.upgrade(alembic_cfg, "head")
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.env_patcher.stop()
-        #if os.path.exists(f"./{cls.db_name}.db"):
-        #    os.remove(f"./{cls.db_name}.db")
+        cls.engine_patcher.stop()
+        asyncio.run(cls.db_engine.dispose())
 
     def assert_there_is_log_with(self, test_logger, log_level, message: str, scoped_vars: dict = None):
         logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]
