@@ -27,8 +27,10 @@ def step(func):
     """
     def wrapper(self, *args, **kwargs):
         try:
-            print(f"\n{func.__name__}")
-            return func(self, *args, **kwargs)
+            print(f"{func.__name__}")
+            result = func(self, *args, **kwargs)
+            print(f"STEP PASS")
+            return result
         except AssertionError as e:
             print(f"STEP FAILED")
             self.runner.failures.append((func.__name__, e))
