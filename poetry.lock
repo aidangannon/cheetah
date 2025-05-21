@@ -419,6 +419,14 @@ pygments = ">=2.7.2"
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests", "setuptools", "xmlschema"]
 
 [[package]]
+name = "python-autofixture"
+version = "1.1.0"
+description = "A Version of C#s AutoFixture but for python"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
@@ -678,7 +686,7 @@ python-versions = ">=3.8"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.11"
-content-hash = "2abdf049a7c17ecd8b7f5f3f362d3826fd6cd26f29d0099dcb772150867fb511"
+content-hash = "05ae71579597947d01faf4b99053307bcbb144aaae90b0970792bcf0f9bfa599"
 
 [metadata.files]
 aiofiles = []
@@ -715,6 +723,7 @@ pydantic-core = []
 pydantic-settings = []
 pygments = []
 pytest = []
+python-autofixture = []
 python-dateutil = []
 python-dotenv = []
 pywin32 = []
