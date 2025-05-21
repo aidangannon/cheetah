@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 
 from src.web.contracts import MetricsResponse, LayoutItemResponse
 from tests import step, ScenarioContext
@@ -54,6 +55,16 @@ class GetMetricsScenario:
         return self
 
     @step
+    def when_the_get_metrics_endpoint_is_called_with_metric_configuration_id_and_params(
+            self,
+            metric_id: str,
+            **kwargs
+    ):
+        self.metric_id = metric_id
+        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}", params=kwargs)
+        return self
+
+    @step
     def then_the_status_code_should_be(self, status_code: int):
         self.ctx.test_case.assertEqual(self.response.status_code,  status_code)
         return self
@@ -88,6 +99,43 @@ class GetMetricsScenario:
                     w=1,
                     x=0,
                     y=10
+                )
+            ])
+        actual_response = MetricsResponse.parse_obj(self.response.json())
+
+        self.ctx.test_case.assertEqual(expected_response, actual_response)
+        return self
+
+    @step
+    def then_the_response_body_should_match_expected_date_range_filtered_metric(self):
+        expected_response = MetricsResponse(
+            id="c797b618-df12-45f7-bbb2-cc6695a48e46",
+            is_editable=True,
+            records=[
+                {
+                    "alert_type": "Critical",
+                    "total_alerts": 1
+                },
+                {
+                    "alert_type": "Warning",
+                    "total_alerts": 1
+                }
+            ],
+            layouts=[
+                LayoutItemResponse(
+                    breakpoint="lg",
+                    h=10,
+                    w=5,
+                    x=0,
+                    y=24,
+                    static=False
+                ),
+                LayoutItemResponse(
+                    breakpoint='md',
+                    h=10,
+                    w=1,
+                    x=0,
+                    y=24
                 )
             ])
         actual_response = MetricsResponse.parse_obj(self.response.json())

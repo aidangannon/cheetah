@@ -71,3 +71,15 @@ class TestMetricsScenarios(FastApiTestCase):
             .then_the_status_code_should_be(200) \
             .then_the_response_body_should_match_expected_metric() \
             .then_an_info_log_indicates_endpoint_called()
+
+    def test_get_metrics_when_metric_exists_and_date_range_filtering_is_added(self):
+        scenario = GetMetricsScenario(self.context)
+        scenario \
+            .given_i_have_an_app_running() \
+            .when_the_get_metrics_endpoint_is_called_with_metric_configuration_id_and_params(
+                "c797b618-df12-45f7-bbb2-cc6695a48e46",
+                start_date="2025-06-01",
+                end_date="2025-06-04") \
+            .then_the_status_code_should_be(200) \
+            .then_the_response_body_should_match_expected_date_range_filtered_metric() \
+            .then_an_info_log_indicates_endpoint_called()
