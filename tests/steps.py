@@ -1,3 +1,4 @@
+import datetime
 import logging
 from datetime import date
 
@@ -35,13 +36,16 @@ class HealthCheckScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            scoped_vars={"operation": "get_health"})
+            operation="get_health")
         return self
 
 
 class GetMetricsScenario:
 
     def __init__(self, ctx: ScenarioContext) -> None:
+        self.day_range = 30
+        self.start_date = datetime.date(2025, 6, 1)
+        self.end_date = datetime.date(2025, 6, 30)
         self.ctx = ctx
 
     @step
@@ -60,6 +64,8 @@ class GetMetricsScenario:
             metric_id: str,
             **kwargs
     ):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
         self.metric_id = metric_id
         self.response = self.ctx.client.get(f"/metrics/{self.metric_id}", params=kwargs)
         return self
@@ -144,6 +150,34 @@ class GetMetricsScenario:
         return self
 
     @step
+    def then_the_response_body_should_match_expected_day_range_filtered_metric(self):
+        expected_response = MetricsResponse(
+            id="def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+            is_editable=True,
+            records=[],
+            layouts=[
+                LayoutItemResponse(
+                    breakpoint="lg",
+                    h=4,
+                    w=5,
+                    x=0,
+                    y=20,
+                    static=False
+                ),
+                LayoutItemResponse(
+                    breakpoint='md',
+                    h=4,
+                    w=1,
+                    x=0,
+                    y=10
+                )
+            ])
+        actual_response = MetricsResponse.parse_obj(self.response.json())
+
+        self.ctx.test_case.assertEqual(expected_response, actual_response)
+        return self
+
+    @step
     def then_an_error_log_indicates_a_validation_error(self):
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.ERROR,
@@ -155,5 +189,9 @@ class GetMetricsScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            scoped_vars={"operation": "get_metrics", "id": self.metric_id})
+            operation="get_metrics",
+            id=self.metric_id,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            day_range=self.day_range)
         return self

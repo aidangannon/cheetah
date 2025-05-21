@@ -49,7 +49,13 @@ async def get_metrics(
     get_metrics_service: GetMetricsService = Depends(get_service(GetMetricsService))
 ):
     id_str = str(metric_id)
-    with logging_scope(operation=get_metrics.__name__, id=id_str):
+    with logging_scope(
+        operation=get_metrics.__name__,
+        id=id_str,
+        start_date=start_date,
+        end_date=end_date,
+        day_range=day_range,
+    ):
         logger.info("Endpoint called")
 
         metrics = await get_metrics_service(

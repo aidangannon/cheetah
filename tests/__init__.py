@@ -96,14 +96,10 @@ class FastApiTestCase(TestCase):
         cls.env_patcher.stop()
         cls.postgres.stop()
 
-    def assert_there_is_log_with(self, test_logger, log_level, message: str, scoped_vars: dict = None):
+    def assert_there_is_log_with(self, test_logger, log_level, message: str, **kwargs):
         logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]
         logs_with_message = [log for log in logs_with_log_level if log[1] == message]
-        if scoped_vars is None:
-            scoped_vars = {}
-
-        # Convert scoped_vars items to a list to preserve order
-        scoped_items = list(scoped_vars.items())
+        scoped_items = list(kwargs.items())
 
         logs_with_scoped_values = [
             log for log in logs_with_message

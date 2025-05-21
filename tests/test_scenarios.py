@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from http import HTTPStatus
 
@@ -78,8 +79,19 @@ class TestMetricsScenarios(FastApiTestCase):
             .given_i_have_an_app_running() \
             .when_the_get_metrics_endpoint_is_called_with_metric_configuration_id_and_params(
                 "c797b618-df12-45f7-bbb2-cc6695a48e46",
-                start_date="2025-06-01",
-                end_date="2025-06-04") \
+                start_date=datetime.date(2025, 6, 1),
+                end_date=datetime.date(2025, 6, 4)) \
             .then_the_status_code_should_be(200) \
             .then_the_response_body_should_match_expected_date_range_filtered_metric() \
+            .then_an_info_log_indicates_endpoint_called()
+
+    def test_get_metrics_when_metric_exists_and_day_range_filtering_is_added(self):
+        scenario = GetMetricsScenario(self.context)
+        scenario \
+            .given_i_have_an_app_running() \
+            .when_the_get_metrics_endpoint_is_called_with_metric_configuration_id_and_params(
+                "def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+                day_range=0) \
+            .then_the_status_code_should_be(200) \
+            .then_the_response_body_should_match_expected_day_range_filtered_metric() \
             .then_an_info_log_indicates_endpoint_called()
