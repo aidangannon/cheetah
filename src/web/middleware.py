@@ -17,17 +17,7 @@ def add_exception_middleware(app: FastAPI):
         log_and_handle(
             status_code=500,
             message="Internal server error",
-            logger_factory=logger_factory,
-        )
-    )
-
-    app.add_exception_handler(
-        RequestValidationError,
-        log_and_handle(
-            status_code=400,
-            message="Invalid request",
-            include_validation_errors=True,
-            logger_factory=logger_factory,
+            logger_factory=logger_factory
         )
     )
 
@@ -35,17 +25,14 @@ def add_exception_middleware(app: FastAPI):
 def log_and_handle(
     status_code: int,
     message: str,
-    logger_factory: Callable[[], Logger],
-    include_validation_errors: bool = False,
+    logger_factory: Callable[[], Logger]
 ) -> HTTPExceptionHandler:
 
-    def handler(request: Request, exc: Exception) -> JSONResponse:
+    def handler(_: Request, exc: Exception) -> JSONResponse:
         logger = logger_factory()
         logger.error("Error occurred", exc_info=exc, exec_str=str(exc))
 
         content = {"error": message}
-        if include_validation_errors and hasattr(exc, "errors"):
-            content["details"] = exc.errors()
 
         return JSONResponse(status_code=status_code, content=content)
 

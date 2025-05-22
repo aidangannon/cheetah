@@ -38,6 +38,9 @@ metrics_router = APIRouter(
 @metrics_router.get(
     "/{metric_id}",
     response_model=MetricsResponse,
+    responses={
+        404: {"description": "Metric not found"}
+    },
     summary="Get metrics",
     description="Get metrics configuration, data and layouts"
 )
