@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from src.core import MetricConfigurationAggregate, MetricRecord
 from src.crosscutting import auto_slots
+from src.infrastructure import async_ttl_cache
 
 
 @auto_slots
@@ -27,6 +28,7 @@ class SqlAlchemyMetricAggregateReader:
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    @async_ttl_cache(ttl_seconds=300)
     async def __call__(self, _id: str) -> Optional[MetricConfigurationAggregate]:
         result = await self.session.execute(
             select(MetricConfigurationAggregate).where(MetricConfigurationAggregate.id == _id).options(

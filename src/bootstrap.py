@@ -10,11 +10,12 @@ from src.application.services import DatabaseHealthCheckService, DataSeedService
 from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, MetricAggregateReader, \
     MetricRecordsReader
 from src.crosscutting import Logger, ServiceProvider
-from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, SqlAlchemyDbHealthReader
+from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register
 from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader, \
     JsonMetricRecordLoader
 from src.infrastructure.orm import start_mappers
-from src.infrastructure.readers import SqlAlchemyMetricAggregateReader, SqlAlchemyMetricRecordsReader
+from src.infrastructure.readers import SqlAlchemyMetricAggregateReader, SqlAlchemyMetricRecordsReader, \
+    SqlAlchemyDbHealthReader
 from src.infrastructure.writers import SqlAlchemyGenericDataSeeder
 from src.web.middleware import add_exception_middleware
 from src.web.routes import health_router, metrics_router

@@ -1,13 +1,11 @@
-import json
-from pathlib import Path
-from typing import TypeVar, Type, Any
+import time
+from functools import wraps
+from typing import TypeVar, Type, Any, Callable, Coroutine, Optional
 
 import sqlalchemy
 from pydantic.v1 import BaseSettings
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
-
-from src.infrastructure.readers import SqlAlchemyDbHealthReader
 
 Base = declarative_base()
 
@@ -63,3 +61,23 @@ class SqlAlchemyUnitOfWork:
 
     async def commit(self):
         await self.session.commit()
+
+
+def async_ttl_cache(ttl_seconds: int = 300):
+    cache = {}
+
+    def decorator(func: Callable[..., Coroutine[Any, Any, Optional[Any]]]):
+        @wraps(func)
+        async def wrapper(self, _id: str, *args, **kwargs) -> Optional[Any]:
+            now = time.time()
+            if _id in cache:
+                cached_time, cached_value = cache[_id]
+                if now - cached_time < ttl_seconds:
+                    return cached_value
+                else:
+                    del cache[_id]
+            result = await func(self, _id, *args, **kwargs)
+            cache[_id] = (now, result)
+            return result
+        return wrapper
+    return decorator
