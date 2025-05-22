@@ -8,10 +8,7 @@ from starlette.responses import JSONResponse
 from src.application.mappers import map_metric_aggregate_to_contract
 from src.application.services import DatabaseHealthCheckService, GetMetricsService
 from src.crosscutting import get_service, logging_scope, Logger
-from src.web.contracts import MetricsResponse
-
-print("MetricsResponse validate method:", MetricsResponse.validate)
-print("MetricsResponse class file:", MetricsResponse.__module__)
+from src.web.contracts import MetricsResponse, HealthCheckResponse
 
 health_router = APIRouter(
     prefix="/health",
@@ -20,7 +17,7 @@ health_router = APIRouter(
 
 @health_router.get(
     "/",
-    response_model=dict[str, Any],
+    response_model=HealthCheckResponse,
     summary="Run health checks",
     description="Health checks application and db"
 )

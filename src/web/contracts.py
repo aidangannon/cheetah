@@ -5,6 +5,11 @@ from uuid import UUID
 from pydantic import BaseModel, validator, Field, ConfigDict
 
 
+class HealthCheckResponse(BaseModel):
+    application: bool
+    database: bool
+
+
 class LayoutItemResponse(BaseModel):
     breakpoint: str
     x: int
@@ -16,5 +21,5 @@ class LayoutItemResponse(BaseModel):
 class MetricsResponse(BaseModel):
     id: str
     is_editable: bool
-    records: list[dict[str, object]]
+    records: list[dict[str, Any]]
     layouts: list[LayoutItemResponse]
