@@ -3,7 +3,7 @@ import uuid
 from http import HTTPStatus
 
 from tests import FastApiTestCase, ScenarioContext, ScenarioRunner
-from tests.steps import HealthCheckScenario, GetMetricsScenario
+from tests.steps import HealthCheckScenario, GetMetricsScenario, CreateMetricConfigurationScenario
 
 
 class TestHealthCheckScenarios(FastApiTestCase):
@@ -31,7 +31,7 @@ class TestHealthCheckScenarios(FastApiTestCase):
             .then_an_info_log_indicates_the_endpoint_was_called()
 
 
-class TestMetricsScenarios(FastApiTestCase):
+class TestGetMetricsScenarios(FastApiTestCase):
 
     def setUp(self) -> None:
         self.context = ScenarioContext(
@@ -51,7 +51,7 @@ class TestMetricsScenarios(FastApiTestCase):
         scenario \
             .given_i_have_an_app_running() \
             .when_the_get_metrics_endpoint_is_called_with_metric_configuration_id("notauuid4") \
-            .then_the_status_code_should_be(400) \
+            .then_the_status_code_should_be(422) \
             .then_an_error_log_indicates_a_validation_error()
 
 
@@ -95,3 +95,24 @@ class TestMetricsScenarios(FastApiTestCase):
             .then_the_status_code_should_be(200) \
             .then_the_response_body_should_match_expected_day_range_filtered_metric() \
             .then_an_info_log_indicates_endpoint_called()
+
+
+class TestCreateMetricConfigurationScenarios(FastApiTestCase):
+
+    def setUp(self) -> None:
+        self.context = ScenarioContext(
+            client=self.client,
+            test_case=self,
+            logger=self.test_logger,
+            runner=ScenarioRunner()
+        )
+
+    def tearDown(self) -> None:
+        self.context \
+            .runner \
+            .assert_all()
+
+    def test_create_metrics(self):
+        scenario = CreateMetricConfigurationScenario(self.context)
+        scenario \
+            .given_i_have_an_app_running()

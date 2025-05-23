@@ -2,7 +2,7 @@ import datetime
 import logging
 from datetime import date
 
-from src.web.contracts import MetricsResponse, LayoutItemResponse
+from src.web.contracts import MetricsResponse, LayoutItemResponse, CreateMetricConfiguration
 from tests import step, ScenarioContext
 
 
@@ -104,7 +104,8 @@ class GetMetricsScenario:
                     h=4,
                     w=1,
                     x=0,
-                    y=10
+                    y=10,
+                    static=None
                 )
             ])
         actual_response = MetricsResponse.parse_obj(self.response.json())
@@ -141,7 +142,8 @@ class GetMetricsScenario:
                     h=10,
                     w=1,
                     x=0,
-                    y=24
+                    y=24,
+                    static=None
                 )
             ])
         actual_response = MetricsResponse.parse_obj(self.response.json())
@@ -169,7 +171,8 @@ class GetMetricsScenario:
                     h=4,
                     w=1,
                     x=0,
-                    y=10
+                    y=10,
+                    static=None
                 )
             ])
         actual_response = MetricsResponse.parse_obj(self.response.json())
@@ -180,8 +183,8 @@ class GetMetricsScenario:
     @step
     def then_an_error_log_indicates_a_validation_error(self):
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
-            log_level=logging.ERROR,
-            message="Error occurred")
+            log_level=logging.WARNING,
+            message="Validation error")
         return self
 
     @step
@@ -194,4 +197,40 @@ class GetMetricsScenario:
             start_date=self.start_date,
             end_date=self.end_date,
             day_range=self.day_range)
+        return self
+
+
+class CreateMetricConfigurationScenario:
+
+    def __init__(self, ctx: ScenarioContext):
+        self.ctx = ctx
+
+    @step
+    def given_i_have_an_app_running(self):
+        return self
+
+    @step
+    def when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration(self, config: CreateMetricConfiguration):
+        self.config = config
+        self.response = self.ctx.client.post(f"/metric-configuration", json=self.config.model_dump())
+        return self
+
+    @step
+    def then_an_info_log_indicates_endpoint_called(self):
+        self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
+            log_level=logging.INFO,
+            message="Endpoint called",
+            operation="create_metric_configuration",
+            is_editable=self.config.is_editable,
+            query_generation_prompt=self.config.query_generation_prompt)
+        return self
+
+    @step
+    def then_the_status_code_should_be(self, status_code: int):
+        self.ctx.test_case.assertEqual(self.response.status_code, status_code)
+        return self
+
+    @step
+    def then_the_status_code_should_be(self, status_code: int):
+        self.ctx.test_case.assertEqual(self.response.status_code, status_code)
         return self

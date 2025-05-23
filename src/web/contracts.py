@@ -23,3 +23,11 @@ class MetricsResponse(BaseModel):
     is_editable: bool
     records: list[dict[str, Any]]
     layouts: list[LayoutItemResponse]
+
+class CreateMetricConfiguration(BaseModel):
+    is_editable: bool
+    layouts: list[LayoutItemResponse]
+    query_generation_prompt: str
+
+class CreatedResponse(BaseModel):
+    id: str
