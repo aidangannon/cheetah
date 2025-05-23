@@ -6,7 +6,8 @@ from autofixture import AutoFixture
 
 from src.web.contracts import CreateMetricConfigurationRequest, LayoutItemContract
 from tests import FastApiTestCase, ScenarioContext, ScenarioRunner
-from tests.steps import HealthCheckScenario, GetMetricsScenario, CreateMetricConfigurationScenario
+from tests.steps import HealthCheckScenario, GetMetricsScenario, CreateMetricConfigurationScenario, \
+    CreateMetricRecordScenario
 
 
 class TestHealthCheckScenarios(FastApiTestCase):
@@ -123,4 +124,36 @@ class TestCreateMetricConfigurationScenarios(FastApiTestCase):
             .and_data_is_created_for_the_metric() \
             .then_the_status_code_should_be(201) \
             .then_the_metrics_should_have_been_created() \
+            .then_an_info_log_indicates_endpoint_called()
+
+
+class TestCreateMetricRecordScenarios(FastApiTestCase):
+
+    def setUp(self) -> None:
+        self.context = ScenarioContext(
+            client=self.client,
+            test_case=self,
+            logger=self.test_logger,
+            runner=ScenarioRunner()
+        )
+
+    def tearDown(self) -> None:
+        self.context \
+            .runner \
+            .assert_all()
+
+    def test_create_metric_record_when_no_metric_configuration_is_present(self):
+        scenario = CreateMetricRecordScenario(self.context)
+        scenario \
+            .given_i_have_an_app_running() \
+            .when_the_create_metric_data_endpoint_is_called(str(uuid.uuid4())) \
+            .then_the_status_code_should_be(404) \
+            .then_an_info_log_indicates_endpoint_called()
+
+    def test_create_metric_record(self):
+        scenario = CreateMetricRecordScenario(self.context)
+        scenario \
+            .given_i_have_an_app_running() \
+            .when_the_create_metric_data_endpoint_is_called("073ac9db-c16e-4d04-9f25-6fc01d4ac380") \
+            .then_the_status_code_should_be(201) \
             .then_an_info_log_indicates_endpoint_called()

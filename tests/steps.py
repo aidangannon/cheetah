@@ -296,3 +296,74 @@ class CreateMetricConfigurationScenario:
         actual_metrics_aggregate = MetricsResponse.model_validate(read_response.json())
         self.ctx.test_case.assertEqual(expected_metrics_response, actual_metrics_aggregate)
         return self
+
+
+class CreateMetricRecordScenario:
+
+    def __init__(self, ctx: ScenarioContext):
+        self.ctx = ctx
+        self.metric_record = AutoFixture().create(CreateMetricRequest)
+        print("")
+
+    @step
+    def given_i_have_an_app_running(self):
+        return self
+
+    @step
+    def when_the_create_metric_data_endpoint_is_called(self, config_id: str):
+        self.config_id = config_id
+        self.response = self.ctx.client.post(f"/metrics/{config_id}/metric-records", json=self.metric_record.model_dump())
+        return self
+
+    @step
+    def then_an_info_log_indicates_endpoint_called(self):
+        self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
+            log_level=logging.INFO,
+            message="Endpoint called",
+            operation="create_metric_record",
+            metric_id=self.config_id,
+            obsolescence=self.metric_record.obsolescence,
+            obsolescence_val=self.metric_record.obsolescence_val,
+            alert_type=self.metric_record.alert_type,
+            alert_category=self.metric_record.alert_category)
+        return self
+
+    @step
+    def then_the_status_code_should_be(self, status_code: int):
+        self.ctx.test_case.assertEqual(self.response.status_code, status_code)
+        return self
+
+    @step
+    def then_the_metrics_should_have_been_created(self):
+        metric_aggregate = self.ctx.client.get(
+            f"/metrics/{self.config_id}",
+            json=self.metric_record.model_dump()
+        )
+        expected_metrics_response = MetricsResponse(
+            id=self.metric_config_id,
+            is_editable=True,
+            layouts=[
+                LayoutItemContract(
+                    static=True,
+                    x=1,
+                    y=1,
+                    h=1,
+                    w=1,
+                    breakpoint="md"
+                ),
+                LayoutItemContract(
+                    static=False,
+                    x=2,
+                    y=4,
+                    h=1,
+                    w=5,
+                    breakpoint="lg"
+                )
+            ],
+            records=[self.metric_record.model_dump()]
+        )
+        metric_config_id = self.create_response.json()["id"]
+        read_response = self.ctx.client.get(f"/metrics/{metric_config_id}")
+        actual_metrics_aggregate = MetricsResponse.model_validate(read_response.json())
+        self.ctx.test_case.assertEqual(expected_metrics_response, actual_metrics_aggregate)
+        return self
