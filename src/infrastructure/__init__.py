@@ -22,6 +22,9 @@ T = TypeVar("T")
 
 
 class Settings(BaseSettings):
+    USER_POOL_CLIENT_ID: str
+    USER_POOL_ID: str
+    AWS_REGION: str
     DATABASE_URL: str
     METRICS_SEED_JSON: str = "../data/metrics.json"
     QUERIES_SEED_CSV: str = "../data/queries.csv"

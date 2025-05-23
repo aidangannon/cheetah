@@ -14,6 +14,7 @@ from src.application.services import DatabaseHealthCheckService, GetMetricsServi
     CreateMetricService
 from src.core import MetricConfigurationAggregate
 from src.crosscutting import get_service, logging_scope, Logger
+from src.infrastructure.auth import verify_token
 from src.web.contracts import MetricsResponse, HealthCheckResponse, CreatedResponse, CreateMetricConfigurationRequest, \
     CreateMetricRequest
 
@@ -30,9 +31,11 @@ health_router = APIRouter(
 )
 async def get_health(
     logger: Logger = Depends(get_service(Logger)),
-    health_check_service: DatabaseHealthCheckService = Depends(get_service(DatabaseHealthCheckService))
+    health_check_service: DatabaseHealthCheckService = Depends(get_service(DatabaseHealthCheckService)),
+    payload = Depends(verify_token)
 ):
     with logging_scope(operation=get_health.__name__):
+        logger.info(f"Running health checks for {payload['sub']}")
         logger.info("Endpoint called")
         database_result = await health_check_service()
         return {"application": True, "database": database_result}

@@ -33,11 +33,12 @@ jobs:
           AWS_REGION: eu-west-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          STACK_NAME: metrics-api-prod
         run: |
           sam deploy \
             --no-fail-on-empty-changeset \
             --template-file deploy-template.yml \
-            --stack-name metrics-api-prod \
+            --stack-name $STACK_NAME \
             --s3-bucket metrics-api-prod-s3 \
             --s3-prefix metrics \
             --region $AWS_REGION \
@@ -45,11 +46,24 @@ jobs:
             --parameter-overrides DBPassword=$DB_PASSWORD KeyName=intropy-ec2-keypair $REBUILD_PARAM \
             --no-confirm-changeset
           INSTANCE_ID=$(aws cloudformation describe-stacks \
-            --stack-name metrics-api-prod \
+            --stack-name $STACK_NAME \
             --region $AWS_REGION \
             --query "Stacks[0].Outputs[?OutputKey=='EC2InstanceID'].OutputValue" \
             --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          USER_POOL_ID=$(aws cloudformation describe-stacks \
+            --stack-name $STACK_NAME \
+            --region $AWS_REGION \
+            --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" \
+            --output text)
+          echo "USER_POOL_ID=$USER_POOL_ID" >> $GITHUB_ENV
+          USER_POOL_CLIENT_ID=$(aws cloudformation describe-stacks \
+            --stack-name $STACK_NAME \
+            --region $AWS_REGION \
+            --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" \
+            --output text)
+          echo "USER_POOL_CLIENT_ID=$USER_POOL_CLIENT_ID" >> $GITHUB_ENV
+          echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
       - name: Setup SSH key
         run: |
           echo "${{ secrets.EC2_KEY }}" > ec2_key.pem
@@ -101,6 +115,18 @@ jobs:
               docker stop myfastapiapp
               docker rm myfastapiapp
             fi
+            
+            grep -qxF 'QUERIES_SEED_CSV=/app/data/queries.csv' /home/ec2-user/fastapi.env || \
+            echo 'QUERIES_SEED_CSV=/app/data/queries.csv' | sudo tee -a /home/ec2-user/fastapi.env
+            
+            grep -qxF "USER_POOL_ID=$USER_POOL_ID" /home/ec2-user/fastapi.env || \
+            echo "USER_POOL_ID=$USER_POOL_ID" | sudo tee -a /home/ec2-user/fastapi.env
+            
+            grep -qxF "USER_POOL_CLIENT_ID=$USER_POOL_CLIENT_ID" /home/ec2-user/fastapi.env || \
+            echo "USER_POOL_CLIENT_ID=$USER_POOL_CLIENT_ID" | sudo tee -a /home/ec2-user/fastapi.env
+            
+            grep -qxF "AWS_REGION=$AWS_REGION" /home/ec2-user/fastapi.env || \
+            echo "AWS_REGION=$AWS_REGION" | sudo tee -a /home/ec2-user/fastapi.env
             
             grep -qxF 'QUERIES_SEED_CSV=/app/data/queries.csv' /home/ec2-user/fastapi.env || \
             echo 'QUERIES_SEED_CSV=/app/data/queries.csv' | sudo tee -a /home/ec2-user/fastapi.env
