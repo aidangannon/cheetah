@@ -7,6 +7,7 @@ from autofixture import AutoFixture
 from src.web.contracts import MetricsResponse, LayoutItemContract, CreateMetricConfigurationRequest, CreateMetricRequest
 from tests import step, ScenarioContext
 
+DEFAULT_REQUEST_HEADERS = {"Authorization": "Bearer test"}
 
 class HealthCheckScenario:
 
@@ -19,7 +20,7 @@ class HealthCheckScenario:
 
     @step
     def when_the_get_health_endpoint_is_called(self):
-        self.response = self.ctx.client.get("/health", headers={"Authorization": "Bearer testtoken"})
+        self.response = self.ctx.client.get("/health")
         return self
 
     @step
@@ -57,7 +58,8 @@ class GetMetricsScenario:
     @step
     def when_the_get_metrics_endpoint_is_called_with_metric_configuration_id(self, metric_id: str):
         self.metric_id = metric_id
-        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}")
+        self.test_token = str(uuid.uuid4())
+        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}", headers=DEFAULT_REQUEST_HEADERS)
         return self
 
     @step
@@ -69,7 +71,7 @@ class GetMetricsScenario:
         for key, value in kwargs.items():
             setattr(self, key, value)
         self.metric_id = metric_id
-        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}", params=kwargs)
+        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}", params=kwargs, headers=DEFAULT_REQUEST_HEADERS)
         return self
 
     @step
@@ -236,14 +238,22 @@ class CreateMetricConfigurationScenario:
 
     @step
     def when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration(self):
-        self.create_response = self.ctx.client.post(f"/metrics", json=self.metric_config.model_dump())
+        self.create_response = self.ctx.client.post(
+            f"/metrics",
+            json=self.metric_config.model_dump(),
+            headers=DEFAULT_REQUEST_HEADERS
+        )
         self.ctx.test_case.assertEqual(self.create_response.status_code, 201)
         self.metric_config_id = self.create_response.json()["id"]
         return self
 
     @step
     def and_data_is_created_for_the_metric(self):
-        create_data_response = self.ctx.client.post(f"/metrics/{self.metric_config_id}/metric-records", json=self.metric_record.model_dump())
+        create_data_response = self.ctx.client.post(
+            f"/metrics/{self.metric_config_id}/metric-records",
+            json=self.metric_record.model_dump(),
+            headers=DEFAULT_REQUEST_HEADERS
+        )
         self.ctx.test_case.assertEqual(create_data_response.status_code, 201)
         return self
 
@@ -291,7 +301,7 @@ class CreateMetricConfigurationScenario:
             records=[self.metric_record.model_dump()]
         )
         metric_config_id = self.create_response.json()["id"]
-        read_response = self.ctx.client.get(f"/metrics/{metric_config_id}")
+        read_response = self.ctx.client.get(f"/metrics/{metric_config_id}", headers=DEFAULT_REQUEST_HEADERS)
         actual_metrics_aggregate = MetricsResponse.model_validate(read_response.json())
         self.ctx.test_case.assertEqual(expected_metrics_response, actual_metrics_aggregate)
         return self
@@ -311,7 +321,11 @@ class CreateMetricRecordScenario:
     @step
     def when_the_create_metric_data_endpoint_is_called(self, config_id: str):
         self.config_id = config_id
-        self.response = self.ctx.client.post(f"/metrics/{config_id}/metric-records", json=self.metric_record.model_dump())
+        self.response = self.ctx.client.post(
+            f"/metrics/{config_id}/metric-records",
+            json=self.metric_record.model_dump(),
+            headers=DEFAULT_REQUEST_HEADERS
+        )
         return self
 
     @step

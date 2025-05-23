@@ -1,9 +1,8 @@
 from datetime import date
 from typing import Optional
-from unittest.mock import Mock
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body, Path
 from starlette.responses import JSONResponse, Response
 from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
 
@@ -12,9 +11,7 @@ from src.application.mappers import map_metric_aggregate_to_contract, map_metric
 from src.application.services import DatabaseHealthCheckService, GetMetricsService, CreateMetricConfigurationService, \
     CreateMetricService
 from src.crosscutting import get_service, logging_scope, Logger
-from src.infrastructure import Settings
-from src.infrastructure.auth import CognitoAuthenticator
-from src.web import auth_provider
+from src.web import auth_provider, Authenticator
 from src.web.contracts import MetricsResponse, HealthCheckResponse, CreatedResponse, CreateMetricConfigurationRequest, \
     CreateMetricRequest
 
@@ -31,11 +28,9 @@ health_router = APIRouter(
 )
 async def get_health(
     logger: Logger = Depends(get_service(Logger)),
-    health_check_service: DatabaseHealthCheckService = Depends(get_service(DatabaseHealthCheckService)),
-    payload: dict = Depends(auth_provider)
+    health_check_service: DatabaseHealthCheckService = Depends(get_service(DatabaseHealthCheckService))
 ):
     with logging_scope(operation=get_health.__name__):
-        logger.info(f"Running health checks for {payload['sub']}")
         logger.info("Endpoint called")
         database_result = await health_check_service()
         return {"application": True, "database": database_result}
@@ -55,12 +50,13 @@ metrics_router = APIRouter(
     description="Get metrics configuration, data and layouts"
 )
 async def get_metrics(
-    metric_id: UUID,
+    metric_id: UUID = Path(description="metric configuration id to search under"),
     start_date: Optional[date] = Query('2025-06-01', description="Start date for filtering"),
     end_date: Optional[date] = Query('2025-06-30', description="End date for filtering"),
     day_range: Optional[int] = Query(30, description="Number of days before today"),
-    logger: Logger = Depends(get_service(Logger)),
-    get_metrics_service: GetMetricsService = Depends(get_service(GetMetricsService))
+    get_metrics_service: GetMetricsService = Depends(get_service(GetMetricsService)),
+    _ = Depends(auth_provider),
+    logger: Logger = Depends(get_service(Logger))
 ):
     id_str = str(metric_id)
     with logging_scope(
@@ -93,9 +89,10 @@ async def get_metrics(
     description="Create metric configuration and do query generation"
 )
 async def create_metrics_configuration(
-    create_metric_configuration: CreateMetricConfigurationRequest,
+    create_metric_configuration: CreateMetricConfigurationRequest = Body(..., description="metric configuration data"),
+    create_metric_configuration_service: CreateMetricConfigurationService = Depends(get_service(CreateMetricConfigurationService)),
+    _ = Depends(auth_provider),
     logger: Logger = Depends(get_service(Logger)),
-    create_metric_configuration_service: CreateMetricConfigurationService = Depends(get_service(CreateMetricConfigurationService))
 ):
     with logging_scope(
         operation=create_metrics_configuration.__name__,
@@ -119,10 +116,11 @@ async def create_metrics_configuration(
     description="Create metric data for a given metric type"
 )
 async def create_metric_record(
-    metric_id: UUID,
-    create_metric_data: CreateMetricRequest,
-    logger: Logger = Depends(get_service(Logger)),
-    create_metric_data_service: CreateMetricService = Depends(get_service(CreateMetricService))
+    metric_id: UUID = Path(description="id of the metric configuration the data will sit under"),
+    create_metric_data: CreateMetricRequest = Body(..., description="data fields for the metric"),
+    create_metric_data_service: CreateMetricService = Depends(get_service(CreateMetricService)),
+    _ = Depends(auth_provider),
+    logger: Logger = Depends(get_service(Logger))
 ):
     str_metric_id = str(metric_id)
     with logging_scope(
