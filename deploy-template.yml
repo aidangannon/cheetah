@@ -323,13 +323,17 @@ Outputs:
     Value: !Ref CognitoUserPoolClient
 
   UserPoolDomain:
-    Description: Cognito User Pool Domain (default domain needs to be created separately)
+    Description: Cognito User Pool Domain (default domain)
     Value: !Sub "https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com"
 
   HostedUILoginURL:
     Description: Hosted UI login URL for Authorization Code Flow
     Value: !Sub |
-      https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com/login?response_type=code&client_id=${UserPoolClientId}&redirect_uri=https://aphextwinning.com
+      https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com/login?response_type=code&client_id=${ClientId}&redirect_uri=https://aphextwinning.com
+    # Pass variable explicitly here
+    # Use 'Variables' map for !Sub:
+    Variables:
+      ClientId: !Ref CognitoUserPoolClient
 
   HostedUITokenURL:
     Description: Hosted UI token endpoint URL
