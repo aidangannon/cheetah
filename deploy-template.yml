@@ -35,34 +35,33 @@ Parameters:
 
 Resources:
 
-  Resources:
-    CognitoUserPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UserPoolName: minimal-user-pool
-        AutoVerifiedAttributes:
-          - email
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: minimal-user-pool
+      AutoVerifiedAttributes:
+        - email
 
-    CognitoUserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: user-pool-client
-        UserPoolId: !Ref CognitoUserPool
-        GenerateSecret: true
-        AllowedOAuthFlows:
-          - code
-          - implicit
-        AllowedOAuthScopes:
-          - email
-          - openid
-          - profile
-        AllowedOAuthFlowsUserPoolClient: true
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: user-pool-client
+      UserPoolId: !Ref CognitoUserPool
+      GenerateSecret: true
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+      AllowedOAuthFlowsUserPoolClient: true
 
-        # todo: these urls would be switched out for fe
-        CallbackURLs:
-          - "https://aphextwinning.com"
-        LogoutURLs:
-          - "https://aphextwinning.com"
+      # todo: these urls would be switched out for fe
+      CallbackURLs:
+        - "https://aphextwinning.com"
+      LogoutURLs:
+        - "https://aphextwinning.com"
 
   VPC:
     Type: AWS::EC2::VPC
