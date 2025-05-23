@@ -6,7 +6,8 @@ import structlog
 from fastapi import FastAPI
 from punq import Container, Scope
 
-from src.application.services import DatabaseHealthCheckService, DataSeedService, GetMetricsService
+from src.application.services import DatabaseHealthCheckService, DataSeedService, GetMetricsService, \
+    CreateMetricConfigurationService
 from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, MetricAggregateReader, \
     MetricRecordsReader
 from src.crosscutting import Logger, ServiceProvider
@@ -18,7 +19,7 @@ from src.infrastructure.readers import SqlAlchemyMetricAggregateReader, SqlAlche
     SqlAlchemyDbHealthReader
 from src.infrastructure.writers import SqlAlchemyGenericDataSeeder
 from src.web.middleware import add_exception_middleware
-from src.web.routes import health_router, metrics_router
+from src.web.routes import health_router, metrics_router, metrics_configuration_router
 
 
 def bootstrap(app: FastAPI,
@@ -63,11 +64,13 @@ def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)
     app.include_router(router=health_router)
     app.include_router(router=metrics_router)
+    app.include_router(router=metrics_configuration_router)
 
 def add_services(container: Container):
     container.register(DatabaseHealthCheckService)
     container.register(GetMetricsService)
     container.register(DataSeedService)
+    container.register(CreateMetricConfigurationService)
 
 def add_logging(container: Container):
     container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)

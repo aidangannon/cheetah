@@ -5,10 +5,12 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from starlette.responses import JSONResponse
 
+from src import core
 from src.application.mappers import map_metric_aggregate_to_contract
-from src.application.services import DatabaseHealthCheckService, GetMetricsService
+from src.application.services import DatabaseHealthCheckService, GetMetricsService, CreateMetricConfigurationService
+from src.core import MetricConfigurationAggregate
 from src.crosscutting import get_service, logging_scope, Logger
-from src.web.contracts import MetricsResponse, HealthCheckResponse
+from src.web.contracts import MetricsResponse, HealthCheckResponse, CreatedResponse, CreateMetricConfiguration
 
 health_router = APIRouter(
     prefix="/health",
@@ -68,6 +70,38 @@ async def get_metrics(
             end_date=end_date,
             day_range=day_range
         )
+
+        if metrics is None:
+            return JSONResponse(status_code=404, content={"detail": "Metrics not found"})
+
+        response = map_metric_aggregate_to_contract(metrics)
+        return response
+    
+metrics_configuration_router = APIRouter(
+    prefix="/metric-configuration",
+    tags=["MetricConfiguration"]
+)
+
+@metrics_configuration_router.post(
+    "/",
+    response_model=CreatedResponse,
+    summary="Create metric configuration",
+    description="Create metric configuration and do query generation"
+)
+async def create_metrics_configuration(
+    create_metric_configuration: CreateMetricConfiguration,
+    logger: Logger = Depends(get_service(Logger)),
+    create_metric_configuration_service: CreateMetricConfigurationService = Depends(get_service(CreateMetricConfigurationService))
+):
+    with logging_scope(
+        operation=create_metrics_configuration.__name__,
+        is_editable=create_metric_configuration.is_editable,
+        query_generation_prompt=create_metric_configuration.query_generation_prompt
+    ):
+        logger.info("Endpoint called")
+
+        my_blah = MetricConfigurationAggregate(id="thisisnew", query_id="new", is_editable=True, layouts=[], query=core.Query(id="new", query="blah"))
+        metrics = await create_metric_configuration_service(my_blah)
 
         if metrics is None:
             return JSONResponse(status_code=404, content={"detail": "Metrics not found"})

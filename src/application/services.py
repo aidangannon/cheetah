@@ -2,6 +2,9 @@ import asyncio
 from datetime import date
 from typing import Optional
 
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
 from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader, MetricConfigurationAggregate, \
     MetricAggregateReader, MetricRecordsReader
 from src.crosscutting import auto_slots, Logger
@@ -66,3 +69,24 @@ class DataSeedService:
             for loader in self.loaders:
                 await seed(data=loader.data, _type=loader.type, logger=self.logger)
             await uow.commit()
+
+
+@auto_slots
+class CreateMetricConfigurationService:
+
+    def __init__(self, unit_of_work: UnitOfWork):
+        self.unit_of_work = unit_of_work
+
+    async def __call__(self, this: MetricConfigurationAggregate) -> Optional[MetricConfigurationAggregate]:
+        async with self.unit_of_work as uow:
+            uow.session.add(this)
+            await uow.session.commit()
+        async with self.unit_of_work as uow:
+            result = await uow.session.execute(
+                select(MetricConfigurationAggregate).options(
+                    selectinload(MetricConfigurationAggregate.layouts),
+                    selectinload(MetricConfigurationAggregate.query),
+                )
+            )
+            final = result.scalars().all()
+            print("")
