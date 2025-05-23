@@ -1,6 +1,5 @@
 import datetime
 import logging
-from datetime import date
 
 from src.web.contracts import MetricsResponse, LayoutItemResponse, CreateMetricConfiguration
 from tests import step, ScenarioContext
@@ -108,7 +107,7 @@ class GetMetricsScenario:
                     static=None
                 )
             ])
-        actual_response = MetricsResponse.parse_obj(self.response.json())
+        actual_response = MetricsResponse.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
@@ -146,7 +145,7 @@ class GetMetricsScenario:
                     static=None
                 )
             ])
-        actual_response = MetricsResponse.parse_obj(self.response.json())
+        actual_response = MetricsResponse.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
@@ -175,7 +174,7 @@ class GetMetricsScenario:
                     static=None
                 )
             ])
-        actual_response = MetricsResponse.parse_obj(self.response.json())
+        actual_response = MetricsResponse.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self

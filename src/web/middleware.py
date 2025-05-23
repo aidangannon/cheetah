@@ -45,7 +45,7 @@ def log_and_handle(
 
 def log_and_forward_validation_error(
     logger_factory: Callable[[], Logger]
-) -> Callable[[Request, RequestValidationError], JSONResponse]:
+) -> Callable[[Request, Exception], JSONResponse]:
 
     async def handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         logger = logger_factory()
