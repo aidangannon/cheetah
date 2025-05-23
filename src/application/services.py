@@ -1,9 +1,11 @@
 import asyncio
+import uuid
 from datetime import date
 from typing import Optional
 
 from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader, MetricConfigurationAggregate, \
-    MetricAggregateReader, MetricRecordsReader, MetricAggregateWriter
+    MetricAggregateReader, MetricRecordsReader, MetricAggregateWriter, QueryGenerator, Query, MetricRecord, \
+    MetricRecordWriter
 from src.crosscutting import auto_slots, Logger
 
 
@@ -71,12 +73,39 @@ class DataSeedService:
 @auto_slots
 class CreateMetricConfigurationService:
 
+    def __init__(self,
+        unit_of_work: UnitOfWork,
+        prompt_generator: QueryGenerator
+    ):
+        self.prompt_generator = prompt_generator
+        self.unit_of_work = unit_of_work
+
+    async def __call__(self, aggregate: MetricConfigurationAggregate, query_prompt: str) -> str:
+        async with self.unit_of_work as uow:
+            query_id = str(uuid.uuid4())
+            query = await self.prompt_generator(query_prompt, _q=query_id)
+            aggregate.query = Query(
+                id=query_id,
+                query=query
+            )
+            writer = uow.persistence_factory(MetricAggregateWriter)
+            await writer(aggregate)
+            await uow.save()
+        return aggregate.id
+
+
+@auto_slots
+class CreateMetricService:
+
     def __init__(self, unit_of_work: UnitOfWork):
         self.unit_of_work = unit_of_work
 
-    async def __call__(self, aggregate: MetricConfigurationAggregate) -> str:
+    async def __call__(self, config_id: str, metric_record: MetricRecord) -> str:
         async with self.unit_of_work as uow:
-            writer = uow.persistence_factory(MetricAggregateWriter)
-            await writer(aggregate)
+            reader = uow.persistence_factory(MetricAggregateReader)
+            aggregate = await reader(config_id)
+            metric_record.id = aggregate.query_id
+            writer = uow.persistence_factory(MetricRecordWriter)
+            await writer(metric_record)
             await uow.save()
         return aggregate.id

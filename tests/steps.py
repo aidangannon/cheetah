@@ -2,7 +2,9 @@ import datetime
 import logging
 import uuid
 
-from src.web.contracts import MetricsResponse, LayoutItemContract, CreateMetricConfiguration
+from autofixture import AutoFixture
+
+from src.web.contracts import MetricsResponse, LayoutItemContract, CreateMetricConfigurationRequest, CreateMetricRequest
 from tests import step, ScenarioContext
 
 
@@ -204,7 +206,7 @@ class CreateMetricConfigurationScenario:
 
     def __init__(self, ctx: ScenarioContext):
         self.ctx = ctx
-        self.metric_config = CreateMetricConfiguration(
+        self.metric_config = CreateMetricConfigurationRequest(
             is_editable=True,
             layouts=[
                 LayoutItemContract(
@@ -226,6 +228,8 @@ class CreateMetricConfigurationScenario:
             ],
             query_generation_prompt="shut up and dance"
         )
+        self.metric_record = AutoFixture().create(CreateMetricRequest)
+        print("")
 
     @step
     def given_i_have_an_app_running(self):
@@ -233,7 +237,15 @@ class CreateMetricConfigurationScenario:
 
     @step
     def when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration(self):
-        self.response = self.ctx.client.post(f"/metric-configuration", json=self.metric_config.model_dump())
+        self.create_response = self.ctx.client.post(f"/metrics", json=self.metric_config.model_dump())
+        self.ctx.test_case.assertEqual(self.create_response.status_code, 201)
+        self.metric_config_id = self.create_response.json()["id"]
+        return self
+
+    @step
+    def and_data_is_created_for_the_metric(self):
+        create_data_response = self.ctx.client.post(f"/metrics/{self.metric_config_id}/metric-records", json=self.metric_record.model_dump())
+        self.ctx.test_case.assertEqual(create_data_response.status_code, 201)
         return self
 
     @step
@@ -241,22 +253,46 @@ class CreateMetricConfigurationScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            operation="create_metric_configuration",
-            is_editable=self.metric_config.is_editable,
-            query_generation_prompt=self.metric_config.query_generation_prompt)
+            operation="create_metric_record",
+            metric_id=self.metric_config_id,
+            obsolescence=self.metric_record.obsolescence,
+            obsolescence_val=self.metric_record.obsolescence_val,
+            alert_type=self.metric_record.alert_type,
+            alert_category=self.metric_record.alert_category)
         return self
 
     @step
     def then_the_status_code_should_be(self, status_code: int):
-        self.ctx.test_case.assertEqual(self.response.status_code, status_code)
+        self.ctx.test_case.assertEqual(self.create_response.status_code, status_code)
         return self
 
     @step
-    def then_the_response_should_be_created_id(self):
-        body = self.response.json()
-        try:
-            uuid.UUID(body["id"])
-        except (ValueError, KeyError, TypeError) as e:
-            self.ctx.test_case.fail(f"Response 'id' is not a valid UUID: {e}")
-
+    def then_the_metrics_should_have_been_created(self):
+        expected_metrics_response = MetricsResponse(
+            id=self.metric_config_id,
+            is_editable=True,
+            layouts=[
+                LayoutItemContract(
+                    static=True,
+                    x=1,
+                    y=1,
+                    h=1,
+                    w=1,
+                    breakpoint="md"
+                ),
+                LayoutItemContract(
+                    static=False,
+                    x=2,
+                    y=4,
+                    h=1,
+                    w=5,
+                    breakpoint="lg"
+                )
+            ],
+            records=[self.metric_record.model_dump()]
+        )
+        metric_config_id = self.create_response.json()["id"]
+        read_response = self.ctx.client.get(f"/metrics/{metric_config_id}")
+        actual_metrics_aggregate = MetricsResponse.model_validate(read_response.json())
+        self.ctx.test_case.assertEqual(expected_metrics_response, actual_metrics_aggregate)
         return self

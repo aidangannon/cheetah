@@ -24,10 +24,17 @@ class MetricsResponse(BaseModel):
     records: list[dict[str, Any]]
     layouts: list[LayoutItemContract]
 
-class CreateMetricConfiguration(BaseModel):
+class CreateMetricConfigurationRequest(BaseModel):
     is_editable: bool
     layouts: list[LayoutItemContract]
     query_generation_prompt: str
+
+class CreateMetricRequest(BaseModel):
+    obsolescence_val: float = None
+    obsolescence: float = None
+    parts_flagged: int = None
+    alert_type: str = None
+    alert_category: str = None
 
 class CreatedResponse(BaseModel):
     id: str

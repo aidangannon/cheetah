@@ -103,3 +103,14 @@ class MetricAggregateWriter(Protocol):
 
     async def __call__(self, aggregate: MetricConfigurationAggregate):
         ...
+
+
+class QueryGenerator(Protocol):
+
+    async def __call__(self, prompt: str, _q: str) -> str:
+        ...
+
+class MetricRecordWriter(Protocol):
+
+    async def __call__(self, record: MetricRecord):
+        ...

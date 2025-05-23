@@ -3,14 +3,19 @@ from typing import Any, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
-from starlette.responses import JSONResponse
+from starlette import status
+from starlette.responses import JSONResponse, Response
+from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from src import core
-from src.application.mappers import map_metric_aggregate_to_contract, map_metric_configuration_contract_to_domain
-from src.application.services import DatabaseHealthCheckService, GetMetricsService, CreateMetricConfigurationService
+from src.application.mappers import map_metric_aggregate_to_contract, map_metric_configuration_contract_to_domain, \
+    map_metric_record_contract_to_domain
+from src.application.services import DatabaseHealthCheckService, GetMetricsService, CreateMetricConfigurationService, \
+    CreateMetricService
 from src.core import MetricConfigurationAggregate
 from src.crosscutting import get_service, logging_scope, Logger
-from src.web.contracts import MetricsResponse, HealthCheckResponse, CreatedResponse, CreateMetricConfiguration
+from src.web.contracts import MetricsResponse, HealthCheckResponse, CreatedResponse, CreateMetricConfigurationRequest, \
+    CreateMetricRequest
 
 health_router = APIRouter(
     prefix="/health",
@@ -41,7 +46,7 @@ metrics_router = APIRouter(
     "/{metric_id}",
     response_model=MetricsResponse,
     responses={
-        404: {"description": "Metric not found"}
+        HTTP_404_NOT_FOUND: {"description": "Metric not found"}
     },
     summary="Get metrics",
     description="Get metrics configuration, data and layouts"
@@ -77,19 +82,15 @@ async def get_metrics(
         response = map_metric_aggregate_to_contract(metrics)
         return response
     
-metrics_configuration_router = APIRouter(
-    prefix="/metric-configuration",
-    tags=["MetricConfiguration"]
-)
-
-@metrics_configuration_router.post(
+@metrics_router.post(
     "/",
     response_model=CreatedResponse,
+    status_code=HTTP_201_CREATED,
     summary="Create metric configuration",
     description="Create metric configuration and do query generation"
 )
 async def create_metrics_configuration(
-    create_metric_configuration: CreateMetricConfiguration,
+    create_metric_configuration: CreateMetricConfigurationRequest,
     logger: Logger = Depends(get_service(Logger)),
     create_metric_configuration_service: CreateMetricConfigurationService = Depends(get_service(CreateMetricConfigurationService))
 ):
@@ -100,6 +101,40 @@ async def create_metrics_configuration(
     ):
         logger.info("Endpoint called")
 
-        _id = await create_metric_configuration_service(map_metric_configuration_contract_to_domain(create_metric_configuration))
+        _id = await create_metric_configuration_service(
+            map_metric_configuration_contract_to_domain(create_metric_configuration),
+            create_metric_configuration.query_generation_prompt
+        )
 
         return CreatedResponse(id=_id)
+
+
+@metrics_router.post(
+    "/{metric_id}/metric-records",
+    status_code=HTTP_201_CREATED,
+    summary="Create metric record",
+    description="Create metric data for a given metric type"
+)
+async def create_metric_record(
+    metric_id: UUID,
+    create_metric_data: CreateMetricRequest,
+    logger: Logger = Depends(get_service(Logger)),
+    create_metric_data_service: CreateMetricService = Depends(get_service(CreateMetricService))
+):
+    str_metric_id = str(metric_id)
+    with logging_scope(
+        operation=create_metric_record.__name__,
+        metric_id=str_metric_id,
+        obsolescence=create_metric_data.obsolescence,
+        obsolescence_val=create_metric_data.obsolescence_val,
+        alert_type=create_metric_data.alert_type,
+        alert_category=create_metric_data.alert_category
+    ):
+        logger.info("Endpoint called")
+
+        _id = await create_metric_data_service(
+            str_metric_id,
+            map_metric_record_contract_to_domain(create_metric_data),
+        )
+
+        return Response(status_code=201)

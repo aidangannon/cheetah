@@ -7,19 +7,21 @@ from fastapi import FastAPI
 from punq import Container, Scope
 
 from src.application.services import DatabaseHealthCheckService, DataSeedService, GetMetricsService, \
-    CreateMetricConfigurationService
+    CreateMetricConfigurationService, CreateMetricService
 from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, MetricAggregateReader, \
-    MetricRecordsReader, MetricAggregateWriter
+    MetricRecordsReader, MetricAggregateWriter, MetricRecordWriter, QueryGenerator
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register
+from src.infrastructure.llm import FakeQueryGenerator
 from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader, \
     JsonMetricRecordLoader
 from src.infrastructure.orm import start_mappers
 from src.infrastructure.readers import SqlAlchemyMetricAggregateReader, SqlAlchemyMetricRecordsReader, \
     SqlAlchemyDbHealthReader
-from src.infrastructure.writers import SqlAlchemyGenericDataSeeder, SqlAlchemyMetricAggregateWriter
+from src.infrastructure.writers import SqlAlchemyGenericDataSeeder, SqlAlchemyMetricAggregateWriter, \
+    SqlAlchemyMetricRecordWriter
 from src.web.middleware import add_exception_middleware
-from src.web.routes import health_router, metrics_router, metrics_configuration_router
+from src.web.routes import health_router, metrics_router
 
 
 def bootstrap(app: FastAPI,
@@ -40,6 +42,7 @@ def bootstrap(app: FastAPI,
     add_database(container=container)
     add_services(container=container)
     add_loaders(container=container)
+    add_llms(container=container)
     initialise_actions(container)
     return container
 
@@ -50,7 +53,11 @@ def add_database(container: Container):
     register(MetricAggregateReader, SqlAlchemyMetricAggregateReader)
     register(GenericDataSeeder, SqlAlchemyGenericDataSeeder)
     register(MetricAggregateWriter, SqlAlchemyMetricAggregateWriter)
+    register(MetricRecordWriter, SqlAlchemyMetricRecordWriter)
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
+
+def add_llms(container: Container):
+    container.register(QueryGenerator, FakeQueryGenerator)
 
 def add_loaders(container: Container):
     container.register(DataLoader, JsonMetricConfigurationLoader)
@@ -65,13 +72,13 @@ def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)
     app.include_router(router=health_router)
     app.include_router(router=metrics_router)
-    app.include_router(router=metrics_configuration_router)
 
 def add_services(container: Container):
     container.register(DatabaseHealthCheckService)
     container.register(GetMetricsService)
     container.register(DataSeedService)
     container.register(CreateMetricConfigurationService)
+    container.register(CreateMetricService)
 
 def add_logging(container: Container):
     container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)
