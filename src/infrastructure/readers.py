@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.core import MetricConfigurationAggregate, MetricRecord
-from src.crosscutting import auto_slots
+from src.crosscutting import auto_slots, Logger
 from src.infrastructure import async_ttl_cache
 
 
@@ -25,7 +25,8 @@ class SqlAlchemyDbHealthReader:
 @auto_slots
 class SqlAlchemyMetricAggregateReader:
 
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession, logger: Logger):
+        self.logger = logger
         self.session = session
 
     @async_ttl_cache(ttl_seconds=300)
@@ -36,6 +37,7 @@ class SqlAlchemyMetricAggregateReader:
                 selectinload(MetricConfigurationAggregate.query),
             )
         )
+        self.logger.info(f"Retrieving metric configurations for from db", metric_configuration_id=_id)
         return result.scalar_one_or_none()
 
 @auto_slots
