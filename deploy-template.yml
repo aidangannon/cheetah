@@ -34,34 +34,42 @@ Parameters:
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
 
 Resources:
-
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: minimal-user-pool
+      UserPoolName: BackendOnlyUserPool
       AutoVerifiedAttributes:
         - email
+
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: 3eef4c69-d944-4d39-837f-97f3f72f5f93
+      UserPoolId: !Ref CognitoUserPool
 
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: user-pool-client
+      ClientName: BackendAppClient
       UserPoolId: !Ref CognitoUserPool
       GenerateSecret: true
       AllowedOAuthFlows:
-        - code
-        - implicit
+        - client_credentials
       AllowedOAuthScopes:
-        - email
-        - openid
-        - profile
+        - api/backend_access
       AllowedOAuthFlowsUserPoolClient: true
+      SupportedIdentityProviders:
+        - COGNITO
 
-      # todo: these urls would be switched out for fe
-      CallbackURLs:
-        - "https://aphextwinning.com"
-      LogoutURLs:
-        - "https://aphextwinning.com"
+  CognitoUserPoolResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Identifier: api
+      Name: BackendAPI
+      Scopes:
+        - ScopeName: backend_access
+          ScopeDescription: Access to backend API
 
   VPC:
     Type: AWS::EC2::VPC
@@ -322,20 +330,7 @@ Outputs:
     Description: Cognito User Pool Client ID
     Value: !Ref CognitoUserPoolClient
 
-  UserPoolDomain:
-    Description: Cognito User Pool Domain (default domain)
-    Value: !Sub "https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com"
-
-  HostedUILoginURL:
-    Description: Hosted UI login URL for Authorization Code Flow
-    Value: !Sub |
-      https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com/login?response_type=code&client_id=${ClientId}&redirect_uri=https://aphextwinning.com
-    # Pass variable explicitly here
-    # Use 'Variables' map for !Sub:
-    Variables:
-      ClientId: !Ref CognitoUserPoolClient
-
   HostedUITokenURL:
-    Description: Hosted UI token endpoint URL
-    Value: !Sub "https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com/oauth2/token"
+    Description: Token URL
+    Value: !Sub "https://${CognitoUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/oauth2/token"
 
