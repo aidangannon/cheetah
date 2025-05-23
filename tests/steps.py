@@ -1,7 +1,8 @@
 import datetime
 import logging
+import uuid
 
-from src.web.contracts import MetricsResponse, LayoutItemResponse, CreateMetricConfiguration
+from src.web.contracts import MetricsResponse, LayoutItemContract, CreateMetricConfiguration
 from tests import step, ScenarioContext
 
 
@@ -90,7 +91,7 @@ class GetMetricsScenario:
                 }
             ],
             layouts=[
-                LayoutItemResponse(
+                LayoutItemContract(
                     breakpoint="lg",
                     h=4,
                     w=5,
@@ -98,7 +99,7 @@ class GetMetricsScenario:
                     y=20,
                     static=False
                 ),
-                LayoutItemResponse(
+                LayoutItemContract(
                     breakpoint='md',
                     h=4,
                     w=1,
@@ -128,7 +129,7 @@ class GetMetricsScenario:
                 }
             ],
             layouts=[
-                LayoutItemResponse(
+                LayoutItemContract(
                     breakpoint="lg",
                     h=10,
                     w=5,
@@ -136,7 +137,7 @@ class GetMetricsScenario:
                     y=24,
                     static=False
                 ),
-                LayoutItemResponse(
+                LayoutItemContract(
                     breakpoint='md',
                     h=10,
                     w=1,
@@ -157,7 +158,7 @@ class GetMetricsScenario:
             is_editable=True,
             records=[],
             layouts=[
-                LayoutItemResponse(
+                LayoutItemContract(
                     breakpoint="lg",
                     h=4,
                     w=5,
@@ -165,7 +166,7 @@ class GetMetricsScenario:
                     y=20,
                     static=False
                 ),
-                LayoutItemResponse(
+                LayoutItemContract(
                     breakpoint='md',
                     h=4,
                     w=1,
@@ -203,15 +204,36 @@ class CreateMetricConfigurationScenario:
 
     def __init__(self, ctx: ScenarioContext):
         self.ctx = ctx
+        self.metric_config = CreateMetricConfiguration(
+            is_editable=True,
+            layouts=[
+                LayoutItemContract(
+                    static=True,
+                    x=1,
+                    y=1,
+                    h=1,
+                    w=1,
+                    breakpoint="md"
+                ),
+                LayoutItemContract(
+                    static=False,
+                    x=2,
+                    y=4,
+                    h=1,
+                    w=5,
+                    breakpoint="lg"
+                )
+            ],
+            query_generation_prompt="shut up and dance"
+        )
 
     @step
     def given_i_have_an_app_running(self):
         return self
 
     @step
-    def when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration(self, config: CreateMetricConfiguration):
-        self.config = config
-        self.response = self.ctx.client.post(f"/metric-configuration", json=self.config.model_dump())
+    def when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration(self):
+        self.response = self.ctx.client.post(f"/metric-configuration", json=self.metric_config.model_dump())
         return self
 
     @step
@@ -220,8 +242,8 @@ class CreateMetricConfigurationScenario:
             log_level=logging.INFO,
             message="Endpoint called",
             operation="create_metric_configuration",
-            is_editable=self.config.is_editable,
-            query_generation_prompt=self.config.query_generation_prompt)
+            is_editable=self.metric_config.is_editable,
+            query_generation_prompt=self.metric_config.query_generation_prompt)
         return self
 
     @step
@@ -230,6 +252,11 @@ class CreateMetricConfigurationScenario:
         return self
 
     @step
-    def then_the_status_code_should_be(self, status_code: int):
-        self.ctx.test_case.assertEqual(self.response.status_code, status_code)
+    def then_the_response_should_be(self):
+        body = self.response.json()
+        try:
+            uuid.UUID(body["id"])
+        except (ValueError, KeyError, TypeError) as e:
+            self.ctx.test_case.fail(f"Response 'id' is not a valid UUID: {e}")
+
         return self

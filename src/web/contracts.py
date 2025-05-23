@@ -10,7 +10,7 @@ class HealthCheckResponse(BaseModel):
     database: bool
 
 
-class LayoutItemResponse(BaseModel):
+class LayoutItemContract(BaseModel):
     breakpoint: str
     x: int
     y: int
@@ -22,11 +22,11 @@ class MetricsResponse(BaseModel):
     id: str
     is_editable: bool
     records: list[dict[str, Any]]
-    layouts: list[LayoutItemResponse]
+    layouts: list[LayoutItemContract]
 
 class CreateMetricConfiguration(BaseModel):
     is_editable: bool
-    layouts: list[LayoutItemResponse]
+    layouts: list[LayoutItemContract]
     query_generation_prompt: str
 
 class CreatedResponse(BaseModel):

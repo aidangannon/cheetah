@@ -1,5 +1,5 @@
 from src.core import MetricConfigurationAggregate, LayoutItem
-from src.web.contracts import MetricsResponse, LayoutItemResponse
+from src.web.contracts import MetricsResponse, LayoutItemContract
 
 
 def map_metric_aggregate_to_contract(metric_agg: MetricConfigurationAggregate) -> MetricsResponse:
@@ -11,8 +11,8 @@ def map_metric_aggregate_to_contract(metric_agg: MetricConfigurationAggregate) -
     )
 
 
-def map_layout_to_contract(layout: LayoutItem) -> LayoutItemResponse:
-    return LayoutItemResponse(
+def map_layout_to_contract(layout: LayoutItem) -> LayoutItemContract:
+    return LayoutItemContract(
         breakpoint=layout.breakpoint,
         x=layout.x,
         y=layout.y,

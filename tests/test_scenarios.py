@@ -2,6 +2,9 @@ import datetime
 import uuid
 from http import HTTPStatus
 
+from autofixture import AutoFixture
+
+from src.web.contracts import CreateMetricConfiguration, LayoutItemContract
 from tests import FastApiTestCase, ScenarioContext, ScenarioRunner
 from tests.steps import HealthCheckScenario, GetMetricsScenario, CreateMetricConfigurationScenario
 
@@ -115,4 +118,7 @@ class TestCreateMetricConfigurationScenarios(FastApiTestCase):
     def test_create_metrics(self):
         scenario = CreateMetricConfigurationScenario(self.context)
         scenario \
-            .given_i_have_an_app_running()
+            .given_i_have_an_app_running() \
+            .when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration() \
+            .then_the_status_code_should_be(200) \
+            .then_the_response_should_be()
