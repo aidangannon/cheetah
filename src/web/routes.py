@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Body, Path
 from starlette.responses import JSONResponse, Response
-from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 from src.application.mappers import map_metric_aggregate_to_contract, map_metric_configuration_contract_to_domain, \
     map_metric_record_contract_to_domain
@@ -44,7 +44,9 @@ metrics_router = APIRouter(
     "/{metric_id}",
     response_model=MetricsResponse,
     responses={
-        HTTP_404_NOT_FOUND: {"description": "Metric not found"}
+        HTTP_404_NOT_FOUND: {"description": "Metric not found"},
+        HTTP_401_UNAUTHORIZED: {"description": "Unauthenticated"},
+        HTTP_403_FORBIDDEN: {"description": "Token invalid"}
     },
     summary="Get metrics",
     description="Get metrics configuration, data and layouts"
@@ -85,6 +87,10 @@ async def get_metrics(
     "/",
     response_model=CreatedResponse,
     status_code=HTTP_201_CREATED,
+    responses={
+        HTTP_401_UNAUTHORIZED: {"description": "Unauthenticated"},
+        HTTP_403_FORBIDDEN: {"description": "Token invalid"}
+    },
     summary="Create metric configuration",
     description="Create metric configuration and do query generation"
 )
@@ -112,6 +118,10 @@ async def create_metrics_configuration(
 @metrics_router.post(
     "/{metric_id}/metric-records",
     status_code=HTTP_201_CREATED,
+    responses={
+        HTTP_401_UNAUTHORIZED: {"description": "Unauthenticated"},
+        HTTP_403_FORBIDDEN: {"description": "Token invalid"}
+    },
     summary="Create metric record",
     description="Create metric data for a given metric type"
 )

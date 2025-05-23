@@ -31,7 +31,7 @@ pytest = "^8.4.1"
 aiosqlite = "^0.21.0"
 testcontainers = { version = "^4.12.0", extras = ["postgresql"] }
 psycopg2-binary = "^2.9.10"
-python-autofixture = "^1.1.0"
+python-autofixture = "^1.1.1"
 
 [build-system]
 requires = ["poetry-core"]

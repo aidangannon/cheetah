@@ -76,14 +76,14 @@ test = ["flake8 (>=6.1,<7.0)", "flake8-pyi (>=24.1.0,<24.2.0)", "distro (>=1.9.0
 
 [[package]]
 name = "boto3"
-version = "1.40.5"
+version = "1.40.6"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">=3.9"
 
 [package.dependencies]
-botocore = ">=1.40.5,<1.41.0"
+botocore = ">=1.40.6,<1.41.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.13.0,<0.14.0"
 
@@ -92,7 +92,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.40.5"
+version = "1.40.6"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -483,7 +483,7 @@ dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests
 
 [[package]]
 name = "python-autofixture"
-version = "1.1.0"
+version = "1.1.1"
 description = "A Version of C#s AutoFixture but for python"
 category = "dev"
 optional = false
@@ -780,7 +780,7 @@ python-versions = ">=3.8"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.11"
-content-hash = "984eac4d60746a662bc5eb8857d9051c4ddbb1ac4065d06c0825665b59198bbc"
+content-hash = "8458d5395e5402c1ca619e9f2c204f9fc3077a04e1ea576e8c1c9a160c471e26"
 
 [metadata.files]
 aiofiles = []
