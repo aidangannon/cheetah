@@ -100,10 +100,14 @@ class CreateMetricService:
     def __init__(self, unit_of_work: UnitOfWork):
         self.unit_of_work = unit_of_work
 
-    async def __call__(self, config_id: str, metric_record: MetricRecord) -> str:
+    async def __call__(self, config_id: str, metric_record: MetricRecord) -> Optional[str]:
         async with self.unit_of_work as uow:
             reader = uow.persistence_factory(MetricAggregateReader)
             aggregate = await reader(config_id)
+
+            if aggregate is None:
+                return None
+
             metric_record.id = aggregate.query_id
             writer = uow.persistence_factory(MetricRecordWriter)
             await writer(metric_record)

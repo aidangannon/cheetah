@@ -58,47 +58,49 @@ class ScenarioRunner:
             raise AssertionError("\n".join(msgs))
 
 
+def do_global_setup():
+    if not FastApiTestCase.shared_setup_done:
+        FastApiTestCase.shared_logger = TestLogger()
+        FastApiTestCase.shared_postgres = PostgresContainer("postgres:15")
+        FastApiTestCase.shared_postgres.start()
+
+        db_url = FastApiTestCase.shared_postgres.get_connection_url().replace("+psycopg2", "+asyncpg")
+        FastApiTestCase.shared_env_patcher = patch.dict('os.environ', {'DATABASE_URL': db_url})
+        FastApiTestCase.shared_env_patcher.start()
+
+        alembic_cfg = Config("./alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+
+        app = FastAPI()
+        settings = Settings(
+            QUERIES_SEED_CSV="./data/queries.csv",
+            METRICS_SEED_JSON="./data/metrics.json",
+            METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
+        )
+
+        def override_deps(populated_container: Container):
+            populated_container.register(Logger, instance=FastApiTestCase.shared_logger)
+            populated_container.register(Settings, instance=settings, scope=Scope.singleton)
+
+        bootstrap(app, override_deps, use_env_settings=False)
+        seed_db(app)
+        FastApiTestCase.shared_client = TestClient(app)
+
+        FastApiTestCase.shared_setup_done = True
+
+
 class FastApiTestCase(TestCase):
     shared_setup_done = False
     shared_client = None
     shared_logger = None
     shared_postgres = None
+    shared_env_patcher = None
 
     @classmethod
     def setUpClass(cls) -> None:
-        if not FastApiTestCase.shared_setup_done:
-            FastApiTestCase.shared_logger = TestLogger()
-            FastApiTestCase.shared_postgres = PostgresContainer("postgres:15")
-            FastApiTestCase.shared_postgres.start()
-
-            alembic_cfg = Config("./alembic.ini")
-            command.upgrade(alembic_cfg, "head")
-
-            app = FastAPI()
-            settings = Settings(
-                QUERIES_SEED_CSV="./data/queries.csv",
-                METRICS_SEED_JSON="./data/metrics.json",
-                METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
-            )
-
-            def override_deps(populated_container: Container):
-                populated_container.register(Logger, instance=FastApiTestCase.shared_logger)
-                populated_container.register(Settings, instance=settings, scope=Scope.singleton)
-            bootstrap(app, override_deps, use_env_settings=False)
-            seed_db(app)
-            FastApiTestCase.shared_client = TestClient(app)
-
-            FastApiTestCase.shared_setup_done = True
-
-        db_url = FastApiTestCase.shared_postgres.get_connection_url().replace("+psycopg2", "+asyncpg")
-        cls.env_patcher = patch.dict('os.environ', {'DATABASE_URL': db_url})
-        cls.env_patcher.start()
+        do_global_setup()
         cls.test_logger = FastApiTestCase.shared_logger
         cls.client = FastApiTestCase.shared_client
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.env_patcher.stop()
 
     def assert_there_is_log_with(self, test_logger, log_level, message: str, **kwargs):
         logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]
@@ -172,4 +174,5 @@ import atexit
 def _final_teardown():
     if FastApiTestCase.shared_postgres:
         FastApiTestCase.shared_postgres.stop()
+        FastApiTestCase.shared_env_patcher.stop
 atexit.register(_final_teardown)

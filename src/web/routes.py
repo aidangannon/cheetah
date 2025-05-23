@@ -137,4 +137,7 @@ async def create_metric_record(
             map_metric_record_contract_to_domain(create_metric_data),
         )
 
+        if _id is None:
+            return JSONResponse(status_code=404, content={"detail": "Metric not found"})
+
         return Response(status_code=201)
