@@ -59,42 +59,46 @@ class ScenarioRunner:
 
 
 class FastApiTestCase(TestCase):
+    shared_setup_done = False
+    shared_client = None
+    shared_logger = None
+    shared_postgres = None
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.test_logger = TestLogger()
-        cls.setup_db()
-        app = FastAPI()
-        settings = Settings(
-            QUERIES_SEED_CSV="./data/queries.csv",
-            METRICS_SEED_JSON = "./data/metrics.json",
-            METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
-        )
+        if not FastApiTestCase.shared_setup_done:
+            FastApiTestCase.shared_logger = TestLogger()
+            FastApiTestCase.shared_postgres = PostgresContainer("postgres:15")
+            FastApiTestCase.shared_postgres.start()
 
-        def override_deps(populated_container: Container):
-            populated_container.register(Logger, instance=cls.test_logger)
-            populated_container.register(Settings, instance=settings, scope=Scope.singleton)
+            alembic_cfg = Config("./alembic.ini")
+            command.upgrade(alembic_cfg, "head")
 
-        bootstrap(app, initialise_actions=override_deps, use_env_settings=False)
+            app = FastAPI()
+            settings = Settings(
+                QUERIES_SEED_CSV="./data/queries.csv",
+                METRICS_SEED_JSON="./data/metrics.json",
+                METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
+            )
 
-        seed_db(app=app)
+            def override_deps(populated_container: Container):
+                populated_container.register(Logger, instance=FastApiTestCase.shared_logger)
+                populated_container.register(Settings, instance=settings, scope=Scope.singleton)
+            bootstrap(app, override_deps, use_env_settings=False)
+            seed_db(app)
+            FastApiTestCase.shared_client = TestClient(app)
 
-        cls.client = TestClient(app)
+            FastApiTestCase.shared_setup_done = True
 
-    @classmethod
-    def setup_db(cls):
-        cls.postgres = PostgresContainer("postgres:15")
-        cls.postgres.start()
-        cls.db_url = cls.postgres.get_connection_url().replace("+psycopg2", "+asyncpg")
-        cls.env_patcher = patch.dict('os.environ', {'DATABASE_URL': cls.db_url})
+        db_url = FastApiTestCase.shared_postgres.get_connection_url().replace("+psycopg2", "+asyncpg")
+        cls.env_patcher = patch.dict('os.environ', {'DATABASE_URL': db_url})
         cls.env_patcher.start()
-        alembic_cfg = Config("./alembic.ini")
-        command.upgrade(alembic_cfg, "head")
+        cls.test_logger = FastApiTestCase.shared_logger
+        cls.client = FastApiTestCase.shared_client
 
     @classmethod
     def tearDownClass(cls) -> None:
         cls.env_patcher.stop()
-        cls.postgres.stop()
 
     def assert_there_is_log_with(self, test_logger, log_level, message: str, **kwargs):
         logs_with_log_level = [log for log in test_logger.logs if log[0] == log_level]
@@ -162,3 +166,10 @@ class ScenarioContext:
     test_case: FastApiTestCase
     logger: Logger
     runner: ScenarioRunner
+
+# final teardown of postgres
+import atexit
+def _final_teardown():
+    if FastApiTestCase.shared_postgres:
+        FastApiTestCase.shared_postgres.stop()
+atexit.register(_final_teardown)
