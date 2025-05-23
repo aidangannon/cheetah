@@ -83,7 +83,7 @@ class UnitOfWork(Protocol):
     def persistence_factory(self, cls: Type[T]) -> T:
         ...
 
-    async def commit(self):
+    async def save(self):
         ...
 
 class DataLoader(Protocol):
@@ -97,4 +97,9 @@ class DataLoader(Protocol):
 class GenericDataSeeder(Protocol):
 
     async def __call__(self, data: list, _type, logger: Logger) -> None:
+        ...
+
+class MetricAggregateWriter(Protocol):
+
+    async def __call__(self, aggregate: MetricConfigurationAggregate):
         ...

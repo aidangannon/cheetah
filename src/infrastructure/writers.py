@@ -1,7 +1,7 @@
 from sqlalchemy import exists, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core import MetricConfiguration
+from src.core import MetricConfiguration, MetricConfigurationAggregate
 from src.crosscutting import auto_slots, Logger, logging_scope
 
 
@@ -27,3 +27,13 @@ class SqlAlchemyGenericDataSeeder:
                 return
 
             self.session.add_all(data)
+
+
+@auto_slots
+class SqlAlchemyMetricAggregateWriter:
+
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def __call__(self, aggregate: MetricConfigurationAggregate):
+        self.session.add(aggregate)

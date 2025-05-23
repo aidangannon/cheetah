@@ -252,7 +252,7 @@ class CreateMetricConfigurationScenario:
         return self
 
     @step
-    def then_the_response_should_be(self):
+    def then_the_response_should_be_created_id(self):
         body = self.response.json()
         try:
             uuid.UUID(body["id"])

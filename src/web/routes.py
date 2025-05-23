@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query
 from starlette.responses import JSONResponse
 
 from src import core
-from src.application.mappers import map_metric_aggregate_to_contract
+from src.application.mappers import map_metric_aggregate_to_contract, map_metric_configuration_contract_to_domain
 from src.application.services import DatabaseHealthCheckService, GetMetricsService, CreateMetricConfigurationService
 from src.core import MetricConfigurationAggregate
 from src.crosscutting import get_service, logging_scope, Logger
@@ -100,11 +100,6 @@ async def create_metrics_configuration(
     ):
         logger.info("Endpoint called")
 
-        my_blah = MetricConfigurationAggregate(id="thisisnew", query_id="new", is_editable=True, layouts=[], query=core.Query(id="new", query="blah"))
-        metrics = await create_metric_configuration_service(my_blah)
+        _id = await create_metric_configuration_service(map_metric_configuration_contract_to_domain(create_metric_configuration))
 
-        if metrics is None:
-            return JSONResponse(status_code=404, content={"detail": "Metrics not found"})
-
-        response = map_metric_aggregate_to_contract(metrics)
-        return response
+        return CreatedResponse(id=_id)

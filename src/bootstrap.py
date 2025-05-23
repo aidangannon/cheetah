@@ -9,7 +9,7 @@ from punq import Container, Scope
 from src.application.services import DatabaseHealthCheckService, DataSeedService, GetMetricsService, \
     CreateMetricConfigurationService
 from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, MetricAggregateReader, \
-    MetricRecordsReader
+    MetricRecordsReader, MetricAggregateWriter
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register
 from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader, \
@@ -17,7 +17,7 @@ from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayout
 from src.infrastructure.orm import start_mappers
 from src.infrastructure.readers import SqlAlchemyMetricAggregateReader, SqlAlchemyMetricRecordsReader, \
     SqlAlchemyDbHealthReader
-from src.infrastructure.writers import SqlAlchemyGenericDataSeeder
+from src.infrastructure.writers import SqlAlchemyGenericDataSeeder, SqlAlchemyMetricAggregateWriter
 from src.web.middleware import add_exception_middleware
 from src.web.routes import health_router, metrics_router, metrics_configuration_router
 
@@ -49,6 +49,7 @@ def add_database(container: Container):
     register(MetricRecordsReader, SqlAlchemyMetricRecordsReader)
     register(MetricAggregateReader, SqlAlchemyMetricAggregateReader)
     register(GenericDataSeeder, SqlAlchemyGenericDataSeeder)
+    register(MetricAggregateWriter, SqlAlchemyMetricAggregateWriter)
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
 
 def add_loaders(container: Container):

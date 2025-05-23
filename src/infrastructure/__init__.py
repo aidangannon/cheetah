@@ -73,7 +73,7 @@ class SqlAlchemyUnitOfWork:
         else:
             return repo_cls(self.session)
 
-    async def commit(self):
+    async def save(self):
         await self.session.commit()
 
 

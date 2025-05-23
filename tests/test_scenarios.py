@@ -121,4 +121,4 @@ class TestCreateMetricConfigurationScenarios(FastApiTestCase):
             .given_i_have_an_app_running() \
             .when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration() \
             .then_the_status_code_should_be(200) \
-            .then_the_response_should_be()
+            .then_the_response_should_be_created_id()
