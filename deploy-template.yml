@@ -34,6 +34,36 @@ Parameters:
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
 
 Resources:
+
+  Resources:
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: minimal-user-pool
+        AutoVerifiedAttributes:
+          - email
+
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: user-pool-client
+        UserPoolId: !Ref CognitoUserPool
+        GenerateSecret: true
+        AllowedOAuthFlows:
+          - code
+          - implicit
+        AllowedOAuthScopes:
+          - email
+          - openid
+          - profile
+        AllowedOAuthFlowsUserPoolClient: true
+
+        # todo: these urls would be switched out for fe
+        CallbackURLs:
+          - "https://aphextwinning.com"
+        LogoutURLs:
+          - "https://aphextwinning.com"
+
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -284,3 +314,25 @@ Outputs:
   RDSEndpoint:
     Description: RDS Endpoint
     Value: !GetAtt PostgresDB.Endpoint.Address
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref CognitoUserPool
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref CognitoUserPoolClient
+
+  UserPoolDomain:
+    Description: Cognito User Pool Domain (default domain needs to be created separately)
+    Value: !Sub "https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com"
+
+  HostedUILoginURL:
+    Description: Hosted UI login URL for Authorization Code Flow
+    Value: !Sub |
+      https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com/login?response_type=code&client_id=${UserPoolClientId}&redirect_uri=https://aphextwinning.com
+
+  HostedUITokenURL:
+    Description: Hosted UI token endpoint URL
+    Value: !Sub "https://${CognitoUserPool}.auth.${AWS::Region}.amazoncognito.com/oauth2/token"
+
