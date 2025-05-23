@@ -2,12 +2,14 @@ import asyncio
 import logging
 import threading
 from dataclasses import dataclass
+from typing import Protocol
 from unittest import TestCase
 from unittest.mock import patch
 
 from alembic import command
 from alembic.config import Config
 from fastapi import FastAPI
+from fastapi.security import HTTPAuthorizationCredentials
 from punq import Container, Scope
 from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
@@ -17,6 +19,7 @@ from src.application.services import DataSeedService
 from src.bootstrap import bootstrap
 from src.crosscutting import Logger
 from src.infrastructure import Settings
+from src.web import Authenticator
 
 
 def step(func):
@@ -73,12 +76,16 @@ def do_global_setup():
 
         app = FastAPI()
         settings = Settings(
+            USER_POOL_CLIENT_ID="test",
+            USER_POOL_ID="test",
+            AWS_REGION="eu-test",
             QUERIES_SEED_CSV="./data/queries.csv",
             METRICS_SEED_JSON="./data/metrics.json",
             METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
         )
 
         def override_deps(populated_container: Container):
+            populated_container.register(Authenticator, FakeAuthenticator)
             populated_container.register(Logger, instance=FastApiTestCase.shared_logger)
             populated_container.register(Settings, instance=settings, scope=Scope.singleton)
 
@@ -176,3 +183,10 @@ def _final_teardown():
         FastApiTestCase.shared_postgres.stop()
         FastApiTestCase.shared_env_patcher.stop
 atexit.register(_final_teardown)
+
+class FakeAuthenticator:
+
+    async def __call__(self, credentials: HTTPAuthorizationCredentials) -> dict:
+        return {
+            "sub": "test"
+        }

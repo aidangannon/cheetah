@@ -12,6 +12,7 @@ from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, 
     MetricRecordsReader, MetricAggregateWriter, MetricRecordWriter, QueryGenerator
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register
+from src.infrastructure.auth import CognitoAuthenticator
 from src.infrastructure.llm import FakeQueryGenerator
 from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader, \
     JsonMetricRecordLoader
@@ -20,6 +21,7 @@ from src.infrastructure.readers import SqlAlchemyMetricAggregateReader, SqlAlche
     SqlAlchemyDbHealthReader
 from src.infrastructure.writers import SqlAlchemyGenericDataSeeder, SqlAlchemyMetricAggregateWriter, \
     SqlAlchemyMetricRecordWriter
+from src.web import Authenticator
 from src.web.middleware import add_exception_middleware
 from src.web.routes import health_router, metrics_router
 
@@ -43,6 +45,7 @@ def bootstrap(app: FastAPI,
     add_services(container=container)
     add_loaders(container=container)
     add_llms(container=container)
+    add_auth(container=container)
     initialise_actions(container)
     return container
 
@@ -58,6 +61,9 @@ def add_database(container: Container):
 
 def add_llms(container: Container):
     container.register(QueryGenerator, FakeQueryGenerator)
+
+def add_auth(container: Container):
+    container.register(Authenticator, CognitoAuthenticator)
 
 def add_loaders(container: Container):
     container.register(DataLoader, JsonMetricConfigurationLoader)

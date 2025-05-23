@@ -1,10 +1,6 @@
 import datetime
 import uuid
-from http import HTTPStatus
 
-from autofixture import AutoFixture
-
-from src.web.contracts import CreateMetricConfigurationRequest, LayoutItemContract
 from tests import FastApiTestCase, ScenarioContext, ScenarioRunner
 from tests.steps import HealthCheckScenario, GetMetricsScenario, CreateMetricConfigurationScenario, \
     CreateMetricRecordScenario

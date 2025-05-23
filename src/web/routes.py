@@ -1,20 +1,20 @@
 from datetime import date
-from typing import Any, Optional
+from typing import Optional
+from unittest.mock import Mock
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
-from starlette import status
 from starlette.responses import JSONResponse, Response
-from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
 
-from src import core
 from src.application.mappers import map_metric_aggregate_to_contract, map_metric_configuration_contract_to_domain, \
     map_metric_record_contract_to_domain
 from src.application.services import DatabaseHealthCheckService, GetMetricsService, CreateMetricConfigurationService, \
     CreateMetricService
-from src.core import MetricConfigurationAggregate
 from src.crosscutting import get_service, logging_scope, Logger
-from src.infrastructure.auth import verify_token
+from src.infrastructure import Settings
+from src.infrastructure.auth import CognitoAuthenticator
+from src.web import auth_provider
 from src.web.contracts import MetricsResponse, HealthCheckResponse, CreatedResponse, CreateMetricConfigurationRequest, \
     CreateMetricRequest
 
@@ -32,7 +32,7 @@ health_router = APIRouter(
 async def get_health(
     logger: Logger = Depends(get_service(Logger)),
     health_check_service: DatabaseHealthCheckService = Depends(get_service(DatabaseHealthCheckService)),
-    payload = Depends(verify_token)
+    payload: dict = Depends(auth_provider)
 ):
     with logging_scope(operation=get_health.__name__):
         logger.info(f"Running health checks for {payload['sub']}")

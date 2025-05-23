@@ -19,7 +19,7 @@ class HealthCheckScenario:
 
     @step
     def when_the_get_health_endpoint_is_called(self):
-        self.response = self.ctx.client.get("/health")
+        self.response = self.ctx.client.get("/health", headers={"Authorization": "Bearer testtoken"})
         return self
 
     @step

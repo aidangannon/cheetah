@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
 import datetime
+from dataclasses import dataclass, field
 from typing import Protocol, TypeVar, Type, Optional, Any
 
 from src.crosscutting import Logger
