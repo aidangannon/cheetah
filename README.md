@@ -1,9 +1,3 @@
-# Intropy Back-End Take-Home Project
-
-Welcome to my implementation of the Intropy back-end coding exercise. This project demonstrates my approach to building a robust, maintainable, and production-ready backend API for a dynamic metrics dashboard — closely aligned with Intropy’s emphasis on clarity, robustness, and practical AI integration.
-
----
-
 ## Table of Contents
 
 - [Project Overview](#project-overview)  
@@ -21,18 +15,20 @@ Welcome to my implementation of the Intropy back-end coding exercise. This proje
 
 ## Project Overview
 
-This backend API is built with **FastAPI** and serves as a dynamic data retrieval engine for a metrics dashboard. It loads metric definitions and associated SQL queries, executes queries against a relational database, and exposes endpoints to fetch metric data. Additionally, it simulates a mock LLM interface for generating new SQL-backed metrics.
+This backend service:
 
-The system is designed to:
+- Loads and validates metric definitions and associated SQL queries from JSON and CSV data sources.  
+- Maps metrics to SQL and executes queries against a PostgreSQL database using a **code-first** SQLAlchemy ORM approach.  
+- Manages database sessions explicitly using a **unit of work pattern** for clear transaction boundaries.  
+- Caches complex aggregate query results with a **TTL-based memory cache** to optimize performance while avoiding memory bloat.  
+- Applies **dependency injection** via the `punq` container to keep modules decoupled and testable.  
+- Enforces strict API contracts with **Pydantic models** validating input/output schemas.  
+- Drives API behavior with **BDD-style acceptance tests** for maintainability and regression safety.  
+- Secures endpoints with **AWS Cognito JWT authentication**, validating tokens against well-known keys.  
+- Supports containerized deployment with Docker and automated CI/CD pipelines via GitHub Actions.  
+- Integrates a mock AI endpoint simulating LLM-generated SQL to dynamically add new metrics.  
 
-- Load and validate metrics from JSON and CSV datasets.
-- Map metrics to SQL queries and execute them on demand.
-- Provide health-check and metrics endpoints with robust error handling.
-- Support token-based authentication with AWS Cognito.
-- Use dependency injection and Pydantic models for clear contract definitions.
-- Enable containerized deployment and automated CI/CD workflows.
-
-This project adheres closely to Intropy’s brief, focusing on both AI-augmented productivity and code clarity — all core components are explained and fully controlled by me.
+The architecture prioritizes code clarity, modularity, and ease of explanation, aligning strongly with Intropy’s values of blending AI with robust backend engineering.
 
 ---
 
