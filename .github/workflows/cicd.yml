@@ -93,6 +93,9 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             export INSTANCE_ID="${{ env.INSTANCE_ID }}"
+            export USER_POOL_ID="${{ env.USER_POOL_ID }}"
+            export AWS_REGION="${{ env.AWS_REGION }}"
+            export USER_POOL_CLIENT_ID="${{ env.USER_POOL_CLIENT_ID }}"
             export COMMIT_MSG="${{ github.event.head_commit.message }}"
       
             echo "COMMIT_MSG: $COMMIT_MSG"
