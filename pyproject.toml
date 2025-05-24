@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "intropy-metrics-service"
+name = "metrics-service"
 version = "0.1.0"
 description = "manages metrics"
 authors = ["aidan"]

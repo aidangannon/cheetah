@@ -28,8 +28,6 @@ This backend service:
 - Supports containerized deployment with Docker and automated CI/CD pipelines via GitHub Actions.  
 - Integrates a mock AI endpoint simulating LLM-generated SQL to dynamically add new metrics.  
 
-The architecture prioritizes code clarity, modularity, and ease of explanation, aligning strongly with Intropy’s values of blending AI with robust backend engineering.
-
 ---
 
 ## Running the App Locally
@@ -229,25 +227,3 @@ with logging_scope(
         day_range=day_range
     )
 ```
-
----
-
-## Next Steps & Further Improvements
-
-If given more time, I would:
-
-- Enhance the automated testing framework by introducing reusable common steps for log assertions and token header injection, potentially developing a dedicated BDD framework library.
-
-- Implement role-based access control on authenticated endpoints to enable finer-grained permission management.
-
-- Optimize the database schema with b-tree indexes to improve query performance.
-
-- Add real-time metric updates using WebSocket integration for live data streaming.
-
----
-
-Thank you for reviewing my submission!  
-Please feel free to reach out for any questions or clarifications.
-
----
-

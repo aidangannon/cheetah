@@ -15,7 +15,7 @@ Parameters:
 
   DBName:
     Type: String
-    Default: intropy_metrics_db
+    Default: metrics_db
 
   DomainName:
     Type: String
