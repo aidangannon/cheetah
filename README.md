@@ -128,6 +128,10 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 
 - Imperative mapping with SQLAlchemy separates domain models from ORM models.
 
+- No database-level constraints or triggers; lifecycle and business logic handled fully in code.
+
+- Unit of work pattern (`SqlAlchemyUnitOfWork`) controls session lifecycle with explicit commits and implicit rollbacks.
+
 ```python
 class SqlAlchemyUnitOfWork:
     __slots__ = "session_factory", "logger", "session"
@@ -156,10 +160,6 @@ class SqlAlchemyUnitOfWork:
         finally:
             await self.session.close()
 ```
-
-- No database-level constraints or triggers; lifecycle and business logic handled fully in code.
-
-- Unit of work pattern (`SqlAlchemyUnitOfWork`) controls session lifecycle with explicit commits and implicit rollbacks.
 
 ---
 
