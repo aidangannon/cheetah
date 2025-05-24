@@ -85,7 +85,7 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 ## API Access & Authentication
 
 - Live Swagger docs available at:  
-  [https://aphextwinning.com/](https://aphextwinning.com/)
+  [https://data.aphextwinning.com/](https://data.aphextwinning.com/)
 
 - Token generation endpoint (AWS Cognito OAuth2):  
   `https://3eef4c69-d944-4d39-837f-97f3f72f5f93.auth.eu-west-2.amazoncognito.com/oauth2/token`
