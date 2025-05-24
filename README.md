@@ -128,6 +128,35 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 
 - Imperative mapping with SQLAlchemy separates domain models from ORM models.
 
+```python
+class SqlAlchemyUnitOfWork:
+    __slots__ = "session_factory", "logger", "session"
+
+    def __init__(self, settings: Settings, logger: Logger):
+        self.logger = logger
+        engine = sqlalchemy.ext.asyncio.create_async_engine(
+            settings.DATABASE_URL,
+            echo=False,
+            future=True,
+        )
+        self.session_factory = async_sessionmaker(
+            bind=engine,
+            expire_on_commit=False,
+            class_=AsyncSession,
+        )
+
+    async def __aenter__(self):
+        self.session = self.session_factory()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        try:
+            if exc_type:
+                await self.session.rollback()
+        finally:
+            await self.session.close()
+```
+
 - No database-level constraints or triggers; lifecycle and business logic handled fully in code.
 
 - Unit of work pattern (`SqlAlchemyUnitOfWork`) controls session lifecycle with explicit commits and implicit rollbacks.
@@ -137,6 +166,18 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 ## Testing & CI/CD
 
 - Automated regression tests written with `unittest` in BDD style, located in `tests.test_scenarios`.
+
+```python
+def test_create_metrics(self):
+    scenario = CreateMetricConfigurationScenario(self.context)
+    scenario \
+        .given_i_have_an_app_running() \
+        .when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration() \
+        .and_data_is_created_for_the_metric() \
+        .then_the_status_code_should_be(201) \
+        .then_the_metrics_should_have_been_created() \
+        .then_an_info_log_indicates_endpoint_called()
+```
 
 - Tests spin up an in-memory, isolated application lifecycle for parallel execution without cross-test contamination.
 
@@ -170,6 +211,24 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 - EC2 instances also allow direct log access over SSH via standard output streaming.
 
 - Endpoint-level logs include scoped context propagation to facilitate root-cause analysis.
+
+```python
+with logging_scope(
+    operation=get_metrics.__name__,
+    id=id_str,
+    start_date=start_date,
+    end_date=end_date,
+    day_range=day_range,
+):
+    logger.info("Endpoint called")
+
+    metrics = await get_metrics_service(
+        _id=id_str,
+        start_date=start_date,
+        end_date=end_date,
+        day_range=day_range
+    )
+```
 
 ---
 
