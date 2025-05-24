@@ -177,10 +177,15 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 
 If given more time, I would:
 
-- Enhance the automated testing framework by introducing reusable common steps for log assertions and token header injection, potentially developing a dedicated BDD framework library.  
-- Implement role-based access control on authenticated endpoints to enable finer-grained permission management.  
-- Optimize the database schema with b-tree indexes to improve query performance.  
-- Add real-time metric updates using WebSocket integration for live data streaming.  
+- Enhance the automated testing framework by introducing reusable common steps for log assertions and token header injection, potentially developing a dedicated BDD framework library.
+
+- Implement role-based access control on authenticated endpoints to enable finer-grained permission management.
+
+- Optimize the database schema with b-tree indexes to improve query performance.
+
+- Add real-time metric updates using WebSocket integration for live data streaming.
+
+---
 
 Thank you for reviewing my submission!  
 Please feel free to reach out for any questions or clarifications.
