@@ -175,26 +175,15 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 
 ## Next Steps & Further Improvements
 
-If I had more time, I would:
+If given more time, I would:
 
-- Expand the mock AI LLM endpoint to generate real SQL queries from natural language prompts using a fine-tuned LLM model.
-
-- Add role-based access control on authenticated endpoints for more granular permissions.
-
-- Implement a more advanced caching layer using Redis for distributed cache.
-
-- Improve database schema with foreign keys and indexing for query optimization.
-
-- Enhance API documentation with example requests/responses and SDK generation.
-
-- Integrate real-time WebSocket updates for metrics data changes.
-
----
+- Enhance the automated testing framework by introducing reusable common steps for log assertions and token header injection, potentially developing a dedicated BDD framework library.  
+- Implement role-based access control on authenticated endpoints to enable finer-grained permission management.  
+- Optimize the database schema with b-tree indexes to improve query performance.  
+- Add real-time metric updates using WebSocket integration for live data streaming.  
 
 Thank you for reviewing my submission!  
 Please feel free to reach out for any questions or clarifications.
 
 ---
-
-*This project was built following Intropy’s guidelines to deliver a maintainable, well-structured, and AI-empowered backend service.*
 
