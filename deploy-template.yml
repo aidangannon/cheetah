@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Metrics stack
+Description: Analytics Platform stack
 
 Parameters:
   DBUsername:
@@ -15,7 +15,7 @@ Parameters:
 
   DBName:
     Type: String
-    Default: metrics_db
+    Default: analytics_db
 
   DomainName:
     Type: String
@@ -37,7 +37,7 @@ Resources:
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: BackendOnlyUserPool
+      UserPoolName: AnalyticsPlatformUserPool
       AutoVerifiedAttributes:
         - email
 
@@ -50,13 +50,13 @@ Resources:
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: BackendAppClient
+      ClientName: AnalyticsPlatformClient
       UserPoolId: !Ref CognitoUserPool
       GenerateSecret: true
       AllowedOAuthFlows:
         - client_credentials
       AllowedOAuthScopes:
-        - api/backend_access
+        - api/platform_access
       AllowedOAuthFlowsUserPoolClient: true
       SupportedIdentityProviders:
         - COGNITO
@@ -66,10 +66,10 @@ Resources:
     Properties:
       UserPoolId: !Ref CognitoUserPool
       Identifier: api
-      Name: BackendAPI
+      Name: AnalyticsPlatformAPI
       Scopes:
-        - ScopeName: backend_access
-          ScopeDescription: Access to backend API
+        - ScopeName: platform_access
+          ScopeDescription: Access to analytics platform API
 
   VPC:
     Type: AWS::EC2::VPC
@@ -257,7 +257,7 @@ Resources:
           systemctl enable docker
           systemctl start docker
       
-          echo 'DATABASE_URL=postgresql+asyncpg://${DBUsername}:${DBPassword}@${PostgresDB.Endpoint.Address}:${DBPort}/${DBName}' > /home/ec2-user/fastapi.env
+          echo 'DATABASE_URL=postgresql+asyncpg://${DBUsername}:${DBPassword}@${PostgresDB.Endpoint.Address}:${DBPort}/${DBName}' > /home/ec2-user/analytics-platform.env
       
           cat << EOF > /etc/nginx/conf.d/fastapi.conf
           server {

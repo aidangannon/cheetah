@@ -3,14 +3,14 @@ import uuid
 from datetime import date
 from typing import Optional
 
-from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader, MetricConfigurationAggregate, \
-    MetricAggregateReader, MetricRecordsReader, MetricAggregateWriter, QueryGenerator, Query, MetricRecord, \
-    MetricRecordWriter
+from src.core import UnitOfWork, DbHealthReader, GenericDataSeeder, DataLoader, DatasetConfigAggregate, \
+    DatasetAggregateReader, DataPointReader, DatasetAggregateWriter, StatementGenerator, SqlStatement, DataPoint, \
+    DataPointWriter
 from src.crosscutting import auto_slots, Logger
 
 
 @auto_slots
-class DatabaseHealthCheckService:
+class SystemStatusChecker:
 
     def __init__(self, unit_of_work: UnitOfWork):
         self.unit_of_work = unit_of_work
@@ -27,30 +27,30 @@ class DatabaseHealthCheckService:
 
 
 @auto_slots
-class GetMetricsService:
+class DataRetrievalHandler:
 
     def __init__(self, unit_of_work: UnitOfWork):
         self.unit_of_work = unit_of_work
 
-    async def __call__(self, _id: str, start_date: date, end_date: date, day_range: int) -> Optional[MetricConfigurationAggregate]:
+    async def __call__(self, _id: str, start_date: date, end_date: date, day_range: int) -> Optional[DatasetConfigAggregate]:
         async with self.unit_of_work as uow:
-            config_reader = uow.persistence_factory(MetricAggregateReader)
-            records_reader = uow.persistence_factory(MetricRecordsReader)
-            metrics_config = await config_reader(_id=_id)
-            if metrics_config is None:
+            config_reader = uow.persistence_factory(DatasetAggregateReader)
+            records_reader = uow.persistence_factory(DataPointReader)
+            dataset_config = await config_reader(_id=_id)
+            if dataset_config is None:
                 return None
             records = await records_reader(
-                query=metrics_config.query.query,
+                statement=dataset_config.statement.statement,
                 start_date=start_date,
                 end_date=end_date,
                 day_range=day_range
             )
-        metrics_config.records = records
-        return metrics_config
+        dataset_config.records = records
+        return dataset_config
 
 
 @auto_slots
-class DataSeedService:
+class DataBootstrapper:
 
     def __init__(self,
         unit_of_work: UnitOfWork,
@@ -71,45 +71,45 @@ class DataSeedService:
 
 
 @auto_slots
-class CreateMetricConfigurationService:
+class ConfigurationManager:
 
     def __init__(self,
         unit_of_work: UnitOfWork,
-        prompt_generator: QueryGenerator
+        prompt_generator: StatementGenerator
     ):
         self.prompt_generator = prompt_generator
         self.unit_of_work = unit_of_work
 
-    async def __call__(self, aggregate: MetricConfigurationAggregate, query_prompt: str) -> str:
+    async def __call__(self, aggregate: DatasetConfigAggregate, statement_prompt: str) -> str:
         async with self.unit_of_work as uow:
-            query_id = str(uuid.uuid4())
-            query = await self.prompt_generator(query_prompt, _q=query_id)
-            aggregate.query = Query(
-                id=query_id,
-                query=query
+            statement_id = str(uuid.uuid4())
+            statement = await self.prompt_generator(statement_prompt, _q=statement_id)
+            aggregate.statement = SqlStatement(
+                id=statement_id,
+                statement=statement
             )
-            writer = uow.persistence_factory(MetricAggregateWriter)
+            writer = uow.persistence_factory(DatasetAggregateWriter)
             await writer(aggregate)
             await uow.save()
         return aggregate.id
 
 
 @auto_slots
-class CreateMetricService:
+class DataPointCreationService:
 
     def __init__(self, unit_of_work: UnitOfWork):
         self.unit_of_work = unit_of_work
 
-    async def __call__(self, config_id: str, metric_record: MetricRecord) -> Optional[str]:
+    async def __call__(self, config_id: str, data_point: DataPoint) -> Optional[str]:
         async with self.unit_of_work as uow:
-            reader = uow.persistence_factory(MetricAggregateReader)
+            reader = uow.persistence_factory(DatasetAggregateReader)
             aggregate = await reader(config_id)
 
             if aggregate is None:
                 return None
 
-            metric_record.id = aggregate.query_id
-            writer = uow.persistence_factory(MetricRecordWriter)
-            await writer(metric_record)
+            data_point.id = aggregate.statement_id
+            writer = uow.persistence_factory(DataPointWriter)
+            await writer(data_point)
             await uow.save()
         return aggregate.id

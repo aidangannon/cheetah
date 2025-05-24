@@ -15,7 +15,7 @@ from starlette.testclient import TestClient
 from structlog.contextvars import get_contextvars
 from testcontainers.postgres import PostgresContainer
 
-from src.application.services import DataSeedService
+from src.application.services import DataBootstrapper
 from src.bootstrap import bootstrap
 from src.crosscutting import Logger
 from src.infrastructure import Settings
@@ -42,7 +42,7 @@ def step(func):
     return wrapper
 
 def seed_db(app: FastAPI):
-    seed_service = app.state.services[DataSeedService]
+    seed_service = app.state.services[DataBootstrapper]
     asyncio.run(seed_service())
 
 
@@ -79,9 +79,9 @@ def do_global_setup():
             USER_POOL_CLIENT_ID="test",
             USER_POOL_ID="test",
             AWS_REGION="eu-test",
-            QUERIES_SEED_CSV="./data/queries.csv",
+            STATEMENTS_SEED_CSV="./data/queries.csv",
             METRICS_SEED_JSON="./data/metrics.json",
-            METRIC_RECORDS_SEED_JSON="./data/metric_records.json"
+            DATA_POINTS_SEED_JSON="./data/metric_records.json"
         )
 
         def override_deps(populated_container: Container):

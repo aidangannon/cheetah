@@ -1,59 +1,59 @@
 from datetime import timezone, datetime
 
-from src.core import MetricConfigurationAggregate, LayoutItem, MetricRecord
-from src.web.contracts import MetricsResponse, LayoutItemContract, CreateMetricConfigurationRequest, CreateMetricRequest
+from src.core import DatasetConfigAggregate, ViewConfig, DataPoint
+from src.web.contracts import DataResponse, ViewConfigContract, CreateDatasetConfigRequest, CreateDataPointRequest
 import uuid
 
 
-def map_metric_aggregate_to_contract(metric_agg: MetricConfigurationAggregate) -> MetricsResponse:
-    return MetricsResponse(
-        id=metric_agg.id,
-        is_editable=metric_agg.is_editable,
-        records=metric_agg.records,
-        layouts=[map_layout_to_contract(x) for x in metric_agg.layouts]
+def map_dataset_aggregate_to_contract(dataset_agg: DatasetConfigAggregate) -> DataResponse:
+    return DataResponse(
+        id=dataset_agg.id,
+        is_mutable=dataset_agg.is_mutable,
+        records=dataset_agg.records,
+        layouts=[map_view_to_contract(x) for x in dataset_agg.layouts]
     )
 
 
-def map_layout_to_contract(layout: LayoutItem) -> LayoutItemContract:
-    return LayoutItemContract(
-        breakpoint=layout.breakpoint,
-        x=layout.x,
-        y=layout.y,
-        w=layout.w,
-        h=layout.h,
-        static=layout.static
+def map_view_to_contract(view: ViewConfig) -> ViewConfigContract:
+    return ViewConfigContract(
+        breakpoint=view.breakpoint,
+        x=view.x,
+        y=view.y,
+        w=view.w,
+        h=view.h,
+        static=view.static
     )
 
-def map_contract_layout_to_domain(layout: LayoutItemContract, item: str) -> LayoutItem:
-    return LayoutItem(
+def map_contract_view_to_domain(view: ViewConfigContract, item: str) -> ViewConfig:
+    return ViewConfig(
         id=str(uuid.uuid4()),
-        item_id=item,
-        breakpoint=layout.breakpoint,
-        x=layout.x,
-        y=layout.y,
-        w=layout.w,
-        h=layout.h,
-        static=layout.static
+        element_id=item,
+        breakpoint=view.breakpoint,
+        x=view.x,
+        y=view.y,
+        w=view.w,
+        h=view.h,
+        static=view.static
     )
 
-def map_metric_configuration_contract_to_domain(create_request: CreateMetricConfigurationRequest) -> MetricConfigurationAggregate:
+def map_dataset_config_contract_to_domain(create_request: CreateDatasetConfigRequest) -> DatasetConfigAggregate:
     config_id = str(uuid.uuid4())
-    query_id = str(uuid.uuid4())
-    return MetricConfigurationAggregate(
+    statement_id = str(uuid.uuid4())
+    return DatasetConfigAggregate(
         id=config_id,
-        query_id=query_id,
-        is_editable=create_request.is_editable,
-        layouts=[map_contract_layout_to_domain(x, item=config_id) for x in create_request.layouts]
+        statement_id=statement_id,
+        is_mutable=create_request.is_mutable,
+        layouts=[map_contract_view_to_domain(x, item=config_id) for x in create_request.layouts]
     )
 
-def map_metric_record_contract_to_domain(create_request: CreateMetricRequest) -> MetricRecord:
+def map_datapoint_contract_to_domain(create_request: CreateDataPointRequest) -> DataPoint:
     record_id = str(uuid.uuid4())
-    return MetricRecord(
-        metric_id=record_id,
-        date=datetime.now(),
-        obsolescence_val=create_request.obsolescence_val,
-        obsolescence=create_request.obsolescence,
-        parts_flagged=create_request.parts_flagged,
-        alert_type=create_request.alert_type,
-        alert_category=create_request.alert_category
+    return DataPoint(
+        dataset_id=record_id,
+        timestamp=datetime.now(),
+        decay_value=create_request.decay_value,
+        decay_rate=create_request.decay_rate,
+        items_flagged=create_request.items_flagged,
+        notification_type=create_request.notification_type,
+        notification_category=create_request.notification_category
     )

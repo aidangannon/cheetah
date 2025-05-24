@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "metrics-service"
+name = "analytics-platform"
 version = "0.1.0"
-description = "manages metrics"
+description = "data analytics and visualization platform"
 authors = ["aidan"]
 packages = [
   { include = "src" }

@@ -1,14 +1,14 @@
-class FakeQueryGenerator:
+class FakeStatementGenerator:
 
     async def __call__(self, prompt: str, _q: str) -> str:
         return f"""
             SELECT
-                obsolescence_val,
-                obsolescence,
-                parts_flagged,
-                alert_type,
-                alert_category
-            FROM metrics
+                decay_value,
+                decay_rate,
+                items_flagged,
+                notification_type,
+                notification_category
+            FROM data_points
             WHERE id = '{_q}'
-            AND date >= CURRENT_DATE - make_interval(days => :day_range);
+            AND timestamp >= CURRENT_DATE - make_interval(days => :day_range);
         """

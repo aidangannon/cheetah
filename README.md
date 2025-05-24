@@ -15,10 +15,10 @@
 
 ## Project Overview
 
-This backend service:
+This analytics platform:
 
-- Loads and validates metric definitions and associated SQL queries from JSON and CSV data sources.  
-- Maps metrics to SQL and executes queries against a PostgreSQL database using a **code-first** SQLAlchemy ORM approach.  
+- Loads and validates dataset configurations and associated SQL statements from JSON and CSV data sources.  
+- Maps datasets to SQL and executes statements against a PostgreSQL database using a **code-first** SQLAlchemy ORM approach.  
 - Manages database sessions explicitly using a **unit of work pattern** for clear transaction boundaries.  
 - Caches complex aggregate query results with a **TTL-based memory cache** to optimize performance while avoiding memory bloat.  
 - Applies **dependency injection** via the `punq` container to keep modules decoupled and testable.  
@@ -26,7 +26,7 @@ This backend service:
 - Drives API behavior with **BDD-style acceptance tests** for maintainability and regression safety.  
 - Secures endpoints with **AWS Cognito JWT authentication**, validating tokens against well-known keys.  
 - Supports containerized deployment with Docker and automated CI/CD pipelines via GitHub Actions.  
-- Integrates a mock AI endpoint simulating LLM-generated SQL to dynamically add new metrics.  
+- Integrates a mock AI endpoint simulating LLM-generated SQL to dynamically add new datasets.  
 
 ---
 
@@ -49,7 +49,7 @@ To run the application locally with Docker and Poetry:
 3. Build the Docker image:
 
     ```bash
-    docker build -t myfastapiapp .
+    docker build -t analytics-platform .
     ```
 
 4. Run a PostgreSQL container (for database):
@@ -61,7 +61,7 @@ To run the application locally with Docker and Poetry:
 5. Run the FastAPI app container:
 
     ```bash
-    docker run -d --restart unless-stopped --name myfastapiapp --env-file ../.env -p 8000:8000 myfastapiapp
+    docker run -d --restart unless-stopped --name analytics-platform --env-file ../.env -p 8000:8000 analytics-platform
     ```
 
 You can then access the API locally at `http://localhost:8000`.
@@ -92,7 +92,7 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 
 - Client credentials for token generation:  
   - Client ID: `7gkl7in37d96ijhi1901gln0nv`  
-  - Required scope: `api/backend_access`  
+  - Required scope: `api/platform_access`  
   - Auth: Basic Auth with Base64 encoding of `client_id:client_secret`
 
 - Authenticated endpoints validate JWT tokens using Cognito’s `.well-known` keys.

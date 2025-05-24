@@ -4,7 +4,7 @@ from starlette.responses import RedirectResponse
 from src.bootstrap import bootstrap
 from src.web import lifespan
 
-app = FastAPI(title="Metrics API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Analytics Platform API", version="0.1.0", lifespan=lifespan)
 
 bootstrap(app=app)
 

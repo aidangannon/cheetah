@@ -8,7 +8,7 @@ from typing import Any
 
 import aiofiles
 
-from src.core import MetricConfiguration, LayoutItem, Query, MetricRecord
+from src.core import DatasetConfig, ViewConfig, SqlStatement, DataPoint
 from src.crosscutting import auto_slots, Logger
 from src.infrastructure import Settings
 import uuid
@@ -16,13 +16,13 @@ import uuid
 
 LOADER_SLOTS = "settings", "logger", "type", "data"
 
-class JsonLayoutItemLoader:
+class JsonViewConfigLoader:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
-        self.type = LayoutItem
+        self.type = ViewConfig
         self.data = []
 
     async def __call__(self) -> None:
@@ -37,12 +37,12 @@ class JsonLayoutItemLoader:
 
         layouts_by_breakpoint = data.get("layouts", {})
 
-        layout_items: list[LayoutItem] = []
+        view_configs: list[ViewConfig] = []
         for breakpoint, layouts in layouts_by_breakpoint.items():
             for layout in layouts:
-                layout_items.append(LayoutItem(
+                view_configs.append(ViewConfig(
                     id=str(uuid.uuid4()),
-                    item_id=layout["i"],
+                    element_id=layout["i"],
                     breakpoint=breakpoint,
                     x=layout["x"],
                     y=layout["y"],
@@ -51,51 +51,51 @@ class JsonLayoutItemLoader:
                     static=layout.get("static", None)
                 ))
 
-        self.data = layout_items
+        self.data = view_configs
 
 
-class JsonMetricRecordLoader:
+class JsonDataPointLoader:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
-        self.type = MetricRecord
+        self.type = DataPoint
         self.data = []
 
     async def __call__(self) -> None:
-        path = Path(self.settings.METRIC_RECORDS_SEED_JSON)
+        path = Path(self.settings.DATA_POINTS_SEED_JSON)
         if not path.exists():
-            self.logger.warning(f"No metric records file as {path.resolve()}")
+            self.logger.warning(f"No data points file as {path.resolve()}")
             return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
             data = json.loads(contents)
 
-        records: list[MetricRecord] = []
+        records: list[DataPoint] = []
         for record in data:
-            records.append(MetricRecord(
-                metric_id=str(uuid.uuid4()),
+            records.append(DataPoint(
+                dataset_id=str(uuid.uuid4()),
                 id=record.get("id"),
-                date=datetime.fromisoformat(record["date"]),
-                obsolescence_val=record.get("obsolescence_val"),
-                obsolescence=record.get("obsolescence"),
-                parts_flagged=record.get("parts_flagged"),
-                alert_type=record.get("alert_type"),
-                alert_category=record.get("alert_category"),
+                timestamp=datetime.fromisoformat(record["timestamp"]),
+                decay_value=record.get("decay_value"),
+                decay_rate=record.get("decay_rate"),
+                items_flagged=record.get("items_flagged"),
+                notification_type=record.get("notification_type"),
+                notification_category=record.get("notification_category"),
             ))
 
         self.data = records
 
 
-class JsonMetricConfigurationLoader:
+class JsonDatasetConfigLoader:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
-        self.type = MetricConfiguration
+        self.type = DatasetConfig
         self.data = []
 
     async def __call__(self) -> None:
@@ -115,16 +115,16 @@ class JsonMetricConfigurationLoader:
         }
         items = remap_duplicate_ids(items, "id", duplicate_id_remap)
 
-        metric_configs = []
+        dataset_configs = []
         for item in items:
-            mc = MetricConfiguration(
+            dc = DatasetConfig(
                 id=item["id"],
-                query_id=item.get("queryId") or item.get("query_id"),
-                is_editable=item["isEditable"]
+                statement_id=item.get("statementId") or item.get("statement_id"),
+                is_mutable=item["isMutable"]
             )
-            metric_configs.append(mc)
+            dataset_configs.append(dc)
 
-        self.data = metric_configs
+        self.data = dataset_configs
 
 def remap_duplicate_ids(
     items: list[dict[str, Any]],
@@ -145,17 +145,17 @@ def remap_duplicate_ids(
     return new_items
 
 
-class CsvQueryLoader:
+class CsvSqlStatementLoader:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
         self.logger = logger
         self.settings = settings
-        self.type = Query
+        self.type = SqlStatement
         self.data = []
 
     async def __call__(self) -> None:
-        path = Path(self.settings.QUERIES_SEED_CSV)
+        path = Path(self.settings.STATEMENTS_SEED_CSV)
         if not path.exists():
             self.logger.warning(f"No csv file at {path.resolve()}")
             return
@@ -169,11 +169,11 @@ class CsvQueryLoader:
         # Let csv module handle multi-line fields properly
         reader = csv.DictReader(csvfile)
 
-        queries = [
-            Query(id=row["id"], query=replace_dates_and_intervals(row["query"])) for row in reader
+        statements = [
+            SqlStatement(id=row["id"], statement=replace_dates_and_intervals(row["statement"])) for row in reader
         ]
 
-        self.data = queries
+        self.data = statements
 
 
 

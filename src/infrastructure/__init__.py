@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     AWS_REGION: str
     DATABASE_URL: str
     METRICS_SEED_JSON: str = "../data/metrics.json"
-    QUERIES_SEED_CSV: str = "../data/queries.csv"
-    METRIC_RECORDS_SEED_JSON: str = "../data/metric_records.json"
+    STATEMENTS_SEED_CSV: str = "../data/queries.csv"
+    DATA_POINTS_SEED_JSON: str = "../data/metric_records.json"
 
     class Config:
         env_file = "../.env.local"

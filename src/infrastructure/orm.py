@@ -5,46 +5,46 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry, relationship, foreign
 
-from src.core import MetricRecord, MetricConfiguration, LayoutItem, Query, MetricConfigurationAggregate
+from src.core import DataPoint, DatasetConfig, ViewConfig, SqlStatement, DatasetConfigAggregate
 
 _mappers_started = False
 
 mapper_registry = registry()
 metadata = MetaData()
 
-metrics = Table(
-    "metrics",
+data_points = Table(
+    "data_points",
     metadata,
-    Column("metric_id", String, primary_key=True),
+    Column("dataset_id", String, primary_key=True),
     Column("id", String, nullable=True),
-    Column("date", DateTime, nullable=True),
-    Column("obsolescence_val", Float, nullable=True),
-    Column("obsolescence", Float, nullable=True),
-    Column("parts_flagged", Integer, nullable=True),
-    Column("alert_type", String, nullable=True),
-    Column("alert_category", String, nullable=True),
+    Column("timestamp", DateTime, nullable=True),
+    Column("decay_value", Float, nullable=True),
+    Column("decay_rate", Float, nullable=True),
+    Column("items_flagged", Integer, nullable=True),
+    Column("notification_type", String, nullable=True),
+    Column("notification_category", String, nullable=True),
 )
 
-queries = Table(
-    "queries",
+sql_statements = Table(
+    "sql_statements",
     metadata,
     Column("id", String, primary_key=True),
-    Column("query", String, nullable=True),
+    Column("statement", String, nullable=True),
 )
 
-metric_configurations = Table(
-    "metric_configurations",
+dataset_configs = Table(
+    "dataset_configs",
     metadata,
     Column("id", String, primary_key=True),
-    Column("query_id", String, nullable=True),
-    Column("is_editable", Boolean, nullable=True),
+    Column("statement_id", String, nullable=True),
+    Column("is_mutable", Boolean, nullable=True),
 )
 
-layout_items = Table(
-    "layout_items",
+view_configs = Table(
+    "view_configs",
     metadata,
     Column("id", String, primary_key=True),
-    Column("item_id", String, nullable=True),
+    Column("element_id", String, nullable=True),
     Column("breakpoint", String, nullable=True),
     Column("x", Integer, nullable=True),
     Column("y", Integer, nullable=True),
@@ -59,28 +59,28 @@ def start_mappers():
         return
     _mappers_started = True
 
-    mapper_registry.map_imperatively(MetricRecord, metrics)
+    mapper_registry.map_imperatively(DataPoint, data_points)
 
-    mapper_registry.map_imperatively(Query, queries)
+    mapper_registry.map_imperatively(SqlStatement, sql_statements)
 
-    mapper_registry.map_imperatively(LayoutItem, layout_items)
+    mapper_registry.map_imperatively(ViewConfig, view_configs)
 
-    mapper_registry.map_imperatively(MetricConfiguration, metric_configurations)
+    mapper_registry.map_imperatively(DatasetConfig, dataset_configs)
 
     mapper_registry.map_imperatively(
-        MetricConfigurationAggregate,
-        metric_configurations,
+        DatasetConfigAggregate,
+        dataset_configs,
         properties={
-            "query": relationship(
-                Query,
-                primaryjoin=foreign(metric_configurations.c.query_id) == queries.c.id,
-                backref="metric_configurations",
+            "statement": relationship(
+                SqlStatement,
+                primaryjoin=foreign(dataset_configs.c.statement_id) == sql_statements.c.id,
+                backref="dataset_configurations",
                 lazy="joined"
             ),
             "layouts": relationship(
-                LayoutItem,
-                primaryjoin=foreign(layout_items.c.item_id) == metric_configurations.c.id,
-                backref="metric_configuration",
+                ViewConfig,
+                primaryjoin=foreign(view_configs.c.element_id) == dataset_configs.c.id,
+                backref="dataset_configuration",
                 lazy="joined"
             )
         }

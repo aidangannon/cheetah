@@ -6,7 +6,7 @@ from fastapi.params import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.requests import Request
 
-from src.application.services import DataSeedService
+from src.application.services import DataBootstrapper
 from src.crosscutting import Logger, ServiceProvider
 
 
@@ -17,7 +17,7 @@ security = HTTPBearer()
 async def lifespan(app: FastAPI):
     provider: ServiceProvider = app.state.services
     provider[Logger].info("Starting service")
-    seed_service = provider[DataSeedService]
+    seed_service = provider[DataBootstrapper]
     await seed_service()
 
     yield

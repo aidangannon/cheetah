@@ -6,24 +6,24 @@ import structlog
 from fastapi import FastAPI
 from punq import Container, Scope
 
-from src.application.services import DatabaseHealthCheckService, DataSeedService, GetMetricsService, \
-    CreateMetricConfigurationService, CreateMetricService
-from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, MetricAggregateReader, \
-    MetricRecordsReader, MetricAggregateWriter, MetricRecordWriter, QueryGenerator
+from src.application.services import SystemStatusChecker, DataBootstrapper, DataRetrievalHandler, \
+    ConfigurationManager, DataPointCreationService
+from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, DatasetAggregateReader, \
+    DataPointReader, DatasetAggregateWriter, DataPointWriter, StatementGenerator
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register
 from src.infrastructure.auth import CognitoAuthenticator
-from src.infrastructure.llm import FakeQueryGenerator
-from src.infrastructure.loaders import JsonMetricConfigurationLoader, JsonLayoutItemLoader, CsvQueryLoader, \
-    JsonMetricRecordLoader
+from src.infrastructure.llm import FakeStatementGenerator
+from src.infrastructure.loaders import JsonDatasetConfigLoader, JsonViewConfigLoader, CsvSqlStatementLoader, \
+    JsonDataPointLoader
 from src.infrastructure.orm import start_mappers
-from src.infrastructure.readers import SqlAlchemyMetricAggregateReader, SqlAlchemyMetricRecordsReader, \
+from src.infrastructure.readers import SqlAlchemyDatasetAggregateReader, SqlAlchemyDataPointReader, \
     SqlAlchemyDbHealthReader
-from src.infrastructure.writers import SqlAlchemyGenericDataSeeder, SqlAlchemyMetricAggregateWriter, \
-    SqlAlchemyMetricRecordWriter
+from src.infrastructure.writers import SqlAlchemyGenericDataSeeder, SqlAlchemyDatasetAggregateWriter, \
+    SqlAlchemyDataPointWriter
 from src.web import Authenticator
 from src.web.middleware import add_exception_middleware
-from src.web.routes import health_router, metrics_router
+from src.web.routes import health_router, data_router
 
 
 def bootstrap(app: FastAPI,
@@ -52,24 +52,24 @@ def bootstrap(app: FastAPI,
 def add_database(container: Container):
     start_mappers()
     register(DbHealthReader, SqlAlchemyDbHealthReader)
-    register(MetricRecordsReader, SqlAlchemyMetricRecordsReader)
-    register(MetricAggregateReader, SqlAlchemyMetricAggregateReader)
+    register(DataPointReader, SqlAlchemyDataPointReader)
+    register(DatasetAggregateReader, SqlAlchemyDatasetAggregateReader)
     register(GenericDataSeeder, SqlAlchemyGenericDataSeeder)
-    register(MetricAggregateWriter, SqlAlchemyMetricAggregateWriter)
-    register(MetricRecordWriter, SqlAlchemyMetricRecordWriter)
+    register(DatasetAggregateWriter, SqlAlchemyDatasetAggregateWriter)
+    register(DataPointWriter, SqlAlchemyDataPointWriter)
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
 
 def add_llms(container: Container):
-    container.register(QueryGenerator, FakeQueryGenerator)
+    container.register(StatementGenerator, FakeStatementGenerator)
 
 def add_auth(container: Container):
     container.register(Authenticator, CognitoAuthenticator)
 
 def add_loaders(container: Container):
-    container.register(DataLoader, JsonMetricConfigurationLoader)
-    container.register(DataLoader, JsonLayoutItemLoader)
-    container.register(DataLoader, JsonMetricRecordLoader)
-    container.register(DataLoader, CsvQueryLoader)
+    container.register(DataLoader, JsonDatasetConfigLoader)
+    container.register(DataLoader, JsonViewConfigLoader)
+    container.register(DataLoader, JsonDataPointLoader)
+    container.register(DataLoader, CsvSqlStatementLoader)
 
 def add_configuration(container: Container):
     container.register(Settings, instance=Settings(), scope=Scope.singleton)
@@ -77,14 +77,14 @@ def add_configuration(container: Container):
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)
     app.include_router(router=health_router)
-    app.include_router(router=metrics_router)
+    app.include_router(router=data_router)
 
 def add_services(container: Container):
-    container.register(DatabaseHealthCheckService)
-    container.register(GetMetricsService)
-    container.register(DataSeedService)
-    container.register(CreateMetricConfigurationService)
-    container.register(CreateMetricService)
+    container.register(SystemStatusChecker)
+    container.register(DataRetrievalHandler)
+    container.register(DataBootstrapper)
+    container.register(ConfigurationManager)
+    container.register(DataPointCreationService)
 
 def add_logging(container: Container):
     container.register(Logger, factory=structlog.getLogger, scope=Scope.singleton)

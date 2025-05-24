@@ -8,20 +8,20 @@ T = TypeVar("T")
 
 
 @dataclass(unsafe_hash=True)
-class MetricRecord:
-    metric_id: str = None
-    id: str = None # query id
-    date: datetime.datetime = None
-    obsolescence_val: float = None
-    obsolescence: float = None
-    parts_flagged: int = None
-    alert_type: str = None
-    alert_category: str = None
+class DataPoint:
+    dataset_id: str = None
+    id: str = None # statement id
+    timestamp: datetime.datetime = None
+    decay_value: float = None
+    decay_rate: float = None
+    items_flagged: int = None
+    notification_type: str = None
+    notification_category: str = None
 
 @dataclass(unsafe_hash=True)
-class LayoutItem:
+class ViewConfig:
     id: str = None
-    item_id: str = None
+    element_id: str = None
     breakpoint: str = None
     x: int = None
     y: int = None
@@ -30,27 +30,27 @@ class LayoutItem:
     static: bool = None
 
 @dataclass(unsafe_hash=True)
-class Query:
+class SqlStatement:
     id: str = None
-    query: str = None
+    statement: str = None
 
 @dataclass(unsafe_hash=True)
-class MetricConfiguration:
+class DatasetConfig:
     """
     used for writing in a stateless fashion
     """
     id: str = None
-    query_id: str = None
-    is_editable: bool = None
+    statement_id: str = None
+    is_mutable: bool = None
 
 
 @dataclass(unsafe_hash=True)
-class MetricConfigurationAggregate(MetricConfiguration):
+class DatasetConfigAggregate(DatasetConfig):
     """
     used for querying with related models attached
     """
-    layouts: list[LayoutItem] = field(default_factory=list)
-    query: Query = None
+    layouts: list[ViewConfig] = field(default_factory=list)
+    statement: SqlStatement = None
     records: list[dict] = field(default_factory=list)
 
 
@@ -60,15 +60,15 @@ class DbHealthReader(Protocol):
         ...
 
 
-class MetricAggregateReader(Protocol):
+class DatasetAggregateReader(Protocol):
 
-    async def __call__(self, _id: str) -> Optional[MetricConfigurationAggregate]:
+    async def __call__(self, _id: str) -> Optional[DatasetConfigAggregate]:
         ...
 
 
-class MetricRecordsReader(Protocol):
+class DataPointReader(Protocol):
 
-    async def __call__(self, query: str, start_date: datetime.date, end_date: datetime.date, day_range: int) -> list[dict]:
+    async def __call__(self, statement: str, start_date: datetime.date, end_date: datetime.date, day_range: int) -> list[dict]:
         ...
 
 
@@ -99,18 +99,18 @@ class GenericDataSeeder(Protocol):
     async def __call__(self, data: list, _type, logger: Logger) -> None:
         ...
 
-class MetricAggregateWriter(Protocol):
+class DatasetAggregateWriter(Protocol):
 
-    async def __call__(self, aggregate: MetricConfigurationAggregate):
+    async def __call__(self, aggregate: DatasetConfigAggregate):
         ...
 
 
-class QueryGenerator(Protocol):
+class StatementGenerator(Protocol):
 
     async def __call__(self, prompt: str, _q: str) -> str:
         ...
 
-class MetricRecordWriter(Protocol):
+class DataPointWriter(Protocol):
 
-    async def __call__(self, record: MetricRecord):
+    async def __call__(self, record: DataPoint):
         ...

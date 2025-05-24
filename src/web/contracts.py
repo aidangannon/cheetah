@@ -10,7 +10,7 @@ class HealthCheckResponse(BaseModel):
     database: bool
 
 
-class LayoutItemContract(BaseModel):
+class ViewConfigContract(BaseModel):
     breakpoint: str
     x: int
     y: int
@@ -18,23 +18,23 @@ class LayoutItemContract(BaseModel):
     h: int
     static: Optional[bool]
 
-class MetricsResponse(BaseModel):
+class DataResponse(BaseModel):
     id: str
-    is_editable: bool
+    is_mutable: bool
     records: list[dict[str, Any]]
-    layouts: list[LayoutItemContract]
+    layouts: list[ViewConfigContract]
 
-class CreateMetricConfigurationRequest(BaseModel):
-    is_editable: bool
-    layouts: list[LayoutItemContract]
-    query_generation_prompt: str
+class CreateDatasetConfigRequest(BaseModel):
+    is_mutable: bool
+    layouts: list[ViewConfigContract]
+    statement_generation_prompt: str
 
-class CreateMetricRequest(BaseModel):
-    obsolescence_val: float = None
-    obsolescence: float = None
-    parts_flagged: int = None
-    alert_type: str = None
-    alert_category: str = None
+class CreateDataPointRequest(BaseModel):
+    decay_value: float = None
+    decay_rate: float = None
+    items_flagged: int = None
+    notification_type: str = None
+    notification_category: str = None
 
 class CreatedResponse(BaseModel):
     id: str

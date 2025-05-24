@@ -4,7 +4,7 @@ import uuid
 
 from autofixture import AutoFixture
 
-from src.web.contracts import MetricsResponse, LayoutItemContract, CreateMetricConfigurationRequest, CreateMetricRequest
+from src.web.contracts import DataResponse, ViewConfigContract, CreateDatasetConfigRequest, CreateDataPointRequest
 from tests import step, ScenarioContext
 
 DEFAULT_REQUEST_HEADERS = {"Authorization": "Bearer test"}
@@ -43,35 +43,36 @@ class HealthCheckScenario:
         return self
 
 
-class GetMetricsScenario:
+class GetDatasetScenario:
 
     def __init__(self, ctx: ScenarioContext) -> None:
         self.day_range = 30
         self.start_date = datetime.date(2025, 6, 1)
         self.end_date = datetime.date(2025, 6, 30)
         self.ctx = ctx
+        self.runner = ctx.runner
 
     @step
     def given_i_have_an_app_running(self):
         return self
 
     @step
-    def when_the_get_metrics_endpoint_is_called_with_metric_configuration_id(self, metric_id: str):
-        self.metric_id = metric_id
+    def when_the_get_metrics_endpoint_is_called_with_dataset_config_id(self, dataset_id: str):
+        self.dataset_id = dataset_id
         self.test_token = str(uuid.uuid4())
-        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}", headers=DEFAULT_REQUEST_HEADERS)
+        self.response = self.ctx.client.get(f"/data/{self.dataset_id}", headers=DEFAULT_REQUEST_HEADERS)
         return self
 
     @step
-    def when_the_get_metrics_endpoint_is_called_with_metric_configuration_id_and_params(
+    def when_the_get_metrics_endpoint_is_called_with_dataset_config_id_and_params(
             self,
-            metric_id: str,
+            dataset_id: str,
             **kwargs
     ):
         for key, value in kwargs.items():
             setattr(self, key, value)
-        self.metric_id = metric_id
-        self.response = self.ctx.client.get(f"/metrics/{self.metric_id}", params=kwargs, headers=DEFAULT_REQUEST_HEADERS)
+        self.dataset_id = dataset_id
+        self.response = self.ctx.client.get(f"/data/{self.dataset_id}", params=kwargs, headers=DEFAULT_REQUEST_HEADERS)
         return self
 
     @step
@@ -81,21 +82,17 @@ class GetMetricsScenario:
 
     @step
     def then_the_response_body_should_match_expected_metric(self):
-        expected_response = MetricsResponse(
+        expected_response = DataResponse(
             id="def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
-            is_editable=True,
+            is_mutable=True,
             records=[
-                {
-                    'day': '2025-07-15',
-                    'cost_avoided': 80.25
-                },
                 {
                     'day': '2025-08-01',
                     'cost_avoided': 120.5
                 }
             ],
             layouts=[
-                LayoutItemContract(
+                ViewConfigContract(
                     breakpoint="lg",
                     h=4,
                     w=5,
@@ -103,7 +100,7 @@ class GetMetricsScenario:
                     y=20,
                     static=False
                 ),
-                LayoutItemContract(
+                ViewConfigContract(
                     breakpoint='md',
                     h=4,
                     w=1,
@@ -112,28 +109,28 @@ class GetMetricsScenario:
                     static=None
                 )
             ])
-        actual_response = MetricsResponse.model_validate(self.response.json())
+        actual_response = DataResponse.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
 
     @step
     def then_the_response_body_should_match_expected_date_range_filtered_metric(self):
-        expected_response = MetricsResponse(
+        expected_response = DataResponse(
             id="c797b618-df12-45f7-bbb2-cc6695a48e46",
-            is_editable=True,
+            is_mutable=True,
             records=[
                 {
-                    "alert_type": "Critical",
+                    "notification_type": "Critical",
                     "total_alerts": 1
                 },
                 {
-                    "alert_type": "Warning",
+                    "notification_type": "Warning",
                     "total_alerts": 1
                 }
             ],
             layouts=[
-                LayoutItemContract(
+                ViewConfigContract(
                     breakpoint="lg",
                     h=10,
                     w=5,
@@ -141,7 +138,7 @@ class GetMetricsScenario:
                     y=24,
                     static=False
                 ),
-                LayoutItemContract(
+                ViewConfigContract(
                     breakpoint='md',
                     h=10,
                     w=1,
@@ -150,19 +147,19 @@ class GetMetricsScenario:
                     static=None
                 )
             ])
-        actual_response = MetricsResponse.model_validate(self.response.json())
+        actual_response = DataResponse.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
 
     @step
     def then_the_response_body_should_match_expected_day_range_filtered_metric(self):
-        expected_response = MetricsResponse(
+        expected_response = DataResponse(
             id="def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
-            is_editable=True,
+            is_mutable=True,
             records=[],
             layouts=[
-                LayoutItemContract(
+                ViewConfigContract(
                     breakpoint="lg",
                     h=4,
                     w=5,
@@ -170,7 +167,7 @@ class GetMetricsScenario:
                     y=20,
                     static=False
                 ),
-                LayoutItemContract(
+                ViewConfigContract(
                     breakpoint='md',
                     h=4,
                     w=1,
@@ -179,7 +176,7 @@ class GetMetricsScenario:
                     static=None
                 )
             ])
-        actual_response = MetricsResponse.model_validate(self.response.json())
+        actual_response = DataResponse.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
@@ -196,22 +193,23 @@ class GetMetricsScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            operation="get_metrics",
-            id=self.metric_id,
+            operation="get_dataset",
+            id=self.dataset_id,
             start_date=self.start_date,
             end_date=self.end_date,
             day_range=self.day_range)
         return self
 
 
-class CreateMetricConfigurationScenario:
+class CreateDatasetConfigScenario:
 
     def __init__(self, ctx: ScenarioContext):
         self.ctx = ctx
-        self.metric_config = CreateMetricConfigurationRequest(
-            is_editable=True,
+        self.runner = ctx.runner
+        self.dataset_config = CreateDatasetConfigRequest(
+            is_mutable=True,
             layouts=[
-                LayoutItemContract(
+                ViewConfigContract(
                     static=True,
                     x=1,
                     y=1,
@@ -219,7 +217,7 @@ class CreateMetricConfigurationScenario:
                     w=1,
                     breakpoint="md"
                 ),
-                LayoutItemContract(
+                ViewConfigContract(
                     static=False,
                     x=2,
                     y=4,
@@ -228,30 +226,36 @@ class CreateMetricConfigurationScenario:
                     breakpoint="lg"
                 )
             ],
-            query_generation_prompt="shut up and dance"
+            statement_generation_prompt="shut up and dance"
         )
-        self.metric_record = AutoFixture().create(CreateMetricRequest)
+        self.data_point = CreateDataPointRequest(
+            decay_value=15.3,
+            decay_rate=8.1,
+            items_flagged=2,
+            notification_type="Critical",
+            notification_category="Alert"
+        )
 
     @step
     def given_i_have_an_app_running(self):
         return self
 
     @step
-    def when_the_create_metric_configuration_endpoint_is_called_with_metric_configuration(self):
+    def when_the_create_dataset_config_endpoint_is_called_with_dataset_config(self):
         self.create_response = self.ctx.client.post(
-            f"/metrics",
-            json=self.metric_config.model_dump(),
+            f"/data",
+            json=self.dataset_config.model_dump(),
             headers=DEFAULT_REQUEST_HEADERS
         )
         self.ctx.test_case.assertEqual(self.create_response.status_code, 201)
-        self.metric_config_id = self.create_response.json()["id"]
+        self.dataset_config_id = self.create_response.json()["id"]
         return self
 
     @step
-    def and_data_is_created_for_the_metric(self):
+    def and_data_is_created_for_the_dataset(self):
         create_data_response = self.ctx.client.post(
-            f"/metrics/{self.metric_config_id}/metric-records",
-            json=self.metric_record.model_dump(),
+            f"/data/{self.dataset_config_id}/data-points",
+            json=self.data_point.model_dump(),
             headers=DEFAULT_REQUEST_HEADERS
         )
         self.ctx.test_case.assertEqual(create_data_response.status_code, 201)
@@ -262,12 +266,12 @@ class CreateMetricConfigurationScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            operation="create_metric_record",
-            metric_id=self.metric_config_id,
-            obsolescence=self.metric_record.obsolescence,
-            obsolescence_val=self.metric_record.obsolescence_val,
-            alert_type=self.metric_record.alert_type,
-            alert_category=self.metric_record.alert_category)
+            operation="create_data_point",
+            dataset_id=self.dataset_config_id,
+            decay_rate=self.data_point.decay_rate,
+            decay_value=self.data_point.decay_value,
+            notification_type=self.data_point.notification_type,
+            notification_category=self.data_point.notification_category)
         return self
 
     @step
@@ -276,12 +280,12 @@ class CreateMetricConfigurationScenario:
         return self
 
     @step
-    def then_the_metrics_should_have_been_created(self):
-        expected_metrics_response = MetricsResponse(
-            id=self.metric_config_id,
-            is_editable=True,
+    def then_the_dataset_should_have_been_created(self):
+        expected_data_response = DataResponse(
+            id=self.dataset_config_id,
+            is_mutable=True,
             layouts=[
-                LayoutItemContract(
+                ViewConfigContract(
                     static=True,
                     x=1,
                     y=1,
@@ -289,7 +293,7 @@ class CreateMetricConfigurationScenario:
                     w=1,
                     breakpoint="md"
                 ),
-                LayoutItemContract(
+                ViewConfigContract(
                     static=False,
                     x=2,
                     y=4,
@@ -298,20 +302,27 @@ class CreateMetricConfigurationScenario:
                     breakpoint="lg"
                 )
             ],
-            records=[self.metric_record.model_dump()]
+            records=[self.data_point.model_dump()]
         )
-        metric_config_id = self.create_response.json()["id"]
-        read_response = self.ctx.client.get(f"/metrics/{metric_config_id}", headers=DEFAULT_REQUEST_HEADERS)
-        actual_metrics_aggregate = MetricsResponse.model_validate(read_response.json())
-        self.ctx.test_case.assertEqual(expected_metrics_response, actual_metrics_aggregate)
+        dataset_config_id = self.create_response.json()["id"]
+        read_response = self.ctx.client.get(f"/data/{dataset_config_id}", headers=DEFAULT_REQUEST_HEADERS)
+        actual_data_aggregate = DataResponse.model_validate(read_response.json())
+        self.ctx.test_case.assertEqual(expected_data_response, actual_data_aggregate)
         return self
 
 
-class CreateMetricRecordScenario:
+class CreateDataPointScenario:
 
     def __init__(self, ctx: ScenarioContext):
         self.ctx = ctx
-        self.metric_record = AutoFixture().create(CreateMetricRequest)
+        self.runner = ctx.runner
+        self.data_point = CreateDataPointRequest(
+            decay_value=10.5,
+            decay_rate=5.2,
+            items_flagged=3,
+            notification_type="Warning",
+            notification_category="System"
+        )
         print("")
 
     @step
@@ -319,11 +330,11 @@ class CreateMetricRecordScenario:
         return self
 
     @step
-    def when_the_create_metric_data_endpoint_is_called(self, config_id: str):
+    def when_the_create_data_point_endpoint_is_called(self, config_id: str):
         self.config_id = config_id
         self.response = self.ctx.client.post(
-            f"/metrics/{config_id}/metric-records",
-            json=self.metric_record.model_dump(),
+            f"/data/{config_id}/data-points",
+            json=self.data_point.model_dump(),
             headers=DEFAULT_REQUEST_HEADERS
         )
         return self
@@ -333,12 +344,12 @@ class CreateMetricRecordScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            operation="create_metric_record",
-            metric_id=self.config_id,
-            obsolescence=self.metric_record.obsolescence,
-            obsolescence_val=self.metric_record.obsolescence_val,
-            alert_type=self.metric_record.alert_type,
-            alert_category=self.metric_record.alert_category)
+            operation="create_data_point",
+            dataset_id=self.config_id,
+            decay_rate=self.data_point.decay_rate,
+            decay_value=self.data_point.decay_value,
+            notification_type=self.data_point.notification_type,
+            notification_category=self.data_point.notification_category)
         return self
 
     @step
