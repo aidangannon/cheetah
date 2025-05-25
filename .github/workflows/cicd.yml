@@ -114,9 +114,9 @@ jobs:
             set -e
             cd ~/app || mkdir ~/app && cd ~/app
             docker build -t analytics-platform .
-            if [ "$(docker ps -q -f name=analytics-platform)" ]; then
-              docker stop analytics-platform
-              docker rm analytics-platform
+            if [ "$(docker ps -aq -f name=analytics-platform)" ]; then
+              docker stop analytics-platform 2>/dev/null || true
+              docker rm analytics-platform 2>/dev/null || true
             fi
             
             
