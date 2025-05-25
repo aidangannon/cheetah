@@ -1,12 +1,12 @@
 from datetime import timezone, datetime
 
 from src.core import DatasetConfigAggregate, ViewConfig, DataPoint
-from src.web.contracts import DataResponse, ViewConfigContract, CreateDatasetConfigRequest, CreateDataPointRequest
+from src.web.models import AnalyticsResponseSchema, LayoutConfigSchema, ConfigurationCreateSchema, DataEntryCreateSchema
 import uuid
 
 
-def map_dataset_aggregate_to_contract(dataset_agg: DatasetConfigAggregate) -> DataResponse:
-    return DataResponse(
+def map_dataset_aggregate_to_contract(dataset_agg: DatasetConfigAggregate) -> AnalyticsResponseSchema:
+    return AnalyticsResponseSchema(
         id=dataset_agg.id,
         is_mutable=dataset_agg.is_mutable,
         records=dataset_agg.records,
@@ -14,8 +14,8 @@ def map_dataset_aggregate_to_contract(dataset_agg: DatasetConfigAggregate) -> Da
     )
 
 
-def map_view_to_contract(view: ViewConfig) -> ViewConfigContract:
-    return ViewConfigContract(
+def map_view_to_contract(view: ViewConfig) -> LayoutConfigSchema:
+    return LayoutConfigSchema(
         breakpoint=view.breakpoint,
         x=view.x,
         y=view.y,
@@ -24,7 +24,7 @@ def map_view_to_contract(view: ViewConfig) -> ViewConfigContract:
         static=view.static
     )
 
-def map_contract_view_to_domain(view: ViewConfigContract, item: str) -> ViewConfig:
+def map_contract_view_to_domain(view: LayoutConfigSchema, item: str) -> ViewConfig:
     return ViewConfig(
         id=str(uuid.uuid4()),
         element_id=item,
@@ -36,7 +36,7 @@ def map_contract_view_to_domain(view: ViewConfigContract, item: str) -> ViewConf
         static=view.static
     )
 
-def map_dataset_config_contract_to_domain(create_request: CreateDatasetConfigRequest) -> DatasetConfigAggregate:
+def map_dataset_config_contract_to_domain(create_request: ConfigurationCreateSchema) -> DatasetConfigAggregate:
     config_id = str(uuid.uuid4())
     statement_id = str(uuid.uuid4())
     return DatasetConfigAggregate(
@@ -46,7 +46,7 @@ def map_dataset_config_contract_to_domain(create_request: CreateDatasetConfigReq
         layouts=[map_contract_view_to_domain(x, item=config_id) for x in create_request.layouts]
     )
 
-def map_datapoint_contract_to_domain(create_request: CreateDataPointRequest) -> DataPoint:
+def map_datapoint_contract_to_domain(create_request: DataEntryCreateSchema) -> DataPoint:
     record_id = str(uuid.uuid4())
     return DataPoint(
         dataset_id=record_id,

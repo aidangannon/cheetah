@@ -12,37 +12,37 @@ from src.application.services import SystemStatusChecker, DataRetrievalHandler, 
     DataPointCreationService
 from src.crosscutting import get_service, logging_scope, Logger
 from src.web import auth_provider, Authenticator
-from src.web.contracts import DataResponse, HealthCheckResponse, CreatedResponse, CreateDatasetConfigRequest, \
-    CreateDataPointRequest
+from src.web.models import AnalyticsResponseSchema, SystemStatusSchema, ResourceCreatedSchema, ConfigurationCreateSchema, \
+    DataEntryCreateSchema
 
-health_router = APIRouter(
+status_router = APIRouter(
     prefix="/health",
     tags=["Health"]
 )
 
-@health_router.get(
+@status_router.get(
     "/",
-    response_model=HealthCheckResponse,
+    response_model=SystemStatusSchema,
     summary="Run health checks",
     description="Health checks application and db"
 )
-async def get_health(
+async def get_system_health(
     logger: Logger = Depends(get_service(Logger)),
     health_check_service: SystemStatusChecker = Depends(get_service(SystemStatusChecker))
 ):
-    with logging_scope(operation=get_health.__name__):
+    with logging_scope(operation=get_system_health.__name__):
         logger.info("Endpoint called")
         database_result = await health_check_service()
         return {"application": True, "database": database_result}
 
-data_router = APIRouter(
+analytics_router = APIRouter(
     prefix="/data",
     tags=["Data"]
 )
 
-@data_router.get(
+@analytics_router.get(
     "/{dataset_id}",
-    response_model=DataResponse,
+    response_model=AnalyticsResponseSchema,
     responses={
         HTTP_404_NOT_FOUND: {"description": "Dataset not found"},
         HTTP_401_UNAUTHORIZED: {"description": "Unauthenticated"},
@@ -51,7 +51,7 @@ data_router = APIRouter(
     summary="Get dataset",
     description="Get dataset configuration, data and layouts"
 )
-async def get_dataset(
+async def get_analytics_dataset(
     dataset_id: UUID = Path(description="dataset configuration id to search under"),
     start_date: Optional[date] = Query('2025-06-01', description="Start date for filtering"),
     end_date: Optional[date] = Query('2025-06-30', description="End date for filtering"),
@@ -62,7 +62,7 @@ async def get_dataset(
 ):
     id_str = str(dataset_id)
     with logging_scope(
-        operation=get_dataset.__name__,
+        operation=get_analytics_dataset.__name__,
         id=id_str,
         start_date=start_date,
         end_date=end_date,
@@ -83,9 +83,9 @@ async def get_dataset(
         response = map_dataset_aggregate_to_contract(dataset)
         return response
     
-@data_router.post(
+@analytics_router.post(
     "/",
-    response_model=CreatedResponse,
+    response_model=ResourceCreatedSchema,
     status_code=HTTP_201_CREATED,
     responses={
         HTTP_401_UNAUTHORIZED: {"description": "Unauthenticated"},
@@ -94,14 +94,14 @@ async def get_dataset(
     summary="Create dataset configuration",
     description="Create dataset configuration and do statement generation"
 )
-async def create_dataset_configuration(
-    create_dataset_config: CreateDatasetConfigRequest = Body(..., description="dataset configuration data"),
+async def create_analytics_configuration(
+    create_dataset_config: ConfigurationCreateSchema = Body(..., description="dataset configuration data"),
     create_dataset_service: ConfigurationManager = Depends(get_service(ConfigurationManager)),
     _ = Depends(auth_provider),
     logger: Logger = Depends(get_service(Logger)),
 ):
     with logging_scope(
-        operation=create_dataset_configuration.__name__,
+        operation=create_analytics_configuration.__name__,
         is_mutable=create_dataset_config.is_mutable,
         statement_generation_prompt=create_dataset_config.statement_generation_prompt
     ):
@@ -112,10 +112,10 @@ async def create_dataset_configuration(
             create_dataset_config.statement_generation_prompt
         )
 
-        return CreatedResponse(id=_id)
+        return ResourceCreatedSchema(id=_id)
 
 
-@data_router.post(
+@analytics_router.post(
     "/{dataset_id}/data-points",
     status_code=HTTP_201_CREATED,
     responses={
@@ -125,9 +125,9 @@ async def create_dataset_configuration(
     summary="Create data point",
     description="Create data point for a given dataset type"
 )
-async def create_data_point(
+async def create_analytics_data_point(
     dataset_id: UUID = Path(description="id of the dataset configuration the data will sit under"),
-    create_data_point: CreateDataPointRequest = Body(..., description="data fields for the data point"),
+    create_data_point: DataEntryCreateSchema = Body(..., description="data fields for the data point"),
     create_data_point_service: DataPointCreationService = Depends(get_service(DataPointCreationService)),
     _ = Depends(auth_provider),
     logger: Logger = Depends(get_service(Logger))

@@ -4,7 +4,7 @@ import uuid
 
 from autofixture import AutoFixture
 
-from src.web.contracts import DataResponse, ViewConfigContract, CreateDatasetConfigRequest, CreateDataPointRequest
+from src.web.models import AnalyticsResponseSchema, LayoutConfigSchema, ConfigurationCreateSchema, DataEntryCreateSchema
 from tests import step, ScenarioContext
 
 DEFAULT_REQUEST_HEADERS = {"Authorization": "Bearer test"}
@@ -39,7 +39,7 @@ class HealthCheckScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            operation="get_health")
+            operation="get_system_health")
         return self
 
 
@@ -82,7 +82,7 @@ class GetDatasetScenario:
 
     @step
     def then_the_response_body_should_match_expected_metric(self):
-        expected_response = DataResponse(
+        expected_response = AnalyticsResponseSchema(
             id="def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
             is_mutable=True,
             records=[
@@ -92,7 +92,7 @@ class GetDatasetScenario:
                 }
             ],
             layouts=[
-                ViewConfigContract(
+                LayoutConfigSchema(
                     breakpoint="lg",
                     h=4,
                     w=5,
@@ -100,7 +100,7 @@ class GetDatasetScenario:
                     y=20,
                     static=False
                 ),
-                ViewConfigContract(
+                LayoutConfigSchema(
                     breakpoint='md',
                     h=4,
                     w=1,
@@ -109,14 +109,14 @@ class GetDatasetScenario:
                     static=None
                 )
             ])
-        actual_response = DataResponse.model_validate(self.response.json())
+        actual_response = AnalyticsResponseSchema.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
 
     @step
     def then_the_response_body_should_match_expected_date_range_filtered_metric(self):
-        expected_response = DataResponse(
+        expected_response = AnalyticsResponseSchema(
             id="c797b618-df12-45f7-bbb2-cc6695a48e46",
             is_mutable=True,
             records=[
@@ -130,7 +130,7 @@ class GetDatasetScenario:
                 }
             ],
             layouts=[
-                ViewConfigContract(
+                LayoutConfigSchema(
                     breakpoint="lg",
                     h=10,
                     w=5,
@@ -138,7 +138,7 @@ class GetDatasetScenario:
                     y=24,
                     static=False
                 ),
-                ViewConfigContract(
+                LayoutConfigSchema(
                     breakpoint='md',
                     h=10,
                     w=1,
@@ -147,19 +147,19 @@ class GetDatasetScenario:
                     static=None
                 )
             ])
-        actual_response = DataResponse.model_validate(self.response.json())
+        actual_response = AnalyticsResponseSchema.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
 
     @step
     def then_the_response_body_should_match_expected_day_range_filtered_metric(self):
-        expected_response = DataResponse(
+        expected_response = AnalyticsResponseSchema(
             id="def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
             is_mutable=True,
             records=[],
             layouts=[
-                ViewConfigContract(
+                LayoutConfigSchema(
                     breakpoint="lg",
                     h=4,
                     w=5,
@@ -167,7 +167,7 @@ class GetDatasetScenario:
                     y=20,
                     static=False
                 ),
-                ViewConfigContract(
+                LayoutConfigSchema(
                     breakpoint='md',
                     h=4,
                     w=1,
@@ -176,7 +176,7 @@ class GetDatasetScenario:
                     static=None
                 )
             ])
-        actual_response = DataResponse.model_validate(self.response.json())
+        actual_response = AnalyticsResponseSchema.model_validate(self.response.json())
 
         self.ctx.test_case.assertEqual(expected_response, actual_response)
         return self
@@ -193,7 +193,7 @@ class GetDatasetScenario:
         self.ctx.test_case.assert_there_is_log_with(self.ctx.logger,
             log_level=logging.INFO,
             message="Endpoint called",
-            operation="get_dataset",
+            operation="get_analytics_dataset",
             id=self.dataset_id,
             start_date=self.start_date,
             end_date=self.end_date,
@@ -206,10 +206,10 @@ class CreateDatasetConfigScenario:
     def __init__(self, ctx: ScenarioContext):
         self.ctx = ctx
         self.runner = ctx.runner
-        self.dataset_config = CreateDatasetConfigRequest(
+        self.dataset_config = ConfigurationCreateSchema(
             is_mutable=True,
             layouts=[
-                ViewConfigContract(
+                LayoutConfigSchema(
                     static=True,
                     x=1,
                     y=1,
@@ -217,7 +217,7 @@ class CreateDatasetConfigScenario:
                     w=1,
                     breakpoint="md"
                 ),
-                ViewConfigContract(
+                LayoutConfigSchema(
                     static=False,
                     x=2,
                     y=4,
@@ -228,7 +228,7 @@ class CreateDatasetConfigScenario:
             ],
             statement_generation_prompt="shut up and dance"
         )
-        self.data_point = CreateDataPointRequest(
+        self.data_point = DataEntryCreateSchema(
             decay_value=15.3,
             decay_rate=8.1,
             items_flagged=2,
@@ -281,11 +281,11 @@ class CreateDatasetConfigScenario:
 
     @step
     def then_the_dataset_should_have_been_created(self):
-        expected_data_response = DataResponse(
+        expected_data_response = AnalyticsResponseSchema(
             id=self.dataset_config_id,
             is_mutable=True,
             layouts=[
-                ViewConfigContract(
+                LayoutConfigSchema(
                     static=True,
                     x=1,
                     y=1,
@@ -293,7 +293,7 @@ class CreateDatasetConfigScenario:
                     w=1,
                     breakpoint="md"
                 ),
-                ViewConfigContract(
+                LayoutConfigSchema(
                     static=False,
                     x=2,
                     y=4,
@@ -306,7 +306,7 @@ class CreateDatasetConfigScenario:
         )
         dataset_config_id = self.create_response.json()["id"]
         read_response = self.ctx.client.get(f"/data/{dataset_config_id}", headers=DEFAULT_REQUEST_HEADERS)
-        actual_data_aggregate = DataResponse.model_validate(read_response.json())
+        actual_data_aggregate = AnalyticsResponseSchema.model_validate(read_response.json())
         self.ctx.test_case.assertEqual(expected_data_response, actual_data_aggregate)
         return self
 
@@ -316,7 +316,7 @@ class CreateDataPointScenario:
     def __init__(self, ctx: ScenarioContext):
         self.ctx = ctx
         self.runner = ctx.runner
-        self.data_point = CreateDataPointRequest(
+        self.data_point = DataEntryCreateSchema(
             decay_value=10.5,
             decay_rate=5.2,
             items_flagged=3,

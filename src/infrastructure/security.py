@@ -18,7 +18,7 @@ def get_public_key(token, jwks):
     return key
 
 @auto_slots
-class CognitoAuthenticator:
+class PlatformValidator:
 
     def __init__(self,
         settings: Settings,

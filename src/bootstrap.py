@@ -12,17 +12,15 @@ from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, 
     DataPointReader, DatasetAggregateWriter, DataPointWriter, StatementGenerator
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, FakeStatementGenerator
-from src.infrastructure.auth import CognitoAuthenticator
-from src.infrastructure.loaders import JsonDatasetConfigLoader, JsonViewConfigLoader, CsvSqlStatementLoader, \
-    JsonDataPointLoader
-from src.infrastructure.orm import start_mappers
-from src.infrastructure.readers import SqlAlchemyDatasetAggregateReader, SqlAlchemyDataPointReader, \
-    SqlAlchemyDbHealthReader
-from src.infrastructure.writers import SqlAlchemyGenericDataSeeder, SqlAlchemyDatasetAggregateWriter, \
-    SqlAlchemyDataPointWriter
+from src.infrastructure.security import PlatformValidator
+from src.infrastructure.data_processing import ConfigurationImporter, JsonViewConfigProcessor, CsvSqlStatementProcessor, \
+    JsonDataPointProcessor
+from src.infrastructure.models import start_mappers
+from src.infrastructure.data_access import DatasetRetriever, SqlAlchemyDataPointReader, \
+    SqlAlchemyDbHealthReader, DatabaseBootstrapper, SqlAlchemyDatasetAggregateWriter, SqlAlchemyDataPointWriter
 from src.web import Authenticator
-from src.web.middleware import add_exception_middleware
-from src.web.routes import health_router, data_router
+from src.web.middleware import configure_error_handling
+from src.web.endpoints import status_router, analytics_router
 
 
 def bootstrap(app: FastAPI,
@@ -39,7 +37,7 @@ def bootstrap(app: FastAPI,
     if use_env_settings:
         add_configuration(container=container)
     add_routing(app=app, container=container)
-    add_exception_middleware(app=app)
+    configure_error_handling(app=app)
     add_database(container=container)
     add_services(container=container)
     add_loaders(container=container)
@@ -52,8 +50,8 @@ def add_database(container: Container):
     start_mappers()
     register(DbHealthReader, SqlAlchemyDbHealthReader)
     register(DataPointReader, SqlAlchemyDataPointReader)
-    register(DatasetAggregateReader, SqlAlchemyDatasetAggregateReader)
-    register(GenericDataSeeder, SqlAlchemyGenericDataSeeder)
+    register(DatasetAggregateReader, DatasetRetriever)
+    register(GenericDataSeeder, DatabaseBootstrapper)
     register(DatasetAggregateWriter, SqlAlchemyDatasetAggregateWriter)
     register(DataPointWriter, SqlAlchemyDataPointWriter)
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
@@ -62,21 +60,21 @@ def add_llms(container: Container):
     container.register(StatementGenerator, FakeStatementGenerator)
 
 def add_auth(container: Container):
-    container.register(Authenticator, CognitoAuthenticator)
+    container.register(Authenticator, PlatformValidator)
 
 def add_loaders(container: Container):
-    container.register(DataLoader, JsonDatasetConfigLoader)
-    container.register(DataLoader, JsonViewConfigLoader)
-    container.register(DataLoader, JsonDataPointLoader)
-    container.register(DataLoader, CsvSqlStatementLoader)
+    container.register(DataLoader, ConfigurationImporter)
+    container.register(DataLoader, JsonViewConfigProcessor)
+    container.register(DataLoader, JsonDataPointProcessor)
+    container.register(DataLoader, CsvSqlStatementProcessor)
 
 def add_configuration(container: Container):
     container.register(Settings, instance=Settings(), scope=Scope.singleton)
 
 def add_routing(app: FastAPI, container: Container):
     app.state.services = ServiceProvider(container=container)
-    app.include_router(router=health_router)
-    app.include_router(router=data_router)
+    app.include_router(router=status_router)
+    app.include_router(router=analytics_router)
 
 def add_services(container: Container):
     container.register(SystemStatusChecker)

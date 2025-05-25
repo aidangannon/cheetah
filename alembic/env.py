@@ -10,7 +10,7 @@ from sqlalchemy import pool
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from src.infrastructure.orm import metadata, start_mappers
+from src.infrastructure.models import metadata, start_mappers
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

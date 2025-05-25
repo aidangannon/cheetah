@@ -9,7 +9,7 @@ from src.application.mappers import map_dataset_aggregate_to_contract, map_view_
 from src.core import ViewConfig, DatasetConfigAggregate
 from autofixture import AutoFixture
 
-from src.web.contracts import ViewConfigContract, CreateDataPointRequest, CreateDatasetConfigRequest
+from src.web.models import LayoutConfigSchema, DataEntryCreateSchema, ConfigurationCreateSchema
 
 DEFAULT_UUID = "12345678-1234-5678-1234-567812345678"
 DEFAULT_DATETIME = datetime(2025, 8, 8, 12, 0, 0)
@@ -37,7 +37,7 @@ class TestMetricsMappers(TestCase):
     def test_map_dataset_config_contract_to_domain(self, _):
         # arrange
         layouts = [
-            ViewConfigContract(
+            LayoutConfigSchema(
                 breakpoint="sm",
                 x=1,
                 y=2,
@@ -45,7 +45,7 @@ class TestMetricsMappers(TestCase):
                 h=4,
                 static=True
             ),
-            ViewConfigContract(
+            LayoutConfigSchema(
                 breakpoint="lg",
                 x=5,
                 y=6,
@@ -54,7 +54,7 @@ class TestMetricsMappers(TestCase):
                 static=False
             )
         ]
-        create_request = CreateDatasetConfigRequest(
+        create_request = ConfigurationCreateSchema(
             is_mutable=True,
             layouts=layouts,
             statement_generation_prompt="anything"
@@ -103,7 +103,7 @@ class TestLayoutsMappers(TestCase):
     @patch("uuid.uuid4", return_value=UUID(DEFAULT_UUID))
     def test_map_contract_view_to_domain(self, _):
         # arrange
-        layout_contract = ViewConfigContract(
+        layout_contract = LayoutConfigSchema(
             breakpoint="md",
             x=1,
             y=2,
@@ -135,7 +135,7 @@ class TestDataPointMappers(TestCase):
     @patch("uuid.uuid4", return_value=UUID(DEFAULT_UUID))
     def test_map_datapoint_contract_to_domain(self, _):
         # arrange
-        create_request = self.fixture.create(CreateDataPointRequest)
+        create_request = self.fixture.create(DataEntryCreateSchema)
 
         # act
         result = map_datapoint_contract_to_domain(create_request)

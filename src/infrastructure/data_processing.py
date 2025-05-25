@@ -16,7 +16,7 @@ import uuid
 
 LOADER_SLOTS = "settings", "logger", "type", "data"
 
-class JsonViewConfigLoader:
+class JsonViewConfigProcessor:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
@@ -54,7 +54,7 @@ class JsonViewConfigLoader:
         self.data = view_configs
 
 
-class JsonDataPointLoader:
+class JsonDataPointProcessor:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
@@ -89,7 +89,7 @@ class JsonDataPointLoader:
         self.data = records
 
 
-class JsonDatasetConfigLoader:
+class ConfigurationImporter:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
@@ -145,7 +145,7 @@ def remap_duplicate_ids(
     return new_items
 
 
-class CsvSqlStatementLoader:
+class CsvSqlStatementProcessor:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):

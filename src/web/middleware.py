@@ -10,12 +10,12 @@ from starlette.types import HTTPExceptionHandler
 from src.crosscutting import Logger
 
 
-def add_exception_middleware(app: FastAPI):
+def configure_error_handling(app: FastAPI):
     logger_factory = lambda: app.state.services[Logger]
 
     app.add_exception_handler(
         Exception,
-        log_and_handle(
+        create_error_handler(
             status_code=500,
             message="Internal server error",
             logger_factory=logger_factory
@@ -24,11 +24,11 @@ def add_exception_middleware(app: FastAPI):
 
     app.add_exception_handler(
         RequestValidationError,
-        log_and_forward_validation_error(logger_factory)
+        create_validation_error_handler(logger_factory)
     )
 
 
-def log_and_handle(
+def create_error_handler(
     status_code: int,
     message: str,
     logger_factory: Callable[[], Logger]
@@ -43,7 +43,7 @@ def log_and_handle(
     return handler
 
 
-def log_and_forward_validation_error(
+def create_validation_error_handler(
     logger_factory: Callable[[], Logger]
 ) -> Callable[[Request, Exception], JSONResponse]:
 

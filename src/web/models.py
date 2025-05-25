@@ -5,12 +5,12 @@ from uuid import UUID
 from pydantic import BaseModel, validator, Field, ConfigDict
 
 
-class HealthCheckResponse(BaseModel):
+class SystemStatusSchema(BaseModel):
     application: bool
     database: bool
 
 
-class ViewConfigContract(BaseModel):
+class LayoutConfigSchema(BaseModel):
     breakpoint: str
     x: int
     y: int
@@ -18,23 +18,23 @@ class ViewConfigContract(BaseModel):
     h: int
     static: Optional[bool]
 
-class DataResponse(BaseModel):
+class AnalyticsResponseSchema(BaseModel):
     id: str
     is_mutable: bool
     records: list[dict[str, Any]]
-    layouts: list[ViewConfigContract]
+    layouts: list[LayoutConfigSchema]
 
-class CreateDatasetConfigRequest(BaseModel):
+class ConfigurationCreateSchema(BaseModel):
     is_mutable: bool
-    layouts: list[ViewConfigContract]
+    layouts: list[LayoutConfigSchema]
     statement_generation_prompt: str
 
-class CreateDataPointRequest(BaseModel):
+class DataEntryCreateSchema(BaseModel):
     decay_value: float = None
     decay_rate: float = None
     items_flagged: int = None
     notification_type: str = None
     notification_category: str = None
 
-class CreatedResponse(BaseModel):
+class ResourceCreatedSchema(BaseModel):
     id: str
