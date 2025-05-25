@@ -47,8 +47,19 @@ Resources:
       Domain: af9ce15d-9b70-43cf-9237-efaea369e61d
       UserPoolId: !Ref CognitoUserPool
 
+  CognitoUserPoolResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Identifier: api
+      Name: AnalyticsPlatformAPI
+      Scopes:
+        - ScopeName: platform_access
+          ScopeDescription: Access to analytics platform API
+
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
+    DependsOn: CognitoUserPoolResourceServer
     Properties:
       ClientName: AnalyticsPlatformClient
       UserPoolId: !Ref CognitoUserPool
@@ -60,16 +71,6 @@ Resources:
       AllowedOAuthFlowsUserPoolClient: true
       SupportedIdentityProviders:
         - COGNITO
-
-  CognitoUserPoolResourceServer:
-    Type: AWS::Cognito::UserPoolResourceServer
-    Properties:
-      UserPoolId: !Ref CognitoUserPool
-      Identifier: api
-      Name: AnalyticsPlatformAPI
-      Scopes:
-        - ScopeName: platform_access
-          ScopeDescription: Access to analytics platform API
 
   VPC:
     Type: AWS::EC2::VPC
@@ -97,7 +98,7 @@ Resources:
   RecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
-      HostedZoneName: !Sub "${DomainName}."
+      HostedZoneName: "aphextwinning.com."
       Name: !Ref DomainName
       Type: A
       TTL: 300
