@@ -1,5 +1,3 @@
-import csv
-import io
 import json
 import re
 from datetime import datetime
@@ -26,16 +24,16 @@ class JsonViewConfigProcessor:
         self.data = []
 
     async def __call__(self) -> None:
-        path = Path(self.settings.METRICS_SEED_JSON)
+        path = Path(self.settings.SEED_DATA_JSON)
         if not path.exists():
-            self.logger.warning(f"No layouts file as {path.resolve()}")
+            self.logger.warning(f"No seed data file as {path.resolve()}")
             return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
             data = json.loads(contents)
 
-        layouts_by_breakpoint = data.get("layouts", {})
+        layouts_by_breakpoint = data.get("datasets", {}).get("layouts", {})
 
         view_configs: list[ViewConfig] = []
         for breakpoint, layouts in layouts_by_breakpoint.items():
@@ -64,9 +62,9 @@ class JsonDataPointProcessor:
         self.data = []
 
     async def __call__(self) -> None:
-        path = Path(self.settings.DATA_POINTS_SEED_JSON)
+        path = Path(self.settings.SEED_DATA_JSON)
         if not path.exists():
-            self.logger.warning(f"No data points file as {path.resolve()}")
+            self.logger.warning(f"No seed data file as {path.resolve()}")
             return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
@@ -74,7 +72,7 @@ class JsonDataPointProcessor:
             data = json.loads(contents)
 
         records: list[DataPoint] = []
-        for record in data:
+        for record in data.get("metric_records", []):
             records.append(DataPoint(
                 dataset_id=str(uuid.uuid4()),
                 id=record.get("id"),
@@ -99,16 +97,16 @@ class ConfigurationImporter:
         self.data = []
 
     async def __call__(self) -> None:
-        path = Path(self.settings.METRICS_SEED_JSON)
+        path = Path(self.settings.SEED_DATA_JSON)
         if not path.exists():
-            self.logger.warning(f"No metrics file as {path.resolve()}")
+            self.logger.warning(f"No seed data file as {path.resolve()}")
             return
 
         async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
             data = json.loads(contents)
 
-        items = data.get("items", [])
+        items = data.get("datasets", {}).get("items", [])
 
         duplicate_id_remap = {
             "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c": "1379a764-2543-45fd-a78b-8c5a65827417"
@@ -145,7 +143,7 @@ def remap_duplicate_ids(
     return new_items
 
 
-class CsvSqlStatementProcessor:
+class JsonSqlStatementProcessor:
     __slots__ = LOADER_SLOTS
 
     def __init__(self, settings: Settings, logger: Logger):
@@ -155,22 +153,18 @@ class CsvSqlStatementProcessor:
         self.data = []
 
     async def __call__(self) -> None:
-        path = Path(self.settings.STATEMENTS_SEED_CSV)
+        path = Path(self.settings.SEED_DATA_JSON)
         if not path.exists():
-            self.logger.warning(f"No csv file at {path.resolve()}")
+            self.logger.warning(f"No seed data file at {path.resolve()}")
             return
 
-        async with aiofiles.open(path, 'r', encoding='utf-8', newline='') as f:
+        async with aiofiles.open(path, 'r', encoding='utf-8') as f:
             contents = await f.read()
-
-        # Use io.StringIO to create a file-like object
-        csvfile = io.StringIO(contents)
-
-        # Let csv module handle multi-line fields properly
-        reader = csv.DictReader(csvfile)
+            data = json.loads(contents)
 
         statements = [
-            SqlStatement(id=row["id"], statement=replace_dates_and_intervals(row["statement"])) for row in reader
+            SqlStatement(id=query["id"], statement=replace_dates_and_intervals(query["statement"]))
+            for query in data.get("queries", [])
         ]
 
         self.data = statements

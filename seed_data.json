@@ -1,0 +1,216 @@
+{
+  "datasets": {
+    "items": [
+      {
+        "id": "def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+        "statementId": "a1b2c3d4-e5f6-4789-abcd-123456789abc",
+        "isMutable": true
+      },
+      {
+        "id": "c797b618-df12-45f7-bbb2-cc6695a48e46",
+        "statementId": "b2c3d4e5-f6g7-4890-bcde-234567890bcd",
+        "isMutable": true
+      },
+      {
+        "id": "073ac9db-c16e-4d04-9f25-6fc01d4ac380",
+        "statementId": "c3d4e5f6-g7h8-4901-cdef-345678901cde",
+        "isMutable": true
+      },
+      {
+        "id": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+        "statementId": "d4e5f6g7-h8i9-4012-defg-456789012def",
+        "isMutable": true
+      },
+      {
+        "id": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+        "statementId": "e5f6g7h8-i9j0-4123-efgh-567890123efg",
+        "isMutable": true
+      }
+    ],
+    "layouts": {
+      "lg": [
+        {
+          "h": 4,
+          "i": "def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+          "w": 5,
+          "x": 0,
+          "y": 20,
+          "static": false
+        },
+        {
+          "h": 10,
+          "i": "c797b618-df12-45f7-bbb2-cc6695a48e46",
+          "w": 5,
+          "x": 0,
+          "y": 24,
+          "static": false
+        },
+        {
+          "h": 14,
+          "i": "073ac9db-c16e-4d04-9f25-6fc01d4ac380",
+          "w": 7,
+          "x": 5,
+          "y": 12,
+          "static": false
+        },
+        {
+          "h": 10,
+          "i": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+          "w": 5,
+          "x": 0,
+          "y": 10,
+          "static": false
+        },
+        {
+          "h": 12,
+          "i": "1379a764-2543-45fd-a78b-8c5a65827417",
+          "w": 6,
+          "x": 5,
+          "y": 0,
+          "static": false
+        }
+      ],
+      "md": [
+        {
+          "h": 4,
+          "i": "def1fdce-dac9-4c5a-a4a1-d7cbd01f6ed6",
+          "w": 1,
+          "x": 0,
+          "y": 10,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "c797b618-df12-45f7-bbb2-cc6695a48e46",
+          "w": 1,
+          "x": 0,
+          "y": 24,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "073ac9db-c16e-4d04-9f25-6fc01d4ac380",
+          "w": 1,
+          "x": 0,
+          "y": 14,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "53aaf9d4-04d3-43d3-9f40-6ce4a9282a5c",
+          "w": 1,
+          "x": 0,
+          "y": 34,
+          "static": null
+        },
+        {
+          "h": 10,
+          "i": "1379a764-2543-45fd-a78b-8c5a65827417",
+          "w": 5,
+          "x": 0,
+          "y": 9999999,
+          "static": null
+        }
+      ]
+    }
+  },
+  "metric_records": [
+    {
+      "id": "a1b2c3d4-e5f6-4789-abcd-123456789abc",
+      "timestamp": "2025-08-01T00:00:00",
+      "decay_rate": 120.50
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4789-abcd-123456789abc",
+      "timestamp": "2025-07-15T00:00:00",
+      "decay_rate": 80.25
+    },
+    {
+      "id": "b2c3d4e5-f6g7-4890-bcde-234567890bcd",
+      "timestamp": "2025-06-03T00:00:00",
+      "notification_type": "Critical"
+    },
+    {
+      "id": "b2c3d4e5-f6g7-4890-bcde-234567890bcd",
+      "timestamp": "2025-06-03T00:00:00",
+      "notification_type": "Warning"
+    },
+    {
+      "id": "b2c3d4e5-f6g7-4890-bcde-234567890bcd",
+      "timestamp": "2025-06-10T00:00:00",
+      "notification_type": "Warning"
+    },
+    {
+      "id": "c3d4e5f6-g7h8-4901-cdef-345678901cde",
+      "timestamp": "2025-08-01T00:00:00",
+      "items_flagged": 10
+    },
+    {
+      "id": "c3d4e5f6-g7h8-4901-cdef-345678901cde",
+      "timestamp": "2025-07-31T00:00:00",
+      "items_flagged": 5
+    },
+    {
+      "id": "c3d4e5f6-g7h8-4901-cdef-345678901cde",
+      "timestamp": "2025-07-30T00:00:00",
+      "items_flagged": 7
+    },
+    {
+      "id": "d4e5f6g7-h8i9-4012-defg-456789012def",
+      "timestamp": "2025-06-02T00:00:00",
+      "decay_value": 50.0
+    },
+    {
+      "id": "d4e5f6g7-h8i9-4012-defg-456789012def",
+      "timestamp": "2025-06-10T00:00:00",
+      "decay_value": 70.5
+    },
+    {
+      "id": "d4e5f6g7-h8i9-4012-defg-456789012def",
+      "timestamp": "2025-06-25T00:00:00",
+      "decay_value": 65.0
+    },
+    {
+      "id": "e5f6g7h8-i9j0-4123-efgh-567890123efg",
+      "timestamp": "2025-06-02T00:00:00",
+      "notification_category": "Need approval"
+    },
+    {
+      "id": "e5f6g7h8-i9j0-4123-efgh-567890123efg",
+      "timestamp": "2025-06-10T00:00:00",
+      "notification_category": "Need approval"
+    },
+    {
+      "id": "e5f6g7h8-i9j0-4123-efgh-567890123efg",
+      "timestamp": "2025-06-10T00:00:00",
+      "notification_category": "Need approval"
+    },
+    {
+      "id": "e5f6g7h8-i9j0-4123-efgh-567890123efg",
+      "timestamp": "2025-06-25T00:00:00",
+      "notification_category": "Need approval"
+    }
+  ],
+  "queries": [
+    {
+      "id": "a1b2c3d4-e5f6-4789-abcd-123456789abc",
+      "statement": "SELECT\n  DATE(timestamp) AS day,\n  SUM(decay_rate) AS cost_avoided\nFROM data_points\nWHERE id = 'a1b2c3d4-e5f6-4789-abcd-123456789abc'\n  AND timestamp >= CURRENT_DATE - INTERVAL '30' DAY\nGROUP BY DATE(timestamp)\nORDER BY day;"
+    },
+    {
+      "id": "b2c3d4e5-f6g7-4890-bcde-234567890bcd",
+      "statement": "SELECT\n  notification_type,\n  COUNT(*) AS total_alerts\nFROM data_points\nWHERE id = 'b2c3d4e5-f6g7-4890-bcde-234567890bcd'\n  AND DATE(timestamp) BETWEEN '2025-06-01' AND '2025-06-30'\nGROUP BY notification_type;"
+    },
+    {
+      "id": "c3d4e5f6-g7h8-4901-cdef-345678901cde",
+      "statement": "SELECT\n  SUM(items_flagged) AS total_flagged,\n  AVG(items_flagged)::DECIMAL(10,2) AS avg_per_day\nFROM data_points\nWHERE id = 'c3d4e5f6-g7h8-4901-cdef-345678901cde'\n  AND timestamp >= CURRENT_DATE - INTERVAL '7' DAY;"
+    },
+    {
+      "id": "d4e5f6g7-h8i9-4012-defg-456789012def",
+      "statement": "SELECT\n  DATE(timestamp) AS day,\n  decay_value AS amount\nFROM data_points\nWHERE id = 'd4e5f6g7-h8i9-4012-defg-456789012def'\n  AND timestamp BETWEEN '2025-06-02' AND '2025-06-25'\nORDER BY day;"
+    },
+    {
+      "id": "e5f6g7h8-i9j0-4123-efgh-567890123efg",
+      "statement": "SELECT\n  DATE(timestamp) AS day,\n  COUNT(*) AS need_approval_count\nFROM data_points\nWHERE id = 'e5f6g7h8-i9j0-4123-efgh-567890123efg'\n  AND notification_category = 'Need approval'\n  AND DATE(timestamp) BETWEEN '2025-06-02' AND '2025-06-25'\nGROUP BY DATE(timestamp)\nORDER BY day;"
+    }
+  ]
+}

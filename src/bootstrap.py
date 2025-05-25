@@ -13,7 +13,7 @@ from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, 
 from src.crosscutting import Logger, ServiceProvider
 from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, FakeStatementGenerator
 from src.infrastructure.security import PlatformValidator
-from src.infrastructure.data_processing import ConfigurationImporter, JsonViewConfigProcessor, CsvSqlStatementProcessor, \
+from src.infrastructure.data_processing import ConfigurationImporter, JsonViewConfigProcessor, JsonSqlStatementProcessor, \
     JsonDataPointProcessor
 from src.infrastructure.models import start_mappers
 from src.infrastructure.data_access import DatasetRetriever, SqlAlchemyDataPointReader, \
@@ -66,7 +66,7 @@ def add_loaders(container: Container):
     container.register(DataLoader, ConfigurationImporter)
     container.register(DataLoader, JsonViewConfigProcessor)
     container.register(DataLoader, JsonDataPointProcessor)
-    container.register(DataLoader, CsvSqlStatementProcessor)
+    container.register(DataLoader, JsonSqlStatementProcessor)
 
 def add_configuration(container: Container):
     container.register(Settings, instance=Settings(), scope=Scope.singleton)

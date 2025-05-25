@@ -119,8 +119,6 @@ jobs:
               docker rm analytics-platform
             fi
             
-            grep -qxF 'STATEMENTS_SEED_CSV=/app/data/queries.csv' /home/ec2-user/analytics-platform.env || \
-            echo 'STATEMENTS_SEED_CSV=/app/data/queries.csv' | sudo tee -a /home/ec2-user/analytics-platform.env
             
             grep -qxF "USER_POOL_ID=$USER_POOL_ID" /home/ec2-user/analytics-platform.env || \
             echo "USER_POOL_ID=$USER_POOL_ID" | sudo tee -a /home/ec2-user/analytics-platform.env
@@ -131,14 +129,8 @@ jobs:
             grep -qxF "AWS_REGION=$AWS_REGION" /home/ec2-user/analytics-platform.env || \
             echo "AWS_REGION=$AWS_REGION" | sudo tee -a /home/ec2-user/analytics-platform.env
             
-            grep -qxF 'STATEMENTS_SEED_CSV=/app/data/queries.csv' /home/ec2-user/analytics-platform.env || \
-            echo 'STATEMENTS_SEED_CSV=/app/data/queries.csv' | sudo tee -a /home/ec2-user/analytics-platform.env
-            
-            grep -qxF 'METRICS_SEED_JSON=/app/data/metrics.json' /home/ec2-user/analytics-platform.env || \
-            echo 'METRICS_SEED_JSON=/app/data/metrics.json' | sudo tee -a /home/ec2-user/analytics-platform.env
-            
-            grep -qxF 'DATA_POINTS_SEED_JSON=/app/data/metric_records.json' /home/ec2-user/analytics-platform.env || \
-            echo 'DATA_POINTS_SEED_JSON=/app/data/metric_records.json' | sudo tee -a /home/ec2-user/analytics-platform.env
+            grep -qxF 'SEED_DATA_JSON=/app/seed_data.json' /home/ec2-user/analytics-platform.env || \
+            echo 'SEED_DATA_JSON=/app/seed_data.json' | sudo tee -a /home/ec2-user/analytics-platform.env
             
             docker run --rm --env-file /home/ec2-user/analytics-platform.env analytics-platform poetry run alembic heads
             

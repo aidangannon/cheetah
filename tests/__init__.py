@@ -79,9 +79,7 @@ def do_global_setup():
             USER_POOL_CLIENT_ID="test",
             USER_POOL_ID="test",
             AWS_REGION="eu-test",
-            STATEMENTS_SEED_CSV="./data/queries.csv",
-            METRICS_SEED_JSON="./data/metrics.json",
-            DATA_POINTS_SEED_JSON="./data/metric_records.json"
+            SEED_DATA_JSON="./seed_data.json"
         )
 
         def override_deps(populated_container: Container):
