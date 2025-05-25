@@ -44,7 +44,7 @@ Resources:
   CognitoUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain: 3eef4c69-d944-4d39-837f-97f3f72f5f93
+      Domain: af9ce15d-9b70-43cf-9237-efaea369e61d
       UserPoolId: !Ref CognitoUserPool
 
   CognitoUserPoolClient:
