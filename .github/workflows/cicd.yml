@@ -43,7 +43,7 @@ jobs:
             --s3-prefix analytics \
             --region $AWS_REGION \
             --capabilities CAPABILITY_IAM \
-            --parameter-overrides DBPassword=$DB_PASSWORD KeyName=intropy-ec2-keypair $REBUILD_PARAM \
+            --parameter-overrides DBPassword=$DB_PASSWORD KeyName=analytics-keypair $REBUILD_PARAM \
             --no-confirm-changeset
           INSTANCE_ID=$(aws cloudformation describe-stacks \
             --stack-name $STACK_NAME \

@@ -11,9 +11,8 @@ from src.application.services import SystemStatusChecker, DataBootstrapper, Data
 from src.core import UnitOfWork, DbHealthReader, DataLoader, GenericDataSeeder, DatasetAggregateReader, \
     DataPointReader, DatasetAggregateWriter, DataPointWriter, StatementGenerator
 from src.crosscutting import Logger, ServiceProvider
-from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register
+from src.infrastructure import Settings, SqlAlchemyUnitOfWork, register, FakeStatementGenerator
 from src.infrastructure.auth import CognitoAuthenticator
-from src.infrastructure.llm import FakeStatementGenerator
 from src.infrastructure.loaders import JsonDatasetConfigLoader, JsonViewConfigLoader, CsvSqlStatementLoader, \
     JsonDataPointLoader
 from src.infrastructure.orm import start_mappers
