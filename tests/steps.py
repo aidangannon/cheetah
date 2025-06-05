@@ -94,18 +94,12 @@ class GetDatasetScenario:
             layouts=[
                 LayoutConfigSchema(
                     breakpoint="lg",
-                    h=4,
-                    w=5,
-                    x=0,
-                    y=20,
+                    coordinates=[0, 20, 5, 4],  # [x, y, w, h]
                     static=False
                 ),
                 LayoutConfigSchema(
                     breakpoint='md',
-                    h=4,
-                    w=1,
-                    x=0,
-                    y=10,
+                    coordinates=[0, 10, 1, 4],  # [x, y, w, h]
                     static=None
                 )
             ])
@@ -132,18 +126,12 @@ class GetDatasetScenario:
             layouts=[
                 LayoutConfigSchema(
                     breakpoint="lg",
-                    h=10,
-                    w=5,
-                    x=0,
-                    y=24,
+                    coordinates=[0, 24, 5, 10],  # [x, y, w, h]
                     static=False
                 ),
                 LayoutConfigSchema(
                     breakpoint='md',
-                    h=10,
-                    w=1,
-                    x=0,
-                    y=24,
+                    coordinates=[0, 24, 1, 10],  # [x, y, w, h]
                     static=None
                 )
             ])
@@ -161,18 +149,12 @@ class GetDatasetScenario:
             layouts=[
                 LayoutConfigSchema(
                     breakpoint="lg",
-                    h=4,
-                    w=5,
-                    x=0,
-                    y=20,
+                    coordinates=[0, 20, 5, 4],  # [x, y, w, h]
                     static=False
                 ),
                 LayoutConfigSchema(
                     breakpoint='md',
-                    h=4,
-                    w=1,
-                    x=0,
-                    y=10,
+                    coordinates=[0, 10, 1, 4],  # [x, y, w, h]
                     static=None
                 )
             ])
@@ -211,18 +193,12 @@ class CreateDatasetConfigScenario:
             layouts=[
                 LayoutConfigSchema(
                     static=True,
-                    x=1,
-                    y=1,
-                    h=1,
-                    w=1,
+                    coordinates=[1, 1, 1, 1],  # [x, y, w, h]
                     breakpoint="md"
                 ),
                 LayoutConfigSchema(
                     static=False,
-                    x=2,
-                    y=4,
-                    h=1,
-                    w=5,
+                    coordinates=[2, 4, 5, 1],  # [x, y, w, h]
                     breakpoint="lg"
                 )
             ],
@@ -287,18 +263,12 @@ class CreateDatasetConfigScenario:
             layouts=[
                 LayoutConfigSchema(
                     static=True,
-                    x=1,
-                    y=1,
-                    h=1,
-                    w=1,
+                    coordinates=[1, 1, 1, 1],  # [x, y, w, h]
                     breakpoint="md"
                 ),
                 LayoutConfigSchema(
                     static=False,
-                    x=2,
-                    y=4,
-                    h=1,
-                    w=5,
+                    coordinates=[2, 4, 5, 1],  # [x, y, w, h]
                     breakpoint="lg"
                 )
             ],

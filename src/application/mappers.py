@@ -17,10 +17,7 @@ def map_dataset_aggregate_to_contract(dataset_agg: DatasetConfigAggregate) -> An
 def map_view_to_contract(view: ViewConfig) -> LayoutConfigSchema:
     return LayoutConfigSchema(
         breakpoint=view.breakpoint,
-        x=view.x,
-        y=view.y,
-        w=view.w,
-        h=view.h,
+        coordinates=view.coordinates,  # [x, y, w, h]
         static=view.static
     )
 
@@ -29,10 +26,7 @@ def map_contract_view_to_domain(view: LayoutConfigSchema, item: str) -> ViewConf
         id=str(uuid.uuid4()),
         element_id=item,
         breakpoint=view.breakpoint,
-        x=view.x,
-        y=view.y,
-        w=view.w,
-        h=view.h,
+        coordinates=view.coordinates,  # [x, y, w, h]
         static=view.static
     )
 

@@ -23,10 +23,7 @@ class ViewConfig:
     id: str = None
     element_id: str = None
     breakpoint: str = None
-    x: int = None
-    y: int = None
-    w: int = None
-    h: int = None
+    coordinates: list[int] = None  # [x, y, w, h]
     static: bool = None
 
 @dataclass(unsafe_hash=True)

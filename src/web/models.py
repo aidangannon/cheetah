@@ -12,10 +12,7 @@ class SystemStatusSchema(BaseModel):
 
 class LayoutConfigSchema(BaseModel):
     breakpoint: str
-    x: int
-    y: int
-    w: int
-    h: int
+    coordinates: list[int]  # [x, y, w, h]
     static: Optional[bool]
 
 class AnalyticsResponseSchema(BaseModel):

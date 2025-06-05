@@ -42,10 +42,7 @@ class JsonViewConfigProcessor:
                     id=str(uuid.uuid4()),
                     element_id=layout["i"],
                     breakpoint=breakpoint,
-                    x=layout["x"],
-                    y=layout["y"],
-                    w=layout["w"],
-                    h=layout["h"],
+                    coordinates=layout["coordinates"],  # [x, y, w, h]
                     static=layout.get("static", None)
                 ))
 

@@ -39,18 +39,12 @@ class TestMetricsMappers(TestCase):
         layouts = [
             LayoutConfigSchema(
                 breakpoint="sm",
-                x=1,
-                y=2,
-                w=3,
-                h=4,
+                coordinates=[1, 2, 3, 4],  # [x, y, w, h]
                 static=True
             ),
             LayoutConfigSchema(
                 breakpoint="lg",
-                x=5,
-                y=6,
-                w=7,
-                h=8,
+                coordinates=[5, 6, 7, 8],  # [x, y, w, h]
                 static=False
             )
         ]
@@ -73,10 +67,7 @@ class TestMetricsMappers(TestCase):
         for layout_result, layout_contract in zip(result.layouts, create_request.layouts):
             self.assertEqual(layout_result.element_id, DEFAULT_UUID)  # from parent config_id
             self.assertEqual(layout_result.breakpoint, layout_contract.breakpoint)
-            self.assertEqual(layout_result.x, layout_contract.x)
-            self.assertEqual(layout_result.y, layout_contract.y)
-            self.assertEqual(layout_result.w, layout_contract.w)
-            self.assertEqual(layout_result.h, layout_contract.h)
+            self.assertEqual(layout_result.coordinates, layout_contract.coordinates)
             self.assertEqual(layout_result.static, layout_contract.static)
 
 
@@ -94,21 +85,15 @@ class TestLayoutsMappers(TestCase):
 
         # assert
         self.assertEqual(response.breakpoint, layout.breakpoint)
-        self.assertEqual(response.w, layout.w)
-        self.assertEqual(response.x, layout.x)
-        self.assertEqual(response.h, layout.h)
+        self.assertEqual(response.coordinates, layout.coordinates)
         self.assertEqual(response.static, layout.static)
-        self.assertEqual(response.y, layout.y)
 
     @patch("uuid.uuid4", return_value=UUID(DEFAULT_UUID))
     def test_map_contract_view_to_domain(self, _):
         # arrange
         layout_contract = LayoutConfigSchema(
             breakpoint="md",
-            x=1,
-            y=2,
-            w=3,
-            h=4,
+            coordinates=[1, 2, 3, 4],  # [x, y, w, h]
             static=True
         )
         item_id = str(uuid.uuid4())
@@ -120,10 +105,7 @@ class TestLayoutsMappers(TestCase):
         self.assertEqual(result.id, DEFAULT_UUID)
         self.assertEqual(result.element_id, item_id)
         self.assertEqual(result.breakpoint, layout_contract.breakpoint)
-        self.assertEqual(result.x, layout_contract.x)
-        self.assertEqual(result.y, layout_contract.y)
-        self.assertEqual(result.w, layout_contract.w)
-        self.assertEqual(result.h, layout_contract.h)
+        self.assertEqual(result.coordinates, layout_contract.coordinates)
         self.assertEqual(result.static, layout_contract.static)
 
 

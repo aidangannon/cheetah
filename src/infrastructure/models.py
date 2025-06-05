@@ -1,7 +1,7 @@
 from typing import Optional, Any
 
 from sqlalchemy import (
-    Table, MetaData, Column, String, Float, DateTime, Integer, Boolean, ForeignKey
+    Table, MetaData, Column, String, Float, DateTime, Integer, Boolean, ForeignKey, JSON
 )
 from sqlalchemy.orm import registry, relationship, foreign
 
@@ -46,10 +46,7 @@ view_configs = Table(
     Column("id", String, primary_key=True),
     Column("element_id", String, nullable=True),
     Column("breakpoint", String, nullable=True),
-    Column("x", Integer, nullable=True),
-    Column("y", Integer, nullable=True),
-    Column("w", Integer, nullable=True),
-    Column("h", Integer, nullable=True),
+    Column("coordinates", JSON, nullable=True),  # [x, y, w, h]
     Column("static", Boolean, nullable=True)
 )
 
