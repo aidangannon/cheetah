@@ -84,7 +84,7 @@
       ]
     }
   },
-  "metric_records": [
+  "data_records": [
     {
       "id": "a1b2c3d4-e5f6-4789-abcd-123456789abc",
       "timestamp": "2025-08-01T00:00:00",
@@ -164,23 +164,23 @@
   "queries": [
     {
       "id": "a1b2c3d4-e5f6-4789-abcd-123456789abc",
-      "statement": "SELECT\n  DATE(timestamp) AS day,\n  SUM(decay_rate) AS cost_avoided\nFROM data_points\nWHERE id = 'a1b2c3d4-e5f6-4789-abcd-123456789abc'\n  AND timestamp >= CURRENT_DATE - INTERVAL '30' DAY\nGROUP BY DATE(timestamp)\nORDER BY day;"
+      "statement": "SELECT\n  DATE(timestamp) AS date_period,\n  SUM(decay_rate) AS metric_value\nFROM data_points\nWHERE id = 'a1b2c3d4-e5f6-4789-abcd-123456789abc'\n  AND timestamp >= CURRENT_DATE - INTERVAL '30' DAY\nGROUP BY DATE(timestamp)\nORDER BY date_period;"
     },
     {
       "id": "b2c3d4e5-f6g7-4890-bcde-234567890bcd",
-      "statement": "SELECT\n  notification_type,\n  COUNT(*) AS total_alerts\nFROM data_points\nWHERE id = 'b2c3d4e5-f6g7-4890-bcde-234567890bcd'\n  AND DATE(timestamp) BETWEEN '2025-06-01' AND '2025-06-30'\nGROUP BY notification_type;"
+      "statement": "SELECT\n  notification_type AS event_category,\n  COUNT(*) AS event_count\nFROM data_points\nWHERE id = 'b2c3d4e5-f6g7-4890-bcde-234567890bcd'\n  AND DATE(timestamp) BETWEEN '2025-06-01' AND '2025-06-30'\nGROUP BY notification_type;"
     },
     {
       "id": "c3d4e5f6-g7h8-4901-cdef-345678901cde",
-      "statement": "SELECT\n  SUM(items_flagged) AS total_flagged,\n  AVG(items_flagged)::DECIMAL(10,2) AS avg_per_day\nFROM data_points\nWHERE id = 'c3d4e5f6-g7h8-4901-cdef-345678901cde'\n  AND timestamp >= CURRENT_DATE - INTERVAL '7' DAY;"
+      "statement": "SELECT\n  SUM(items_flagged) AS total_count,\n  AVG(items_flagged)::DECIMAL(10,2) AS daily_average\nFROM data_points\nWHERE id = 'c3d4e5f6-g7h8-4901-cdef-345678901cde'\n  AND timestamp >= CURRENT_DATE - INTERVAL '7' DAY;"
     },
     {
       "id": "d4e5f6g7-h8i9-4012-defg-456789012def",
-      "statement": "SELECT\n  DATE(timestamp) AS day,\n  decay_value AS amount\nFROM data_points\nWHERE id = 'd4e5f6g7-h8i9-4012-defg-456789012def'\n  AND timestamp BETWEEN '2025-06-02' AND '2025-06-25'\nORDER BY day;"
+      "statement": "SELECT\n  DATE(timestamp) AS time_point,\n  decay_value AS data_value\nFROM data_points\nWHERE id = 'd4e5f6g7-h8i9-4012-defg-456789012def'\n  AND timestamp BETWEEN '2025-06-02' AND '2025-06-25'\nORDER BY time_point;"
     },
     {
       "id": "e5f6g7h8-i9j0-4123-efgh-567890123efg",
-      "statement": "SELECT\n  DATE(timestamp) AS day,\n  COUNT(*) AS need_approval_count\nFROM data_points\nWHERE id = 'e5f6g7h8-i9j0-4123-efgh-567890123efg'\n  AND notification_category = 'Need approval'\n  AND DATE(timestamp) BETWEEN '2025-06-02' AND '2025-06-25'\nGROUP BY DATE(timestamp)\nORDER BY day;"
+      "statement": "SELECT\n  DATE(timestamp) AS report_date,\n  COUNT(*) AS pending_items\nFROM data_points\nWHERE id = 'e5f6g7h8-i9j0-4123-efgh-567890123efg'\n  AND notification_category = 'Need approval'\n  AND DATE(timestamp) BETWEEN '2025-06-02' AND '2025-06-25'\nGROUP BY DATE(timestamp)\nORDER BY report_date;"
     }
   ]
 }

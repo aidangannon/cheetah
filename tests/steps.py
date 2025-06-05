@@ -87,8 +87,8 @@ class GetDatasetScenario:
             is_mutable=True,
             records=[
                 {
-                    'day': '2025-08-01',
-                    'cost_avoided': 120.5
+                    'date_period': '2025-08-01',
+                    'metric_value': 120.5
                 }
             ],
             layouts=[
@@ -115,12 +115,12 @@ class GetDatasetScenario:
             is_mutable=True,
             records=[
                 {
-                    "notification_type": "Critical",
-                    "total_alerts": 1
+                    "event_category": "Critical",
+                    "event_count": 1
                 },
                 {
-                    "notification_type": "Warning",
-                    "total_alerts": 1
+                    "event_category": "Warning",
+                    "event_count": 1
                 }
             ],
             layouts=[

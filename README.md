@@ -17,7 +17,7 @@
 
 This analytics platform:
 
-- Loads and validates dataset configurations and associated SQL statements from JSON and CSV data sources.  
+- Loads and validates dataset configurations and associated SQL statements from a single unified JSON data source.  
 - Maps datasets to SQL and executes statements against a PostgreSQL database using a **code-first** SQLAlchemy ORM approach.  
 - Manages database sessions explicitly using a **unit of work pattern** for clear transaction boundaries.  
 - Caches complex aggregate query results with a **TTL-based memory cache** to optimize performance while avoiding memory bloat.  
@@ -120,7 +120,7 @@ The entire infrastructure is deployed using **CloudFormation** IAC templates loc
 
 ## Database Design & Migrations
 
-- Schema designed to mirror the provided JSON and CSV data.
+- Schema designed to mirror the provided JSON data.
 
 - Uses **Alembic** for managing database migrations and version control.
 

@@ -69,7 +69,7 @@ class JsonDataPointProcessor:
             data = json.loads(contents)
 
         records: list[DataPoint] = []
-        for record in data.get("metric_records", []):
+        for record in data.get("data_records", []):
             records.append(DataPoint(
                 dataset_id=str(uuid.uuid4()),
                 id=record.get("id"),
