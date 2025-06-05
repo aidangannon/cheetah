@@ -41,7 +41,7 @@ def bootstrap(app: FastAPI,
     add_database(container=container)
     add_services(container=container)
     add_loaders(container=container)
-    add_llms(container=container)
+    add_generation(container=container)
     add_auth(container=container)
     initialise_actions(container)
     return container
@@ -56,7 +56,7 @@ def add_database(container: Container):
     register(DataPointWriter, SqlAlchemyDataPointWriter)
     container.register(UnitOfWork, SqlAlchemyUnitOfWork)
 
-def add_llms(container: Container):
+def add_generation(container: Container):
     container.register(StatementGenerator, FakeStatementGenerator)
 
 def add_auth(container: Container):
